@@ -1626,7 +1626,7 @@ git add worker content && git commit -m "feat(worker): content/ loader with vali
   - `common.season_slug_for(d: date) -> str` (июль и позже → `"2026-27"`, иначе `"2025-26"`); `common.ensure_season(session, slug) -> Season`; `common.unique_slug(session, model, base: str, exclude_id: int | None = None) -> str`; `common.player_index(session) -> PlayerIndex`; `common.IngestResult(counts: dict[str, int], warnings: list[str], tags: set[str])`.
   - `joinfootball.SanityError`; `joinfootball.sanity_check(session, source_key: str, bundle) -> None`; `joinfootball.ingest(session, bundle, our_team_id: str, our_names: list[str]) -> IngestResult`. Источник в `PlayerSourceLink.source`/`Match.source`/`Tournament.source` — `"joinfootball"`; ключ для `IngestRun.source` — `f"joinfootball:{tournament.external_id}"`.
 
-- [ ] **Step 1: Падающие тесты**
+- [x] **Step 1: Падающие тесты**
 
 `worker/tests/test_pipeline_joinfootball.py`:
 ```python
@@ -1758,7 +1758,7 @@ def test_sanity_rejects_shrunk_data(db):
 Run: `uv run pytest worker/tests/test_pipeline_joinfootball.py`
 Expected: FAIL.
 
-- [ ] **Step 2: Общие функции пайплайна**
+- [x] **Step 2: Общие функции пайплайна**
 
 `worker/bu_worker/pipeline/common.py`:
 ```python
@@ -1813,7 +1813,7 @@ def player_index(session: Session) -> PlayerIndex:
 
 Пустой `worker/bu_worker/pipeline/__init__.py`.
 
-- [ ] **Step 3: Ингест join.football**
+- [x] **Step 3: Ингест join.football**
 
 `worker/bu_worker/pipeline/joinfootball.py`:
 ```python
@@ -2079,12 +2079,12 @@ def ingest(
     return result
 ```
 
-- [ ] **Step 4: Тесты зелёные**
+- [x] **Step 4: Тесты зелёные**
 
 Run: `uv run pytest worker/tests/test_pipeline_joinfootball.py -v`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add worker && git commit -m "feat(worker): join.football ingest pipeline with sanity check"
