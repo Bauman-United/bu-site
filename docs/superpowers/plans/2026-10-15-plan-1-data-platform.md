@@ -582,7 +582,7 @@ git add -A && git commit -m "feat(core): uv workspace, settings, models, initial
 **Interfaces:**
 - Produces: `normalize_name(value: str) -> str`; `slugify(value: str) -> str`; `split_last_first(full_name: str) -> tuple[str, str]` (возвращает `(first, last)`); `player_slug(first: str, last: str) -> str`; `PlayerName(id, first_name, last_name, aliases: tuple[str, ...] = ())`; `PlayerIndex(players).add(p)`, `.find(full_name) -> int | None` (бросает `AmbiguousMatchError` с `.name`, `.ids`).
 
-- [ ] **Step 1: Падающие тесты**
+- [x] **Step 1: Падающие тесты**
 
 `core/tests/test_text.py`:
 ```python
@@ -657,7 +657,7 @@ def test_ambiguous():
 Run: `uv run pytest core/tests/test_text.py core/tests/test_matching.py`
 Expected: FAIL (ModuleNotFoundError).
 
-- [ ] **Step 2: Реализация**
+- [x] **Step 2: Реализация**
 
 `core/bu_core/text.py`:
 ```python
@@ -773,12 +773,12 @@ class PlayerIndex:
         return ids[0]
 ```
 
-- [ ] **Step 3: Тесты зелёные**
+- [x] **Step 3: Тесты зелёные**
 
 Run: `uv run pytest core/tests/test_text.py core/tests/test_matching.py`
 Expected: PASS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add core && git commit -m "feat(core): name normalization, slugs, player index"
