@@ -2,6 +2,7 @@ import {
   countdownParts,
   formatDate,
   formatDateShort,
+  formatDayMonth,
   formatTime,
   outcomeLabel,
   outcomeLetter,
@@ -57,5 +58,13 @@ describe("positions", () => {
     expect(positionLabel("GK")).toBe("Вратарь");
     expect(positionGroup("FW")).toBe("Нападающие");
     expect(positionLabel(null)).toBe("Игрок");
+  });
+});
+
+describe("formatDayMonth", () => {
+  it("uses Moscow time and a three-letter month", () => {
+    expect(formatDayMonth("2026-10-18T14:00:00+03:00")).toBe("18 окт");
+    expect(formatDayMonth("2026-08-31T22:30:00Z")).toBe("1 сен");
+    expect(formatDayMonth("2026-05-02T12:00:00+03:00")).toBe("2 май");
   });
 });

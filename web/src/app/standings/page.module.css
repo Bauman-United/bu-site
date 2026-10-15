@@ -1,0 +1,13 @@
+.top { border-bottom: 1px solid var(--c-line); }
+.top :global(.container) { padding-top: 56px; padding-bottom: 32px; }
+.h1 { font-size: var(--fs-h1); }
+.body { padding-top: 48px; padding-bottom: 80px; }
+.list { display: flex; flex-direction: column; gap: 56px; }
+.block { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.h2 { font-size: 32px; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .top :global(.container) { padding-top: 32px; padding-bottom: 24px; }
+  .body { padding-top: 32px; padding-bottom: 48px; }
+  .list { gap: 40px; }
+  .h2 { font-size: 24px; }
+}

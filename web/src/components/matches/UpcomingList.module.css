@@ -1,0 +1,27 @@
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+.card, .first {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding: 24px 28px;
+  text-decoration: none; border: 1px solid var(--c-border); color: var(--c-paper);
+}
+.card:hover { border-color: var(--c-paper); color: var(--c-paper); }
+.first { background: var(--c-paper); color: var(--c-ink); border-color: var(--c-paper); }
+.first:hover { color: var(--c-ink); }
+.when { display: flex; flex-direction: column; min-width: 140px; }
+.date { font-family: var(--f-display); font-weight: 700; font-size: 28px; line-height: 1; text-transform: uppercase; }
+.sub { font-size: 14px; color: var(--c-muted); }
+.first .sub { color: var(--c-text-2-on-paper); }
+.tag {
+  font-family: var(--f-display); font-size: var(--fs-label); letter-spacing: 0.08em; text-transform: uppercase;
+  border: 1.5px solid currentColor; padding: 3px 8px;
+}
+.teams {
+  flex: 1 1 320px; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px;
+  font-family: var(--f-display); font-weight: 600; font-size: 22px; line-height: 1.15; text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.vs { color: #737373; font-size: 16px; }
+.left { background: var(--c-ink); color: var(--c-paper); padding: 10px 16px; font-family: var(--f-display); font-weight: 700; font-size: 18px; }
+@media (max-width: 640px) {
+  .card, .first { padding: 20px; gap: 12px 20px; }
+  .teams { flex-basis: 100%; font-size: 18px; }
+}

@@ -29,6 +29,14 @@ export function formatDateShort(iso: string): string {
   return `${p.day}.${p.month}`;
 }
 
+const MONTH_SHORT = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+
+/** «18 окт» — день и месяц тремя буквами (капс — стилями). */
+export function formatDayMonth(iso: string): string {
+  const p = parts(iso, { day: "numeric", month: "numeric" });
+  return `${Number(p.day)} ${MONTH_SHORT[Number(p.month) - 1]}`;
+}
+
 export function formatTime(iso: string): string {
   const p = parts(iso, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
   return `${p.hour}:${p.minute}`;

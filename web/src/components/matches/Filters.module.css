@@ -1,0 +1,12 @@
+.filters { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end; }
+.group { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.label { font-size: var(--fs-caption); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--c-muted); }
+.toggles { display: flex; flex-wrap: wrap; gap: 6px; }
+.toggle, .active {
+  display: inline-flex; align-items: center; min-height: var(--touch); padding: 0 18px;
+  font-family: var(--f-display); font-weight: 500; font-size: 15px; text-transform: uppercase; text-decoration: none;
+  border: 1px solid var(--c-border-strong); color: var(--c-paper); background: transparent;
+}
+.toggle:hover { border-color: var(--c-paper); color: var(--c-paper); }
+.active { background: var(--c-paper); color: var(--c-ink); border-color: var(--c-paper); font-weight: 600; }
+.active:hover { color: var(--c-ink); }

@@ -1,0 +1,13 @@
+.top { border-bottom: 1px solid var(--c-line); }
+.topInner { padding-top: 56px; padding-bottom: 32px; display: flex; flex-direction: column; gap: 28px; }
+.h1 { font-size: var(--fs-h1); }
+.h2 { font-size: 32px; }
+.inner { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.upcoming { padding-top: 48px; padding-bottom: 16px; }
+.played { padding-top: 40px; padding-bottom: 80px; }
+@media (max-width: 640px) {
+  .topInner { padding-top: 32px; padding-bottom: 24px; gap: 20px; }
+  .h2 { font-size: 28px; }
+  .upcoming { padding-top: 32px; }
+  .played { padding-top: 32px; padding-bottom: 48px; }
+}
