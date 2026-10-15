@@ -796,7 +796,7 @@ git add core && git commit -m "feat(core): name normalization, slugs, player ind
 - Produces (`bu_worker.dto`): `TournamentInfo(external_id, name, period_start: date, period_end: date, url)`, `ParsedPlayer(external_id, full_name, number: int|None, position: str|None, played, goals, assists, yellow, red)`, `CalendarEntry(external_id, kickoff: datetime, round: str|None, venue_name, venue_address, home_team_id, away_team_id, home_name, away_name, home_logo, away_logo, home_score: int|None, away_score: int|None)`, `ParsedEvent(minute, type, side: "home"|"away", player_name, assist_name, note)`, `MatchDetail(events: list[ParsedEvent], mvp_name: str|None, mvp_side: "home"|"away"|None)`, `ParsedStanding(pos, team_name, team_logo, played, won, drawn, lost, gf, ga, pts)`, `JoinFootballBundle(tournament, players, calendar, details: dict[str, MatchDetail], standings)`.
 - Produces (`parse`): `parse_tournament_info(html, external_id, url) -> TournamentInfo`; `parse_application(html) -> list[ParsedPlayer]`; `parse_calendar(html, period_start, period_end) -> list[CalendarEntry]`; `parse_match(html) -> MatchDetail`; `parse_standings(html) -> list[ParsedStanding]`; `ParseError`.
 
-- [ ] **Step 1: DTO**
+- [x] **Step 1: DTO**
 
 `worker/bu_worker/dto.py`:
 ```python
@@ -881,7 +881,7 @@ class JoinFootballBundle(BaseModel):
     standings: list[ParsedStanding]
 ```
 
-- [ ] **Step 2: Падающие тесты на реальных фикстурах**
+- [x] **Step 2: Падающие тесты на реальных фикстурах**
 
 `worker/tests/test_joinfootball_parse.py`:
 ```python
@@ -1003,7 +1003,7 @@ def test_broken_html_raises():
 Run: `uv run pytest worker/tests/test_joinfootball_parse.py`
 Expected: FAIL (ModuleNotFoundError).
 
-- [ ] **Step 3: Реализация парсера**
+- [x] **Step 3: Реализация парсера**
 
 `worker/bu_worker/sources/joinfootball/parse.py`:
 ```python
@@ -1255,12 +1255,12 @@ def parse_standings(html: str) -> list[ParsedStanding]:
 
 Пустые `worker/bu_worker/sources/__init__.py` и `worker/bu_worker/sources/joinfootball/__init__.py`.
 
-- [ ] **Step 4: Тесты зелёные**
+- [x] **Step 4: Тесты зелёные**
 
 Run: `uv run pytest worker/tests/test_joinfootball_parse.py -v`
 Expected: PASS. Если какой-то селектор не совпал с фикстурой — поправить селектор по фактическому HTML фикстуры (не ослабляя ассерты теста).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add worker && git commit -m "feat(worker): join.football HTML parsers with real fixtures"

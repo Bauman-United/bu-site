@@ -1,0 +1,25 @@
+name: Бауман Юнайтед
+name_en: Bauman United
+founded: null
+city: Москва
+university: МГТУ им. Н. Э. Баумана
+format: 8x8
+default_formation: 3-3-1
+primary_tournament: null   # slug турнира для мини-таблицы на главной; null — первый турнир текущего сезона
+socials:
+  telegram: null
+  vk: null
+  youtube: null
+  lfl: https://lfl.ru/club14270
+  joinfootball: https://bauman_league.join.football/tournament/1066703/teams/application?team_id=1089660
+contacts:
+  captain_name: null
+  captain_telegram: null
+  email: null
+training:
+  days: null
+  time: null
+  place: null
+  map_url: null
+looking_for: []
+player_of_month: null
