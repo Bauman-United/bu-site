@@ -14,6 +14,18 @@ describe("Countdown", () => {
     expect(screen.getByRole("timer")).toHaveAccessibleName("До матча 2 дня 1 час 4 минуты");
   });
 
+  it("syncs with the client clock on mount", () => {
+    vi.useFakeTimers();
+    const kickoff = "2026-10-24T21:30:00+03:00";
+    const serverNow = Date.parse(kickoff) - (1 * 3600 + 10 * 60) * 1000;
+    vi.setSystemTime(serverNow + 5 * 60_000);
+    // Первый вызов (инициализатор useState) — «серверное» время, дальше — реальное время клиента.
+    vi.spyOn(Date, "now").mockReturnValueOnce(serverNow);
+    render(<Countdown kickoff={kickoff} />);
+    expect(screen.getByRole("timer")).toHaveAccessibleName("До матча 0 дней 1 час 5 минут");
+    vi.restoreAllMocks();
+  });
+
   it("shows live text after kickoff", () => {
     vi.useFakeTimers();
     vi.setSystemTime(Date.parse("2026-10-24T21:40:00+03:00"));

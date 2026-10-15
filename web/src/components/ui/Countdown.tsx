@@ -13,15 +13,18 @@ const UNITS: [keyof ReturnType<typeof countdownParts>, [string, string, string]]
 export function Countdown({ kickoff }: { kickoff: string }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
+    // Сервер отрендерил своё «сейчас» — сразу сверяемся с часами клиента (внешний источник, разовый ре-рендер).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(id);
   }, []);
   const p = countdownParts(kickoff, now);
   if (p.over) return null;
-  if (p.started) return <p className={s.live}>Матч идёт</p>;
+  if (p.started) return <p className={s.live} suppressHydrationWarning>Матч идёт</p>;
   const label = UNITS.map(([k, forms]) => `${p[k]} ${plural(p[k] as number, forms)}`).join(" ");
   return (
-    <div className={s.timer} role="timer" aria-label={`До матча ${label}`}>
+    <div className={s.timer} role="timer" suppressHydrationWarning aria-label={`До матча ${label}`}>
       {UNITS.map(([k, forms]) => (
         <div key={k} className={s.unit} aria-hidden="true">
           <span className={s.value} suppressHydrationWarning>{String(p[k]).padStart(2, "0")}</span>

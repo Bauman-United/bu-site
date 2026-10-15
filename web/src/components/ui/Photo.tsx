@@ -18,7 +18,7 @@ export function Photo({
   priority?: boolean;
 }) {
   if (!src) {
-    return <div className={`${light ? "phl" : "ph"} ${s.photo}`} style={{ aspectRatio: ratio }} role="img" aria-label={alt} />;
+    return <div className={`${light ? "phl" : "ph"} ${s.photo}`} style={{ aspectRatio: ratio }} {...(alt ? { role: "img", "aria-label": alt } : { "aria-hidden": true })} />;
   }
   return (
     <div className={`${light ? "phl" : "ph"} ${s.photo}`} style={{ aspectRatio: ratio }}>
