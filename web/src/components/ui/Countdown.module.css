@@ -1,0 +1,7 @@
+/* Блоки контрастны секции: белые на чёрном, чёрные на белом */
+.timer { --cd-bg: var(--c-paper); --cd-fg: var(--c-ink); --cd-caption: var(--c-text-2-on-paper); display: flex; gap: 8px; }
+:global(.section--paper) .timer { --cd-bg: var(--c-ink); --cd-fg: var(--c-paper); --cd-caption: var(--c-muted-2); }
+.unit { display: flex; flex-direction: column; align-items: center; min-width: 56px; padding: 10px 14px; background: var(--cd-bg); color: var(--cd-fg); }
+.value { font-family: var(--f-display); font-weight: 700; font-size: 40px; line-height: 1; }
+.caption { font-size: 11px; letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--cd-caption); }
+.live { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 24px; letter-spacing: var(--ls-caps); text-transform: uppercase; }

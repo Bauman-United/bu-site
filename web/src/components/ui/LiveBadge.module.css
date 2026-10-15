@@ -1,0 +1,8 @@
+.live {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
+  background: var(--c-paper); color: var(--c-ink);
+  font-family: var(--f-display); font-weight: 700; font-size: 14px; line-height: 1; letter-spacing: var(--ls-label);
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-ink); animation: pulse 1.2s ease-in-out infinite alternate; }
+@keyframes pulse { from { opacity: 1; } to { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } }

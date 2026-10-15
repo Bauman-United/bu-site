@@ -1,0 +1,17 @@
+.button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: var(--touch); padding: 14px 22px; text-decoration: none;
+  font-family: var(--f-display); font-weight: 600; font-size: 15px; line-height: 1;
+  letter-spacing: var(--ls-caps); text-transform: uppercase;
+  transition: background-color .15s, color .15s;
+}
+/* На чёрном фоне */
+.primary { background: var(--c-paper); color: var(--c-ink); }
+.primary:hover { background: var(--c-muted-2); color: var(--c-ink); }
+.secondary { background: transparent; color: var(--c-paper); border: 1px solid var(--c-paper); padding: 13px 21px; }
+.secondary:hover { background: var(--c-paper); color: var(--c-ink); }
+/* На белом фоне — инверсия */
+.primary.onPaper { background: var(--c-ink); color: var(--c-paper); }
+.primary.onPaper:hover { background: var(--c-text-2-on-paper); color: var(--c-paper); }
+.secondary.onPaper { color: var(--c-ink); border-color: var(--c-ink); }
+.secondary.onPaper:hover { background: var(--c-ink); color: var(--c-paper); }

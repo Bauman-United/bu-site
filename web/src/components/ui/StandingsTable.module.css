@@ -1,0 +1,20 @@
+.wrap { display: flex; flex-direction: column; gap: 12px; }
+.table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.head { color: var(--c-muted); font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 0.08em; }
+.head th { padding: 6px 4px; font-weight: 500; text-align: left; }
+.head th.num { text-align: right; }
+.head abbr { text-decoration: none; }
+.row { border-top: 1px solid var(--c-line); }
+.us { background: var(--c-paper); color: var(--c-ink); font-weight: 700; }
+.table td, .table tbody th { padding: 9px 4px; }
+.table tbody th { font-weight: inherit; text-align: left; }
+.pos { width: 2.5em; }
+.team { min-width: 10em; }
+.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.goals { min-width: 4em; }
+.row .pts { font-weight: 700; }
+.meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; font-size: var(--fs-label); color: var(--c-muted); }
+.source {
+  display: inline-flex; align-items: center; min-height: var(--touch); color: var(--c-paper);
+  font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: var(--ls-caps); text-transform: uppercase;
+}

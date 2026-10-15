@@ -1,0 +1,2 @@
+.photo { position: relative; width: 100%; overflow: hidden; }
+.img { object-fit: cover; }

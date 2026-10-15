@@ -1,0 +1,28 @@
+.card { background: var(--c-paper); color: var(--c-ink); padding: 28px; display: flex; flex-direction: column; gap: 20px; }
+.head {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px;
+  font-family: var(--f-display); font-size: var(--fs-label); letter-spacing: var(--ls-label); text-transform: uppercase;
+}
+.headMain { display: inline-flex; align-items: center; gap: 10px; }
+.when { color: var(--c-muted-on-paper); }
+.teams { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.team { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+.away { justify-content: flex-end; text-align: right; }
+.name { font-family: var(--f-display); font-weight: 600; font-size: 20px; line-height: 1.15; text-transform: uppercase; overflow-wrap: anywhere; }
+.logo { width: 44px; height: 52px; object-fit: contain; flex: none; }
+.logoPlaceholder { width: 44px; height: 52px; border: 2px dashed var(--c-muted); flex: none; }
+.score { background: var(--c-ink); color: var(--c-paper); padding: 6px 18px; font-family: var(--f-display); font-weight: 700; font-size: 48px; line-height: 1; flex: none; }
+.vs { font-family: var(--f-display); font-weight: 700; font-size: 32px; line-height: 1; flex: none; }
+.foot {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px;
+  font-size: 14px; color: var(--c-text-2-on-paper); border-top: 1px solid var(--c-line-on-paper); padding-top: 14px;
+}
+.footText { min-width: 0; }
+.more { display: inline-flex; align-items: center; min-height: var(--touch); color: var(--c-ink); font-weight: 700; margin-block: -12px; }
+@media (max-width: 640px) {
+  .card { padding: 20px; }
+  .team { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .away { align-items: flex-end; flex-direction: column-reverse; }
+  .name { font-size: 16px; }
+  .score { font-size: 32px; padding: 6px 12px; }
+}

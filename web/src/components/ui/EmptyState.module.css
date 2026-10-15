@@ -1,0 +1,2 @@
+.empty { margin: 0; padding: 48px 24px; border: 1px solid var(--c-border); color: var(--c-muted); text-align: center; font-size: var(--fs-body); line-height: 1.55; }
+:global(.section--paper) .empty { border-color: var(--c-line-on-paper); color: var(--c-muted-on-paper); }

@@ -1,0 +1,8 @@
+.tag {
+  display: inline-block; padding: 3px 8px; font-family: var(--f-display); font-size: var(--fs-caption);
+  line-height: 1.4; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+}
+/* Заливка контрастна фону: белая на чёрном, чёрная на белом (--tag-bg/--tag-fg задаёт родитель на белом) */
+.solid { background: var(--tag-bg, var(--c-paper)); color: var(--tag-fg, var(--c-ink)); }
+:global(.section--paper) .solid { background: var(--tag-bg, var(--c-ink)); color: var(--tag-fg, var(--c-paper)); }
+.social { border: 1.5px solid currentColor; padding: 2px 7px; }
