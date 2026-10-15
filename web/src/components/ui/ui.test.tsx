@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { FormBadge } from "./FormBadge";
 import { NewsTag } from "./NewsTag";
 import { ScoreBadge } from "./ScoreBadge";
-import { StandingsTable } from "./StandingsTable";
+import { mobileWindow, StandingsTable } from "./StandingsTable";
 
 const standings = {
   tournament: { slug: "li", name: "Лига Инженеров", short: "ЛИ", kind: "league", season: "2026-27", url: null },
@@ -35,5 +35,12 @@ describe("ui kit", () => {
     const us = screen.getByText("Bauman United").closest("tr");
     expect(us).toHaveAttribute("aria-current", "true");
     expect(screen.getByText(/Обновлено/)).toHaveTextContent("12 октября 2026");
+  });
+
+  it("mobile window keeps rows around ours", () => {
+    expect(mobileWindow([false, false, true, false, false], 3)).toEqual([false, true, true, true, false]);
+    expect(mobileWindow([true, false, false, false], 3)).toEqual([true, true, true, false]);
+    expect(mobileWindow([false, false, false, true], 3)).toEqual([false, true, true, true]);
+    expect(mobileWindow([false, true], 3)).toEqual([true, true]);
   });
 });

@@ -1,0 +1,13 @@
+.wrap { display: flex; flex-direction: column; gap: 32px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+@media (max-width: 640px) {
+  .wrap { gap: 20px; }
+  .grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  /* Остальные новости с обложкой — строкой: миниатюра 96×72 слева */
+  .grid > * + *:has(> :global(.phl)) {
+    display: grid; grid-template-columns: 96px minmax(0, 1fr); align-content: center; gap: 4px 12px;
+    border-top: 1px solid var(--c-line-on-paper); padding-top: 16px;
+  }
+  .grid > * + * > :global(.phl) { grid-row: 1 / span 2; width: 96px; height: 72px; }
+  .grid > * + * h3 { font-size: 17px; }
+}

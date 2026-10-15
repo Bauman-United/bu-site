@@ -1,0 +1,29 @@
+.wrap { display: flex; flex-direction: column; gap: 32px; }
+.h2 { font-size: var(--fs-h2); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.card { position: relative; border: 1px solid var(--c-border); display: flex; flex-direction: column; }
+.inverted { background: var(--c-paper); color: var(--c-ink); border-color: var(--c-paper); }
+.info { padding: 20px 24px; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.who { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.role { font-size: var(--fs-label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--c-muted); }
+.name { font-size: 24px; line-height: 1.2; overflow-wrap: anywhere; }
+.link { color: inherit; text-decoration: none; }
+.link::after { content: ""; position: absolute; inset: 0; }
+.link:hover { text-decoration: underline; }
+.stat { display: flex; flex-direction: column; align-items: flex-end; flex: none; }
+.value { font-family: var(--f-display); font-weight: 700; font-size: var(--fs-stat); line-height: 1; }
+.caption { font-size: var(--fs-label); color: var(--c-muted); }
+.inverted .role, .inverted .caption { color: var(--c-muted-on-paper); }
+@media (max-width: 640px) {
+  .wrap { gap: 20px; }
+  /* Горизонтальная карусель до правого края экрана */
+  .grid {
+    display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+    margin-right: calc(-1 * var(--gutter)); padding-right: var(--gutter); scroll-padding-left: 0;
+  }
+  .card { flex: 0 0 260px; scroll-snap-align: start; }
+  .info { padding: 16px; }
+  .role { font-size: var(--fs-caption); }
+  .name { font-size: 20px; }
+  .value { font-size: 44px; }
+}

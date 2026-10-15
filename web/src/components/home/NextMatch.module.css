@@ -1,0 +1,39 @@
+.wrap { display: flex; flex-direction: column; gap: 32px; }
+.header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; }
+.h2 { font-size: var(--fs-h2); }
+.head { font-family: var(--f-display); font-size: 16px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-muted-on-paper); }
+.box {
+  display: flex; flex-wrap: wrap; gap: 48px; align-items: center; justify-content: space-between;
+  border: 2px solid var(--c-ink); padding: 40px;
+}
+.teams { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+.team { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 140px; }
+.name { font-family: var(--f-display); font-weight: 600; font-size: 18px; text-transform: uppercase; text-align: center; overflow-wrap: anywhere; }
+.vs { font-family: var(--f-display); font-weight: 700; font-size: 40px; color: var(--c-muted-on-paper); }
+.logo { width: 72px; height: 84px; object-fit: contain; }
+.initial {
+  display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; margin-block: 6px;
+  border-radius: 50%; border: 2px solid var(--c-ink);
+  font-family: var(--f-display); font-weight: 700; font-size: 32px; text-transform: uppercase;
+}
+.info { display: flex; flex-direction: column; gap: 6px; font-size: 16px; line-height: 1.5; }
+.when { font-family: var(--f-display); font-weight: 600; font-size: 24px; text-transform: uppercase; }
+.muted { color: var(--c-text-2-on-paper); }
+.actions { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+@media (max-width: 640px) {
+  .wrap { gap: 20px; }
+  .head { font-family: var(--f-body); font-size: var(--fs-label); letter-spacing: 0; text-transform: none; }
+  .box { flex-direction: column; align-items: stretch; gap: 18px; padding: 20px; }
+  .teams { flex-wrap: nowrap; justify-content: space-between; gap: 8px; }
+  .team { width: 110px; gap: 6px; }
+  .team svg { width: 48px; height: 56px; }
+  .logo { width: 48px; height: 56px; }
+  .initial { width: 48px; height: 48px; margin-block: 4px; font-size: 22px; }
+  .name { font-size: 14px; }
+  .vs { font-size: 28px; }
+  .info { text-align: center; gap: 2px; font-size: 14px; }
+  .when { font-size: 20px; }
+  .actions { align-items: stretch; }
+  .timer [role="timer"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .route > a { width: 100%; }
+}

@@ -1,0 +1,14 @@
+.section { padding-block: 72px; }
+.wrap { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: space-between; }
+.text { display: flex; flex-direction: column; gap: 12px; max-width: 640px; }
+.h2 { font-size: 56px; line-height: 1; }
+.lead { margin: 0; font-size: var(--fs-body-l); line-height: 1.55; color: var(--c-text-2-on-paper); }
+.action > a { padding: 18px 32px; font-size: 18px; }
+@media (max-width: 640px) {
+  .section { padding-block: 36px; }
+  .wrap { flex-direction: column; align-items: stretch; gap: 14px; }
+  .text { gap: 14px; }
+  .h2 { font-size: 36px; }
+  .lead { font-size: 15px; line-height: 1.5; }
+  .action > a { width: 100%; padding: 16px; font-size: 16px; }
+}

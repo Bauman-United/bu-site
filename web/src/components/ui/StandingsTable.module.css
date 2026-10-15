@@ -18,3 +18,4 @@
   display: inline-flex; align-items: center; min-height: var(--touch); color: var(--c-paper);
   font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: var(--ls-caps); text-transform: uppercase;
 }
+@media (max-width: 640px) { .mobileHidden { display: none; } }

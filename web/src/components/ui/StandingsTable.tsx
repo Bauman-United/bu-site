@@ -5,10 +5,12 @@ import s from "./StandingsTable.module.css";
 const FULL: [string, string][] = [["И", "Игры"], ["В", "Победы"], ["Н", "Ничьи"], ["П", "Поражения"], ["М", "Мячи"], ["О", "Очки"]];
 const COMPACT: [string, string][] = [["И", "Игры"], ["О", "Очки"]];
 
-export function StandingsTable({ standings, compact = false, caption }: {
-  standings: Standings; compact?: boolean; caption?: string;
+/** `mobileRows` — на узком экране оставить столько строк вокруг нашей; `meta={false}` — без строки «Обновлено / источник». */
+export function StandingsTable({ standings, compact = false, caption, mobileRows, meta = true }: {
+  standings: Standings; compact?: boolean; caption?: string; mobileRows?: number; meta?: boolean;
 }) {
   const cols = compact ? COMPACT : FULL;
+  const visible = mobileWindow(standings.rows.map((r) => r.is_us), mobileRows);
   return (
     <div className={s.wrap}>
       <div className="table-scroll">
@@ -26,8 +28,12 @@ export function StandingsTable({ standings, compact = false, caption }: {
             </tr>
           </thead>
           <tbody>
-            {standings.rows.map((r) => (
-              <tr key={`${r.pos}-${r.team_name}`} className={r.is_us ? s.us : s.row} aria-current={r.is_us ? "true" : undefined}>
+            {standings.rows.map((r, i) => (
+              <tr
+                key={`${r.pos}-${r.team_name}`}
+                className={`${r.is_us ? s.us : s.row} ${visible[i] ? "" : s.mobileHidden}`}
+                aria-current={r.is_us ? "true" : undefined}
+              >
                 <td className={s.pos}>{r.pos}</td>
                 <th scope="row" className={s.team}>{r.team_name}</th>
                 <td className={s.num}>{r.played}</td>
@@ -45,7 +51,7 @@ export function StandingsTable({ standings, compact = false, caption }: {
           </tbody>
         </table>
       </div>
-      {(standings.updated_at || standings.source_url) && (
+      {meta && (standings.updated_at || standings.source_url) && (
         <div className={s.meta}>
           {standings.updated_at && <span>Обновлено {formatDate(standings.updated_at)}</span>}
           {standings.source_url && (
@@ -57,4 +63,12 @@ export function StandingsTable({ standings, compact = false, caption }: {
       )}
     </div>
   );
+}
+
+/** Окно из `size` строк вокруг нашей (без нашей строки — первые `size`). */
+export function mobileWindow(isUs: boolean[], size?: number): boolean[] {
+  if (!size || isUs.length <= size) return isUs.map(() => true);
+  const us = Math.max(0, isUs.indexOf(true));
+  const start = Math.min(Math.max(0, us - Math.floor((size - 1) / 2)), isUs.length - size);
+  return isUs.map((_, i) => i >= start && i < start + size);
 }
