@@ -1,0 +1,57 @@
+.board { position: relative; overflow: hidden; border-bottom: 1px solid var(--c-line); }
+.texture { position: absolute; inset: 0; opacity: 0.05; }
+.inner { position: relative; padding-top: 48px; padding-bottom: 56px; display: flex; flex-direction: column; gap: 32px; align-items: center; }
+.meta {
+  margin: 0; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: center; text-align: center;
+  font-family: var(--f-display); font-size: 15px; letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--c-muted);
+}
+.teams { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 24px 56px; width: 100%; }
+.side { flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.name {
+  font-family: var(--f-display); font-weight: 700; font-size: 32px; line-height: 1.1; text-transform: uppercase;
+  text-align: center; overflow-wrap: anywhere;
+}
+.scorers { font-size: 15px; color: var(--c-muted-2); text-align: center; }
+.logo { width: 96px; height: 110px; object-fit: contain; }
+.initial {
+  display: flex; align-items: center; justify-content: center; width: 96px; height: 96px; margin-block: 7px;
+  border-radius: 50%; border: 2px solid var(--c-paper);
+  font-family: var(--f-display); font-weight: 700; font-size: 44px; text-transform: uppercase;
+}
+.center { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.score {
+  margin: 0; font-family: var(--f-display); font-weight: 700; font-size: var(--fs-score-xl);
+  line-height: 0.9; letter-spacing: -0.02em; white-space: nowrap;
+}
+.vs { color: var(--c-muted); }
+.chip {
+  background: var(--c-paper); color: var(--c-ink); padding: 4px 12px;
+  font-family: var(--f-display); font-weight: 600; font-size: 14px; letter-spacing: var(--ls-label); text-transform: uppercase;
+}
+.stream {
+  display: inline-flex; align-items: center; min-height: var(--touch);
+  font-family: var(--f-display); font-size: 15px; letter-spacing: var(--ls-caps); text-transform: uppercase;
+}
+.anchors { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.anchor, .anchorActive {
+  display: flex; align-items: center; height: var(--touch); padding: 0 18px; text-decoration: none;
+  font-family: var(--f-display); font-size: 15px; text-transform: uppercase;
+}
+.anchor { border: 1px solid var(--c-border-strong); }
+.anchor:hover { border-color: var(--c-paper); }
+.anchorActive { background: var(--c-paper); color: var(--c-ink); font-weight: 600; }
+@media (max-width: 640px) {
+  .inner { padding-top: 32px; padding-bottom: 40px; gap: 24px; }
+  .meta { font-size: 13px; gap: 4px 16px; }
+  /* Команды по краям, счёт между ними — в одну строку */
+  .teams { flex-wrap: nowrap; align-items: flex-start; gap: 12px; }
+  .side { flex: 1 1 0; gap: 8px; }
+  .side svg { width: 48px; height: 56px; }
+  .logo { width: 48px; height: 56px; }
+  .initial { width: 48px; height: 48px; margin-block: 4px; font-size: 22px; }
+  .name { font-size: 16px; }
+  .scorers { font-size: 13px; }
+  .center { padding-top: 4px; }
+  .score { font-size: 64px; }
+  .chip { font-size: 12px; padding: 3px 8px; text-align: center; }
+}
