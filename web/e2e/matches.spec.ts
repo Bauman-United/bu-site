@@ -13,6 +13,15 @@ test("matches page lists upcoming and results with filters", async ({ page }) =>
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://baumanunited.test/matches");
 });
 
+test("filtered URL serves noindex on a hard load", async ({ page }) => {
+  const res = await page.goto("/matches?where=home");
+  expect(res?.status()).toBe(200);
+  const html = (await res?.text()) ?? "";
+  expect(html).toMatch(/<meta name="robots" content="noindex, follow"\/?>/);
+  expect(html).toContain('<link rel="canonical" href="https://baumanunited.test/matches"');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+});
+
 test("garbage query does not break the page", async ({ page }) => {
   const res = await page.goto("/matches?where=xxx&t=&season=zzz");
   expect(res?.status()).toBe(200);

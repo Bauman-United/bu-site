@@ -1,15 +1,19 @@
-import Link from "next/link";
 import type { Season, Tournament } from "@/lib/types";
 import { filterHref } from "@/lib/filters";
 import s from "./Filters.module.css";
 
 type Query = { season?: string; t?: string; where?: string };
 
+/**
+ * Обычная `<a>`, не `next/link`: мягкая навигация Next 16 на тот же маршрут с другим query
+ * без готового префетча оставляет в <head> метаданные прошлого URL (robots «index» на
+ * отфильтрованной странице). Полная загрузка всегда отдаёт метаданные с сервера.
+ */
 function Toggle({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
-    <Link className={active ? s.active : s.toggle} href={href} aria-current={active ? "true" : undefined} scroll={false}>
+    <a className={active ? s.active : s.toggle} href={href} aria-current={active ? "true" : undefined}>
       {children}
-    </Link>
+    </a>
   );
 }
 
