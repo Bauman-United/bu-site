@@ -1,9 +1,13 @@
+from zoneinfo import ZoneInfo
+
 from bu_core.models import Computed, Match, News, Player, Tournament
 from bu_core.stats import outcome
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from bu_api.schemas import MatchSummary, NewsCard, TournamentOut
+
+MSK = ZoneInfo("Europe/Moscow")
 
 
 def current_season(session: Session) -> str | None:
@@ -21,7 +25,7 @@ def match_summary(m: Match) -> MatchSummary:
     finished = m.status == "finished" and m.score_us is not None and m.score_them is not None
     return MatchSummary(
         slug=m.slug,
-        kickoff=m.kickoff,
+        kickoff=m.kickoff.astimezone(MSK),
         tournament=tournament_out(m.tournament),
         round=m.round,
         home=m.home,

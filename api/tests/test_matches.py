@@ -22,3 +22,8 @@ def test_detail(client):
 
 def test_detail_404(client):
     assert client.get("/matches/nope").status_code == 404
+
+
+def test_kickoff_is_in_moscow_time(client):
+    m = client.get("/matches").json()[0]
+    assert m["kickoff"] == "2026-09-06T20:30:00+03:00"

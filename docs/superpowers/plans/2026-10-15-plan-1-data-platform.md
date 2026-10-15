@@ -3473,7 +3473,7 @@ git add worker && git commit -m "feat(worker): polite HTTP client, runner, CLI a
 - `PlayerDetail(PlayerCard + role, foot, faculty, joined, fact, achievements: list[dict], seasons: list[SeasonRow], total: PlayerStats, team_best: list[str], prev_slug, next_slug)` — `team_best` — ключи статистики текущего сезона, где игрок №1 в команде (>0)
 - `NewsCard(slug, date, tag, title, lead, cover, source_platform, source_url, match_slug, featured)`; `NewsDetail(NewsCard + body_md)`; `NewsPage(items, total, page, per_page)`
 
-- [ ] **Step 1: Сид тестовых данных и фикстура клиента**
+- [x] **Step 1: Сид тестовых данных и фикстура клиента**
 
 `api/tests/seed.py`:
 ```python
@@ -3660,7 +3660,7 @@ def client(db):
 
 (`TestClient` требует `httpx` — уже в зависимостях `bu-api`.) Добавить `api/tests/__init__.py` (пустой), чтобы работал относительный импорт `.seed`.
 
-- [ ] **Step 2: Падающие тесты**
+- [x] **Step 2: Падающие тесты**
 
 `api/tests/test_catalog.py`:
 ```python
@@ -3751,7 +3751,7 @@ def test_news_detail(client):
 
 Run: `uv run pytest api/tests` → FAIL.
 
-- [ ] **Step 3: Каркас приложения и зависимости**
+- [x] **Step 3: Каркас приложения и зависимости**
 
 `api/bu_api/deps.py`:
 ```python
@@ -3802,7 +3802,7 @@ def build() -> FastAPI:
     return create_app(make_sessionmaker(make_engine()), close_sessions=True)
 ```
 
-- [ ] **Step 4: Схемы и общие хелперы**
+- [x] **Step 4: Схемы и общие хелперы**
 
 `api/bu_api/schemas.py`:
 ```python
@@ -3999,7 +3999,7 @@ def players_by_id(session: Session, ids: set[int]) -> dict[int, Player]:
     return {p.id: p for p in session.scalars(select(Player).where(Player.id.in_(ids)))}
 ```
 
-- [ ] **Step 5: Роуты**
+- [x] **Step 5: Роуты**
 
 `api/bu_api/routes/catalog.py`:
 ```python
@@ -4361,12 +4361,12 @@ def news_detail(slug: str, session: Session = Depends(get_session)) -> NewsDetai
     return NewsDetail(**news_card(n).model_dump(), body_md=n.body_md)
 ```
 
-- [ ] **Step 6: Тесты зелёные**
+- [x] **Step 6: Тесты зелёные**
 
 Run: `uv run pytest api/tests -v`
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add api && git commit -m "feat(api): catalog, matches, players and news endpoints"
