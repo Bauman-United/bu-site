@@ -2884,7 +2884,7 @@ git add core && git commit -m "feat(core): stats functions and aggregate recompu
   - `runner.run_joinfootball(session, settings, client, notifier) -> str` (статус `ok|rejected|error`); `runner.run_content(session, settings) -> str`; `runner.revalidate(settings, tags, transport=None) -> None`.
   - CLI: `uv run python -m bu_worker run joinfootball|content|all`, `uv run python -m bu_worker schedule`.
 
-- [ ] **Step 1: Падающие тесты HTTP-клиента**
+- [x] **Step 1: Падающие тесты HTTP-клиента**
 
 `worker/tests/test_http.py`:
 ```python
@@ -2934,7 +2934,7 @@ def test_retries_server_errors():
 
 Run: `uv run pytest worker/tests/test_http.py` → FAIL.
 
-- [ ] **Step 2: Реализация клиента, снапшотов, уведомлений**
+- [x] **Step 2: Реализация клиента, снапшотов, уведомлений**
 
 `worker/bu_worker/http.py`:
 ```python
@@ -3068,7 +3068,7 @@ class Notifier:
             log.exception("telegram alert failed")
 ```
 
-- [ ] **Step 3: Сбор бандла по сети**
+- [x] **Step 3: Сбор бандла по сети**
 
 `worker/bu_worker/sources/joinfootball/fetch.py`:
 ```python
@@ -3121,7 +3121,7 @@ def fetch_bundle(
     )
 ```
 
-- [ ] **Step 4: Падающий тест раннера**
+- [x] **Step 4: Падающий тест раннера**
 
 `worker/tests/test_runner.py`:
 ```python
@@ -3202,7 +3202,7 @@ def test_revalidate_posts_tags():
 
 Run: `uv run pytest worker/tests/test_runner.py` → FAIL.
 
-- [ ] **Step 5: Раннер, CLI, планировщик**
+- [x] **Step 5: Раннер, CLI, планировщик**
 
 `worker/bu_worker/runner.py`:
 ```python
@@ -3422,7 +3422,7 @@ def start(settings: Settings) -> None:
     scheduler.start()
 ```
 
-- [ ] **Step 6: Тесты зелёные + ручной прогон**
+- [x] **Step 6: Тесты зелёные + ручной прогон**
 
 Run: `uv run pytest worker/tests -v`
 Expected: PASS.
@@ -3430,7 +3430,7 @@ Expected: PASS.
 Run (живой сайт, один раз, на dev-БД): `uv run python -m bu_worker run all`
 Expected: код 0; `psql bu_dev -c "select status, counts from ingest_run"` показывает `ok`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add worker && git commit -m "feat(worker): polite HTTP client, runner, CLI and scheduler"

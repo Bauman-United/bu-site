@@ -56,10 +56,10 @@ def run_joinfootball(
 ) -> str:
     overall = "ok"
     all_tags: set[str] = set()
+    root = Path(settings.snapshot_dir)
     for tid in settings.joinfootball_tournament_ids:
         source = f"joinfootball:{tid}"
         started = datetime.now(UTC)
-        root = Path(settings.snapshot_dir)
 
         def snap(name: str, html: str, _tid: str = tid, _started: datetime = started) -> None:
             snapshots.save(root, f"joinfootball/{_tid}", name, html, _started)
