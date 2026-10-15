@@ -24,6 +24,7 @@ addopts = "--import-mode=importlib -q"
 
 [tool.ruff]
 line-length = 100
+extend-exclude = ["core/migrations/versions"]
 target-version = "py312"
 
 [tool.ruff.lint]

@@ -46,7 +46,7 @@
 **Interfaces:**
 - Produces: `bu_core.settings.get_settings() -> Settings`; `bu_core.db.make_engine(url: str | None = None) -> Engine`, `make_sessionmaker(engine) -> sessionmaker[Session]`; ORM-классы `Base, Season, Tournament, Player, PlayerSourceLink, Match, MatchEvent, MatchAppearance, PlayerTournamentStats, StandingRow, News, ContentDoc, PlayerSeasonStats, Computed, IngestRun`; pytest-фикстура `db: Session` (корневой `conftest.py`).
 
-- [ ] **Step 1: Корневой `pyproject.toml`**
+- [x] **Step 1: Корневой `pyproject.toml`**
 
 ```toml
 [project]
@@ -83,7 +83,7 @@ select = ["E", "F", "I", "UP", "B"]
 
 `.python-version`: `3.12`
 
-- [ ] **Step 2: Пакеты-члены**
+- [x] **Step 2: Пакеты-члены**
 
 `core/pyproject.toml`:
 ```toml
@@ -130,7 +130,7 @@ bu-core = { workspace = true }
 
 Пустые `__init__.py` в `core/bu_core`, `worker/bu_worker`, `api/bu_api`.
 
-- [ ] **Step 3: Настройки и подключение к БД**
+- [x] **Step 3: Настройки и подключение к БД**
 
 `core/bu_core/settings.py`:
 ```python
@@ -179,7 +179,7 @@ def make_sessionmaker(engine: Engine) -> sessionmaker[Session]:
     return sessionmaker(engine, expire_on_commit=False)
 ```
 
-- [ ] **Step 4: Модели**
+- [x] **Step 4: Модели**
 
 `core/bu_core/models.py`:
 ```python
@@ -410,7 +410,7 @@ class IngestRun(Base):
     error: Mapped[str | None] = mapped_column(Text)
 ```
 
-- [ ] **Step 5: Тестовая БД — корневой `conftest.py`**
+- [x] **Step 5: Тестовая БД — корневой `conftest.py`**
 
 ```python
 import os
@@ -445,7 +445,7 @@ def db(engine):
             outer.rollback()
 ```
 
-- [ ] **Step 6: Падающий тест моделей**
+- [x] **Step 6: Падающий тест моделей**
 
 `core/tests/test_models.py`:
 ```python
@@ -458,15 +458,30 @@ from bu_core.models import Match, MatchEvent, Player, Season, Tournament
 
 def test_match_with_events_roundtrip(db):
     season = Season(slug="2026-27", label="2026/27")
-    t = Tournament(slug="liga-inzhenerov-osen-2026", name="Лига Инженеров", short="ЛИ",
-                   source="joinfootball", external_id="1066703", season=season)
+    t = Tournament(
+        slug="liga-inzhenerov-osen-2026",
+        name="Лига Инженеров",
+        short="ЛИ",
+        source="joinfootball",
+        external_id="1066703",
+        season=season,
+    )
     p = Player(slug="aleksandr-korolev", first_name="Александр", last_name="Королев")
     db.add_all([season, t, p])
     db.flush()
-    m = Match(slug="2026-09-06-bauman-junior", tournament_id=t.id, season_id=season.id,
-              kickoff=datetime(2026, 9, 6, 17, 30, tzinfo=UTC), home=True,
-              opponent_name="Bauman Junior", status="finished", score_us=2, score_them=3,
-              source="joinfootball", external_id="5848533")
+    m = Match(
+        slug="2026-09-06-bauman-junior",
+        tournament_id=t.id,
+        season_id=season.id,
+        kickoff=datetime(2026, 9, 6, 17, 30, tzinfo=UTC),
+        home=True,
+        opponent_name="Bauman Junior",
+        status="finished",
+        score_us=2,
+        score_them=3,
+        source="joinfootball",
+        external_id="5848533",
+    )
     m.events.append(MatchEvent(minute=22, type="goal", team="us", player_id=p.id))
     db.add(m)
     db.flush()
@@ -480,7 +495,7 @@ def test_match_with_events_roundtrip(db):
 Run: `createdb bu_test 2>/dev/null; createdb bu_dev 2>/dev/null; uv sync && uv run pytest core/tests/test_models.py`
 Expected до Step 4: FAIL (ImportError). После: PASS.
 
-- [ ] **Step 7: Alembic и первая миграция**
+- [x] **Step 7: Alembic и первая миграция**
 
 `core/alembic.ini`:
 ```ini
@@ -536,7 +551,7 @@ uv run alembic -c core/alembic.ini check
 ```
 Expected: `No new upgrade operations detected.`
 
-- [ ] **Step 8: `.env.example` и `.gitignore`**
+- [x] **Step 8: `.env.example` и `.gitignore`**
 
 `.env.example`:
 ```
@@ -550,7 +565,7 @@ TELEGRAM_CHAT_ID=
 
 В `.gitignore` добавить: `.venv/`, `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `.mypy_cache/`, `/snapshots/`, `node_modules/`.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add -A && git commit -m "feat(core): uv workspace, settings, models, initial migration"
@@ -611,10 +626,12 @@ from bu_core.matching import AmbiguousMatchError, PlayerIndex, PlayerName
 
 
 def make_index():
-    return PlayerIndex([
-        PlayerName(1, "Александр", "Королев"),
-        PlayerName(2, "Кирилл", "Колочков", aliases=("Киря",)),
-    ])
+    return PlayerIndex(
+        [
+            PlayerName(1, "Александр", "Королев"),
+            PlayerName(2, "Кирилл", "Колочков", aliases=("Киря",)),
+        ]
+    )
 
 
 def test_find_by_both_orders_and_yo():
@@ -646,13 +663,43 @@ Expected: FAIL (ModuleNotFoundError).
 ```python
 import re
 
-_TRANSLIT = str.maketrans({
-    "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "e", "ж": "zh",
-    "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m", "н": "n", "о": "o",
-    "п": "p", "р": "r", "с": "s", "т": "t", "у": "u", "ф": "f", "х": "kh", "ц": "ts",
-    "ч": "ch", "ш": "sh", "щ": "shch", "ъ": "", "ы": "y", "ь": "", "э": "e", "ю": "yu",
-    "я": "ya",
-})
+_TRANSLIT = str.maketrans(
+    {
+        "а": "a",
+        "б": "b",
+        "в": "v",
+        "г": "g",
+        "д": "d",
+        "е": "e",
+        "ё": "e",
+        "ж": "zh",
+        "з": "z",
+        "и": "i",
+        "й": "y",
+        "к": "k",
+        "л": "l",
+        "м": "m",
+        "н": "n",
+        "о": "o",
+        "п": "p",
+        "р": "r",
+        "с": "s",
+        "т": "t",
+        "у": "u",
+        "ф": "f",
+        "х": "kh",
+        "ц": "ts",
+        "ч": "ch",
+        "ш": "sh",
+        "щ": "shch",
+        "ъ": "",
+        "ы": "y",
+        "ь": "",
+        "э": "e",
+        "ю": "yu",
+        "я": "ya",
+    }
+)
 
 
 def normalize_name(value: str) -> str:
@@ -873,8 +920,15 @@ def test_application_players():
     assert len(players) == 25
     korolev = next(p for p in players if p.full_name == "Королев Александр")
     assert korolev.model_dump() == {
-        "external_id": "2079261", "full_name": "Королев Александр", "number": 10,
-        "position": "MF", "played": 5, "goals": 2, "assists": 6, "yellow": 0, "red": 0,
+        "external_id": "2079261",
+        "full_name": "Королев Александр",
+        "number": 10,
+        "position": "MF",
+        "played": 5,
+        "goals": 2,
+        "assists": 6,
+        "yellow": 0,
+        "red": 0,
     }
 
 
@@ -908,7 +962,11 @@ def test_match_events_and_mvp():
     assert len(detail.events) == 7
     first = detail.events[0]
     assert (first.minute, first.type, first.side, first.player_name) == (
-        19, "goal", "away", "Горевой Александр")
+        19,
+        "goal",
+        "away",
+        "Горевой Александр",
+    )
     set_piece = next(e for e in detail.events if e.minute == 25)
     assert (set_piece.type, set_piece.side, set_piece.note) == ("goal", "home", "со стандарта")
     with_assist = next(e for e in detail.events if e.minute == 46)
@@ -923,7 +981,15 @@ def test_standings():
     assert len(rows) == 10
     us = next(r for r in rows if r.team_name == "Bauman United")
     assert (us.pos, us.played, us.won, us.drawn, us.lost, us.gf, us.ga, us.pts) == (
-        6, 5, 2, 0, 3, 17, 19, 6)
+        6,
+        5,
+        2,
+        0,
+        3,
+        17,
+        19,
+        6,
+    )
     assert rows[0].pos == 1
 
 
@@ -961,8 +1027,18 @@ from bu_worker.dto import (
 
 MSK = ZoneInfo("Europe/Moscow")
 MONTHS = {
-    "января": 1, "февраля": 2, "марта": 3, "апреля": 4, "мая": 5, "июня": 6,
-    "июля": 7, "августа": 8, "сентября": 9, "октября": 10, "ноября": 11, "декабря": 12,
+    "января": 1,
+    "февраля": 2,
+    "марта": 3,
+    "апреля": 4,
+    "мая": 5,
+    "июня": 6,
+    "июля": 7,
+    "августа": 8,
+    "сентября": 9,
+    "октября": 10,
+    "ноября": 11,
+    "декабря": 12,
 }
 POSITIONS = {"Вр.": "GK", "Зщ.": "DF", "Пз.": "MF", "Нп.": "FW"}
 _PERIOD = re.compile(r"(\d{1,2}) ([а-я]+) (\d{4}) - (\d{1,2}) ([а-я]+) (\d{4})")
@@ -1032,13 +1108,19 @@ def parse_application(html: str) -> list[ParsedPlayer]:
         number_text = _text(row.css_first(".blk-tteams__cell--number"))
         stats = [_int(_text(cell)) for cell in row.css(".blk-tteams__cell--var")]
         stats += [0] * (5 - len(stats))
-        players.append(ParsedPlayer(
-            external_id=id_match[1],
-            full_name=name,
-            number=int(number_text) if number_text.isdigit() else None,
-            position=POSITIONS.get(_text(row.css_first(".blk-tteams__cell--amplua"))),
-            played=stats[0], goals=stats[1], assists=stats[2], yellow=stats[3], red=stats[4],
-        ))
+        players.append(
+            ParsedPlayer(
+                external_id=id_match[1],
+                full_name=name,
+                number=int(number_text) if number_text.isdigit() else None,
+                position=POSITIONS.get(_text(row.css_first(".blk-tteams__cell--amplua"))),
+                played=stats[0],
+                goals=stats[1],
+                assists=stats[2],
+                yellow=stats[3],
+                red=stats[4],
+            )
+        )
     if not players:
         raise ParseError("no players parsed")
     return players
@@ -1076,9 +1158,12 @@ def parse_calendar(html: str, period_start: date, period_end: date) -> list[Cale
                 round=_text(item.css_first(".blk-tcalendar__round")) or None,
                 venue_name=_text(item.css_first(".blk-tcalendar__place-name")) or None,
                 venue_address=_attr(place, "title"),
-                home_team_id=home_id, away_team_id=away_id,
-                home_name=home_name, away_name=away_name,
-                home_logo=home_logo, away_logo=away_logo,
+                home_team_id=home_id,
+                away_team_id=away_id,
+                home_name=home_name,
+                away_name=away_name,
+                home_logo=home_logo,
+                away_logo=away_logo,
                 home_score=int(score[1]) if score else None,
                 away_score=int(score[2]) if score else None,
             )
@@ -1115,12 +1200,16 @@ def parse_match(html: str) -> MatchDetail:
         if kind is None or not minute_text.isdigit():
             continue
         side: Side = "home" if "team1" in classes else "away"
-        events.append(ParsedEvent(
-            minute=int(minute_text), type=kind[0], side=side,  # type: ignore[arg-type]
-            player_name=_attr(node, "data-player-first"),
-            assist_name=_attr(node, "data-player-second"),
-            note=kind[1],
-        ))
+        events.append(
+            ParsedEvent(
+                minute=int(minute_text),
+                type=kind[0],
+                side=side,  # type: ignore[arg-type]
+                player_name=_attr(node, "data-player-first"),
+                assist_name=_attr(node, "data-player-second"),
+                note=kind[1],
+            )
+        )
     events.sort(key=lambda e: e.minute)
 
     mvp_name: str | None = None
@@ -1145,15 +1234,20 @@ def parse_standings(html: str) -> list[ParsedStanding]:
         if len(values) < 6 or not pos.isdigit():
             continue
         goals = _SCORE.search(values[4])
-        rows.append(ParsedStanding(
-            pos=int(pos),
-            team_name=_text(line.css_first(".custom-table__team-name")),
-            team_logo=_attr(line.css_first(".custom-table__team-img"), "src"),
-            played=_int(values[0]), won=_int(values[1]), drawn=_int(values[2]),
-            lost=_int(values[3]),
-            gf=int(goals[1]) if goals else 0, ga=int(goals[2]) if goals else 0,
-            pts=_int(values[5]),
-        ))
+        rows.append(
+            ParsedStanding(
+                pos=int(pos),
+                team_name=_text(line.css_first(".custom-table__team-name")),
+                team_logo=_attr(line.css_first(".custom-table__team-img"), "src"),
+                played=_int(values[0]),
+                won=_int(values[1]),
+                drawn=_int(values[2]),
+                lost=_int(values[3]),
+                gf=int(goals[1]) if goals else 0,
+                ga=int(goals[2]) if goals else 0,
+                pts=_int(values[5]),
+            )
+        )
     if not rows:
         raise ParseError("standings are empty")
     return rows
@@ -1217,10 +1311,16 @@ def test_repo_content_is_valid():
 
 def test_player_and_news(tmp_path):
     minimal(tmp_path)
-    write(tmp_path, "players/aleksandr-korolev.yaml",
-          "first_name: Александр\nlast_name: Королев\nnickname: Король\naliases: [Саня]\n")
-    write(tmp_path, "news/hello.md",
-          "---\ndate: 2026-09-06\ntag: match\ntitle: Привет\n---\nТекст **жирный**\n")
+    write(
+        tmp_path,
+        "players/aleksandr-korolev.yaml",
+        "first_name: Александр\nlast_name: Королев\nnickname: Король\naliases: [Саня]\n",
+    )
+    write(
+        tmp_path,
+        "news/hello.md",
+        "---\ndate: 2026-09-06\ntag: match\ntitle: Привет\n---\nТекст **жирный**\n",
+    )
     bundle = load_content(tmp_path)
     player = bundle.players["aleksandr-korolev"]
     assert player.nickname == "Король" and player.aliases == ["Саня"]
@@ -1238,9 +1338,15 @@ def test_invalid_tag_reports_file(tmp_path):
 
 def test_manual_match(tmp_path):
     minimal(tmp_path)
-    write(tmp_path, "tournaments.yaml",
-          "- {slug: lfl-2026-27, name: ЛФЛ 8×8, short: ЛФЛ, kind: league, season: 2026-27}\n")
-    write(tmp_path, "matches/2026-10-11-energiya.yaml", """
+    write(
+        tmp_path,
+        "tournaments.yaml",
+        "- {slug: lfl-2026-27, name: ЛФЛ 8×8, short: ЛФЛ, kind: league, season: 2026-27}\n",
+    )
+    write(
+        tmp_path,
+        "matches/2026-10-11-energiya.yaml",
+        """
 tournament: lfl-2026-27
 kickoff: 2026-10-11T14:00:00+03:00
 home: true
@@ -1250,7 +1356,8 @@ score: {us: 3, them: 1}
 squad: [aleksandr-korolev]
 events:
   - {minute: 12, type: goal, team: us, player: aleksandr-korolev}
-""")
+""",
+    )
     match = load_content(tmp_path).matches["2026-10-11-energiya"]
     assert match.score is not None and match.score.us == 3
     assert match.events[0].player == "aleksandr-korolev"
@@ -1430,8 +1537,12 @@ def load_content(root: Path) -> ContentBundle:
         for path in sorted((root / "matches").glob("*.yaml"))
     }
     return ContentBundle(
-        club=club, history=history, tournaments=tournaments,
-        players=players, news=news, matches=matches,
+        club=club,
+        history=history,
+        tournaments=tournaments,
+        players=players,
+        news=news,
+        matches=matches,
     )
 ```
 
@@ -1552,7 +1663,8 @@ def bundle() -> JoinFootballBundle:
     read = lambda n: (FIX / n).read_text(encoding="utf-8")  # noqa: E731
     info = parse_tournament_info(read("calendar.html"), "1066703", "https://x/tournament/1066703")
     calendar = [
-        e for e in parse_calendar(read("calendar.html"), info.period_start, info.period_end)
+        e
+        for e in parse_calendar(read("calendar.html"), info.period_start, info.period_end)
         if TEAM in (e.home_team_id, e.away_team_id)
     ]
     return JoinFootballBundle(
@@ -1582,7 +1694,9 @@ def test_ingest_creates_everything(db):
     assert m.tournament.season.slug == "2026-27"
     ours = [e for e in m.events if e.team == "us"]
     assert {e.player_name for e in ours if e.type == "goal"} == {
-        "Королев Александр", "Колочков Кирилл"}
+        "Королев Александр",
+        "Колочков Кирилл",
+    }
     korolev = db.scalars(select(Player).where(Player.slug == "aleksandr-korolev")).one()
     assert any(e.player_id == korolev.id for e in ours)
     assert m.mvp_player_id is None  # MVP матча — игрок соперника
@@ -1623,8 +1737,14 @@ def test_manual_fields_win(db):
 
 def test_sanity_rejects_shrunk_data(db):
     good = bundle()
-    db.add(IngestRun(source="joinfootball:1066703", started_at=datetime.now(UTC),
-                     status="ok", counts={"players": 25, "matches": 9, "standings": 10}))
+    db.add(
+        IngestRun(
+            source="joinfootball:1066703",
+            started_at=datetime.now(UTC),
+            status="ok",
+            counts={"players": 25, "matches": 9, "standings": 10},
+        )
+    )
     db.flush()
     sanity_check(db, "joinfootball:1066703", good)  # не бросает
     shrunk = good.model_copy(update={"players": good.players[:5]})
@@ -1765,9 +1885,11 @@ def _upsert_tournament(session: Session, bundle: JoinFootballBundle) -> Tourname
     ).one_or_none()
     if tournament is None:
         tournament = Tournament(
-            source=SOURCE, external_id=info.external_id,
+            source=SOURCE,
+            external_id=info.external_id,
             slug=unique_slug(session, Tournament, slugify(info.name)),
-            short=info.name.split(" · ")[0], kind="league",
+            short=info.name.split(" · ")[0],
+            kind="league",
         )
         session.add(tournament)
     tournament.name = info.name
@@ -1798,17 +1920,24 @@ def _resolve_player(
     else:
         first, last = split_last_first(parsed.full_name)
         player = Player(
-            first_name=first, last_name=last,
+            first_name=first,
+            last_name=last,
             slug=unique_slug(session, Player, player_slug(first, last)),
-            aliases=[], manual_fields=[], achievements=[],
+            aliases=[],
+            manual_fields=[],
+            achievements=[],
         )
         session.add(player)
         session.flush()
         index.add(PlayerName(player.id, first, last))
-    session.add(PlayerSourceLink(
-        player_id=player.id, source=SOURCE,
-        external_id=parsed.external_id, external_name=parsed.full_name,
-    ))
+    session.add(
+        PlayerSourceLink(
+            player_id=player.id,
+            source=SOURCE,
+            external_id=parsed.external_id,
+            external_name=parsed.full_name,
+        )
+    )
     return player
 
 
@@ -1849,8 +1978,13 @@ def _find_in_index(index: PlayerIndex, name: str | None, warnings: list[str]) ->
 
 
 def _ingest_match(
-    session: Session, entry: CalendarEntry, bundle: JoinFootballBundle,
-    tournament: Tournament, our_team_id: str, index: PlayerIndex, result: IngestResult,
+    session: Session,
+    entry: CalendarEntry,
+    bundle: JoinFootballBundle,
+    tournament: Tournament,
+    our_team_id: str,
+    index: PlayerIndex,
+    result: IngestResult,
 ) -> None:
     home = entry.home_team_id == our_team_id
     opponent = entry.away_name if home else entry.home_name
@@ -1859,8 +1993,9 @@ def _ingest_match(
     ).one_or_none()
     if match is None:
         base = f"{entry.kickoff.date().isoformat()}-{slugify(opponent)}"
-        match = Match(source=SOURCE, external_id=entry.external_id,
-                      slug=unique_slug(session, Match, base))
+        match = Match(
+            source=SOURCE, external_id=entry.external_id, slug=unique_slug(session, Match, base)
+        )
         session.add(match)
     match.tournament_id = tournament.id
     match.season_id = tournament.season_id
@@ -1888,15 +2023,26 @@ def _ingest_match(
         session.flush()
         for ev in detail.events:
             is_us = ev.side == our_side
-            match.events.append(MatchEvent(
-                minute=ev.minute, type=ev.type, team="us" if is_us else "them",
-                player_name=ev.player_name, assist_name=ev.assist_name, note=ev.note,
-                player_id=_find_in_index(index, ev.player_name, result.warnings) if is_us else None,
-                assist_id=_find_in_index(index, ev.assist_name, result.warnings) if is_us else None,
-            ))
+            match.events.append(
+                MatchEvent(
+                    minute=ev.minute,
+                    type=ev.type,
+                    team="us" if is_us else "them",
+                    player_name=ev.player_name,
+                    assist_name=ev.assist_name,
+                    note=ev.note,
+                    player_id=_find_in_index(index, ev.player_name, result.warnings)
+                    if is_us
+                    else None,
+                    assist_id=_find_in_index(index, ev.assist_name, result.warnings)
+                    if is_us
+                    else None,
+                )
+            )
         match.mvp_player_id = (
             _find_in_index(index, detail.mvp_name, result.warnings)
-            if detail.mvp_side == our_side else None
+            if detail.mvp_side == our_side
+            else None
         )
     session.flush()
     result.tags.add(f"match:{match.slug}")
@@ -1909,11 +2055,14 @@ def _ingest_standings(
     now = datetime.now(UTC)
     names = {n.lower() for n in our_names}
     for row in bundle.standings:
-        session.add(StandingRow(
-            tournament_id=tournament.id, updated_at=now,
-            is_us=row.team_name.lower() in names,
-            **row.model_dump(),
-        ))
+        session.add(
+            StandingRow(
+                tournament_id=tournament.id,
+                updated_at=now,
+                is_us=row.team_name.lower() in names,
+                **row.model_dump(),
+            )
+        )
     session.flush()
 
 
@@ -1975,8 +2124,14 @@ from bu_worker.sources.content import (
 
 
 def make_bundle(**overrides) -> ContentBundle:
-    data = dict(club={"name": "Бауман Юнайтед"}, history={"trophies": []}, tournaments=[],
-                players={}, news=[], matches={})
+    data = dict(
+        club={"name": "Бауман Юнайтед"},
+        history={"trophies": []},
+        tournaments=[],
+        players={},
+        news=[],
+        matches={},
+    )
     data.update(overrides)
     return ContentBundle(**data)
 
@@ -1988,8 +2143,15 @@ def test_club_and_history_docs(db):
 
 
 def test_player_fields_and_manual_marks(db):
-    existing = Player(slug="aleksandr-korolev", first_name="Александр", last_name="Королев",
-                      number=10, aliases=[], manual_fields=[], achievements=[])
+    existing = Player(
+        slug="aleksandr-korolev",
+        first_name="Александр",
+        last_name="Королев",
+        number=10,
+        aliases=[],
+        manual_fields=[],
+        achievements=[],
+    )
     db.add(existing)
     db.flush()
     yaml_player = PlayerContent.model_validate({"nickname": "Король", "number": 7})
@@ -2000,8 +2162,9 @@ def test_player_fields_and_manual_marks(db):
 
 
 def test_new_player_from_yaml(db):
-    p = PlayerContent.model_validate({"first_name": "Иван", "last_name": "Петров",
-                                      "position": "GK"})
+    p = PlayerContent.model_validate(
+        {"first_name": "Иван", "last_name": "Петров", "position": "GK"}
+    )
     sync_content(db, make_bundle(players={"ivan-petrov": p}))
     created = db.scalars(select(Player).where(Player.slug == "ivan-petrov")).one()
     assert created.position == "GK"
@@ -2016,18 +2179,33 @@ def test_news_full_sync_removes_deleted(db):
 
 
 def test_manual_match_with_squad_and_events(db):
-    korolev = Player(slug="aleksandr-korolev", first_name="Александр", last_name="Королев",
-                     aliases=[], manual_fields=[], achievements=[])
+    korolev = Player(
+        slug="aleksandr-korolev",
+        first_name="Александр",
+        last_name="Королев",
+        aliases=[],
+        manual_fields=[],
+        achievements=[],
+    )
     db.add(korolev)
     db.flush()
     t = TournamentContent(slug="lfl-2026-27", name="ЛФЛ 8×8", short="ЛФЛ", season="2026-27")
-    m = MatchContent.model_validate({
-        "tournament": "lfl-2026-27", "kickoff": "2026-10-11T14:00:00+03:00", "home": True,
-        "opponent": {"name": "Энергия"}, "status": "finished", "score": {"us": 3, "them": 1},
-        "squad": ["aleksandr-korolev"], "mvp": "aleksandr-korolev",
-        "events": [{"minute": 12, "type": "goal", "team": "us", "player": "aleksandr-korolev"},
-                   {"minute": 50, "type": "goal", "team": "them", "player": "Сидоров"}],
-    })
+    m = MatchContent.model_validate(
+        {
+            "tournament": "lfl-2026-27",
+            "kickoff": "2026-10-11T14:00:00+03:00",
+            "home": True,
+            "opponent": {"name": "Энергия"},
+            "status": "finished",
+            "score": {"us": 3, "them": 1},
+            "squad": ["aleksandr-korolev"],
+            "mvp": "aleksandr-korolev",
+            "events": [
+                {"minute": 12, "type": "goal", "team": "us", "player": "aleksandr-korolev"},
+                {"minute": 50, "type": "goal", "team": "them", "player": "Сидоров"},
+            ],
+        }
+    )
     sync_content(db, make_bundle(tournaments=[t], matches={"2026-10-11-energiya": m}))
     match = db.scalars(select(Match).where(Match.slug == "2026-10-11-energiya")).one()
     assert (match.source, match.score_us, match.mvp_player_id) == ("manual", 3, korolev.id)
@@ -2074,8 +2252,12 @@ def _sync_player(session: Session, slug: str, content: PlayerContent) -> Player:
         player = session.get(Player, player_id) if player_id else None
     if player is None:
         player = Player(
-            slug=slug, first_name=content.first_name or "", last_name=content.last_name or slug,
-            aliases=[], manual_fields=[], achievements=[],
+            slug=slug,
+            first_name=content.first_name or "",
+            last_name=content.last_name or slug,
+            aliases=[],
+            manual_fields=[],
+            achievements=[],
         )
         session.add(player)
     if content.first_name:
@@ -2104,21 +2286,29 @@ def _events(session: Session, content: MatchContent) -> list[MatchEvent]:
     events = []
     for ev in content.events:
         is_us = ev.team == "us"
-        events.append(MatchEvent(
-            minute=ev.minute, type=ev.type, team=ev.team, note=ev.note,
-            player_id=_player_id_by_slug(session, ev.player) if is_us else None,
-            player_name=None if is_us else ev.player,
-            assist_id=_player_id_by_slug(session, ev.assist) if is_us else None,
-            assist_name=None if is_us else ev.assist,
-        ))
+        events.append(
+            MatchEvent(
+                minute=ev.minute,
+                type=ev.type,
+                team=ev.team,
+                note=ev.note,
+                player_id=_player_id_by_slug(session, ev.player) if is_us else None,
+                player_name=None if is_us else ev.player,
+                assist_id=_player_id_by_slug(session, ev.assist) if is_us else None,
+                assist_name=None if is_us else ev.assist,
+            )
+        )
     return events
 
 
 def _sync_match(session: Session, slug: str, content: MatchContent, result: IngestResult) -> None:
     match = session.scalars(select(Match).where(Match.slug == slug)).one_or_none()
     if match is None:
-        missing = [f for f in ("tournament", "kickoff", "home", "opponent", "status")
-                   if getattr(content, f) is None]
+        missing = [
+            f
+            for f in ("tournament", "kickoff", "home", "opponent", "status")
+            if getattr(content, f) is None
+        ]
         if missing:
             result.warnings.append(f"matches/{slug}.yaml: new match needs {', '.join(missing)}")
             return
@@ -2128,8 +2318,9 @@ def _sync_match(session: Session, slug: str, content: MatchContent, result: Inge
         if tournament is None:
             result.warnings.append(f"matches/{slug}.yaml: unknown tournament {content.tournament}")
             return
-        match = Match(slug=slug, source="manual", tournament_id=tournament.id,
-                      season_id=tournament.season_id)
+        match = Match(
+            slug=slug, source="manual", tournament_id=tournament.id, season_id=tournament.season_id
+        )
         session.add(match)
     if match.source == "manual":
         match.round = content.round
@@ -2203,8 +2394,11 @@ def sync_content(session: Session, bundle: ContentBundle) -> IngestResult:
     for slug, content in bundle.matches.items():
         _sync_match(session, slug, content, result)
 
-    result.counts = {"players": len(bundle.players), "news": len(bundle.news),
-                     "matches": len(bundle.matches)}
+    result.counts = {
+        "players": len(bundle.players),
+        "news": len(bundle.news),
+        "matches": len(bundle.matches),
+    }
     result.tags |= {"club", "history", "news", "players", "matches", "home", "stats"}
     return result
 ```
@@ -2267,8 +2461,7 @@ def test_form_last_five_oldest_first():
 
 def test_totals():
     t = totals([r(0, 2, 0), r(1, 1, 1), r(2, 0, 3)])
-    assert t == {"played": 3, "won": 1, "drawn": 1, "lost": 1, "gf": 3, "ga": 4,
-                 "clean_sheets": 1}
+    assert t == {"played": 3, "won": 1, "drawn": 1, "lost": 1, "gf": 3, "ga": 4, "clean_sheets": 1}
 
 
 def test_leaders_tiebreak_and_zero_filter():
@@ -2284,14 +2477,19 @@ def test_leaders_tiebreak_and_zero_filter():
 
 def test_records():
     results = [r(0, 5, 1), r(1, 6, 2), r(2, 1, 1), r(3, 0, 1), r(4, 2, 0)]
-    rec = records(results, goal_minutes=[("m1", 7), ("m0", 3)],
-                  appearances={"Анна": 10, "Борис": 12})
+    rec = records(
+        results, goal_minutes=[("m1", 7), ("m0", 3)], appearances={"Анна": 10, "Борис": 12}
+    )
     assert rec["biggest_win"] == {"slug": "m1", "us": 6, "them": 2}
     assert rec["unbeaten_streak"] == {"length": 3, "from": "m0", "to": "m2"}
     assert rec["fastest_goal"] == {"slug": "m0", "minute": 3}
     assert rec["most_appearances"] == {"name": "Борис", "value": 12}
-    assert records([], [], {}) == {"biggest_win": None, "unbeaten_streak": None,
-                                   "fastest_goal": None, "most_appearances": None}
+    assert records([], [], {}) == {
+        "biggest_win": None,
+        "unbeaten_streak": None,
+        "fastest_goal": None,
+        "most_appearances": None,
+    }
 ```
 
 Run: `uv run pytest core/tests/test_stats.py`
@@ -2395,7 +2593,8 @@ def records(
     most = max(appearances.items(), key=lambda kv: kv[1], default=None)
     return {
         "biggest_win": {"slug": biggest.slug, "us": biggest.us, "them": biggest.them}
-        if biggest else None,
+        if biggest
+        else None,
         "unbeaten_streak": {"length": best[0], "from": best[1], "to": best[2]} if best else None,
         "fastest_goal": {"slug": fastest[0], "minute": fastest[1]} if fastest else None,
         "most_appearances": {"name": most[0], "value": most[1]} if most else None,
@@ -2427,22 +2626,51 @@ from bu_core.recompute import recompute
 
 def test_recompute_mixes_sources(db):
     season = Season(slug="2026-27", label="2026/27")
-    jf = Tournament(slug="li", name="Лига Инженеров", short="ЛИ", source="joinfootball",
-                    external_id="1", season=season)
+    jf = Tournament(
+        slug="li",
+        name="Лига Инженеров",
+        short="ЛИ",
+        source="joinfootball",
+        external_id="1",
+        season=season,
+    )
     manual = Tournament(slug="lfl", name="ЛФЛ", short="ЛФЛ", source="manual", season=season)
-    p = Player(slug="a-k", first_name="А", last_name="К", aliases=[], manual_fields=[],
-               achievements=[])
+    p = Player(
+        slug="a-k", first_name="А", last_name="К", aliases=[], manual_fields=[], achievements=[]
+    )
     db.add_all([season, jf, manual, p])
     db.flush()
-    db.add(PlayerTournamentStats(player_id=p.id, tournament_id=jf.id, played=5, goals=2,
-                                 assists=6, yellow=1, red=0))
-    m1 = Match(slug="m1", tournament_id=jf.id, season_id=season.id, home=True,
-               kickoff=datetime(2026, 9, 6, tzinfo=UTC), opponent_name="X", status="finished",
-               score_us=2, score_them=0, source="joinfootball", external_id="1",
-               mvp_player_id=p.id)
-    m2 = Match(slug="m2", tournament_id=manual.id, season_id=season.id, home=False,
-               kickoff=datetime(2026, 10, 11, tzinfo=UTC), opponent_name="Y", status="finished",
-               score_us=1, score_them=1, source="manual")
+    db.add(
+        PlayerTournamentStats(
+            player_id=p.id, tournament_id=jf.id, played=5, goals=2, assists=6, yellow=1, red=0
+        )
+    )
+    m1 = Match(
+        slug="m1",
+        tournament_id=jf.id,
+        season_id=season.id,
+        home=True,
+        kickoff=datetime(2026, 9, 6, tzinfo=UTC),
+        opponent_name="X",
+        status="finished",
+        score_us=2,
+        score_them=0,
+        source="joinfootball",
+        external_id="1",
+        mvp_player_id=p.id,
+    )
+    m2 = Match(
+        slug="m2",
+        tournament_id=manual.id,
+        season_id=season.id,
+        home=False,
+        kickoff=datetime(2026, 10, 11, tzinfo=UTC),
+        opponent_name="Y",
+        status="finished",
+        score_us=1,
+        score_them=1,
+        source="manual",
+    )
     m2.events.append(MatchEvent(minute=4, type="goal", team="us", player_id=p.id))
     db.add_all([m1, m2])
     db.flush()
@@ -2571,22 +2799,33 @@ def recompute(session: Session) -> None:
     for season in seasons.values():
         results = [
             Result(m.slug, m.kickoff, m.score_us or 0, m.score_them or 0)
-            for m in finished if m.season_id == season.id
+            for m in finished
+            if m.season_id == season.id
         ]
         stat_lines = [
-            StatLine(pid, players[pid].slug,
-                     f"{players[pid].first_name} {players[pid].last_name}".strip(), **values)
-            for (pid, sid), values in lines.items() if sid == season.id
+            StatLine(
+                pid,
+                players[pid].slug,
+                f"{players[pid].first_name} {players[pid].last_name}".strip(),
+                **values,
+            )
+            for (pid, sid), values in lines.items()
+            if sid == season.id
         ]
-        _put(session, f"season:{season.slug}", {
-            "form": form(results),
-            "totals": totals(results),
-            "leaders": {k: leaders(stat_lines, k) for k in ("goals", "assists", "mvp")},
-        })
+        _put(
+            session,
+            f"season:{season.slug}",
+            {
+                "form": form(results),
+                "totals": totals(results),
+                "leaders": {k: leaders(stat_lines, k) for k in ("goals", "assists", "mvp")},
+            },
+        )
 
     all_results = [Result(m.slug, m.kickoff, m.score_us or 0, m.score_them or 0) for m in finished]
     goal_minutes = [
-        (slug, minute) for slug, minute in session.execute(
+        (slug, minute)
+        for slug, minute in session.execute(
             select(Match.slug, MatchEvent.minute)
             .join(Match, Match.id == MatchEvent.match_id)
             .where(MatchEvent.team == "us", MatchEvent.type.in_(("goal", "penalty")))
@@ -2600,15 +2839,19 @@ def recompute(session: Session) -> None:
     club = session.get(ContentDoc, "club")
     history = session.get(ContentDoc, "history")
     trophies = (history.data.get("trophies") if history else None) or []
-    _put(session, "club", {
-        "records": records(all_results, goal_minutes, dict(appearances)),
-        "numbers": {
-            "founded": club.data.get("founded") if club else None,
-            "matches": len(finished),
-            "goals": sum(m.score_us or 0 for m in finished),
-            "trophies": sum(1 for t in trophies if t.get("place") == 1),
+    _put(
+        session,
+        "club",
+        {
+            "records": records(all_results, goal_minutes, dict(appearances)),
+            "numbers": {
+                "founded": club.data.get("founded") if club else None,
+                "matches": len(finished),
+                "goals": sum(m.score_us or 0 for m in finished),
+                "trophies": sum(1 for t in trophies if t.get("place") == 1),
+            },
         },
-    })
+    )
     session.flush()
 ```
 
@@ -2654,8 +2897,9 @@ ROBOTS = "User-agent: *\nDisallow: /matches\nDisallow: /player\n"
 
 
 def make(handler):
-    return PoliteClient("https://jf.test", "BaumanUnitedBot/1.0", delay_s=0,
-                        transport=httpx.MockTransport(handler))
+    return PoliteClient(
+        "https://jf.test", "BaumanUnitedBot/1.0", delay_s=0, transport=httpx.MockTransport(handler)
+    )
 
 
 def test_respects_robots_and_sets_user_agent():
@@ -2707,11 +2951,19 @@ class DisallowedError(Exception):
 class PoliteClient:
     """HTTP-клиент, который уважает robots.txt и не торопится."""
 
-    def __init__(self, base_url: str, user_agent: str, delay_s: float,
-                 transport: httpx.BaseTransport | None = None):
+    def __init__(
+        self,
+        base_url: str,
+        user_agent: str,
+        delay_s: float,
+        transport: httpx.BaseTransport | None = None,
+    ):
         self._client = httpx.Client(
-            base_url=base_url, headers={"User-Agent": user_agent}, timeout=20.0,
-            follow_redirects=True, transport=transport,
+            base_url=base_url,
+            headers={"User-Agent": user_agent},
+            timeout=20.0,
+            follow_redirects=True,
+            transport=transport,
         )
         self._agent = user_agent.split("/")[0]
         self._delay = delay_s
@@ -2791,8 +3043,9 @@ COOLDOWN_S = 6 * 3600
 
 
 class Notifier:
-    def __init__(self, token: str | None, chat_id: str | None,
-                 transport: httpx.BaseTransport | None = None):
+    def __init__(
+        self, token: str | None, chat_id: str | None, transport: httpx.BaseTransport | None = None
+    ):
         self._token, self._chat_id = token, chat_id
         self._transport = transport
         self._sent: dict[str, float] = {}
@@ -2833,7 +3086,10 @@ from bu_worker.sources.joinfootball.parse import (
 
 
 def fetch_bundle(
-    client: PoliteClient, tournament_id: str, team_id: str, base_url: str,
+    client: PoliteClient,
+    tournament_id: str,
+    team_id: str,
+    base_url: str,
     snapshot: Callable[[str, str], None],
 ) -> JoinFootballBundle:
     def get(name: str, path: str) -> str:
@@ -2842,22 +3098,27 @@ def fetch_bundle(
         return html
 
     calendar_html = get("calendar", f"/tournament/{tournament_id}/calendar")
-    info = parse_tournament_info(calendar_html, tournament_id,
-                                 f"{base_url}/tournament/{tournament_id}")
+    info = parse_tournament_info(
+        calendar_html, tournament_id, f"{base_url}/tournament/{tournament_id}"
+    )
     calendar = [
-        e for e in parse_calendar(calendar_html, info.period_start, info.period_end)
+        e
+        for e in parse_calendar(calendar_html, info.period_start, info.period_end)
         if team_id in (e.home_team_id, e.away_team_id)
     ]
-    players = parse_application(get(
-        "application", f"/tournament/{tournament_id}/teams/application?team_id={team_id}"))
+    players = parse_application(
+        get("application", f"/tournament/{tournament_id}/teams/application?team_id={team_id}")
+    )
     standings = parse_standings(get("tables", f"/tournament/{tournament_id}/tables"))
     details: dict[str, MatchDetail] = {}
     for entry in calendar:
         if entry.home_score is not None:
             details[entry.external_id] = parse_match(
-                get(f"match_{entry.external_id}", f"/match/{entry.external_id}"))
-    return JoinFootballBundle(tournament=info, players=players, calendar=calendar,
-                              details=details, standings=standings)
+                get(f"match_{entry.external_id}", f"/match/{entry.external_id}")
+            )
+    return JoinFootballBundle(
+        tournament=info, players=players, calendar=calendar, details=details, standings=standings
+    )
 ```
 
 - [ ] **Step 4: Падающий тест раннера**
@@ -2896,8 +3157,10 @@ def fake_site(broken: bool = False):
         if path.startswith("/match/"):
             return httpx.Response(200, text=(FIX / "match_5848533.html").read_text("utf-8"))
         return httpx.Response(404)
-    return PoliteClient("https://jf.test", "BaumanUnitedBot/1.0", 0,
-                        transport=httpx.MockTransport(handler))
+
+    return PoliteClient(
+        "https://jf.test", "BaumanUnitedBot/1.0", 0, transport=httpx.MockTransport(handler)
+    )
 
 
 def settings(tmp_path) -> Settings:
@@ -2916,8 +3179,7 @@ def test_run_ok_writes_matches_runs_and_aggregates(db, tmp_path):
 
 def test_run_with_broken_page_keeps_old_data(db, tmp_path):
     run_joinfootball(db, settings(tmp_path), fake_site(), Notifier(None, None))
-    status = run_joinfootball(db, settings(tmp_path), fake_site(broken=True),
-                              Notifier(None, None))
+    status = run_joinfootball(db, settings(tmp_path), fake_site(broken=True), Notifier(None, None))
     assert status == "error"
     assert len(db.scalars(select(Match)).all()) == 9
     statuses = [r.status for r in db.scalars(select(IngestRun).order_by(IngestRun.id))]
@@ -2965,8 +3227,9 @@ from bu_worker.sources.joinfootball.fetch import fetch_bundle
 log = logging.getLogger(__name__)
 
 
-def revalidate(settings: Settings, tags: set[str],
-               transport: httpx.BaseTransport | None = None) -> None:
+def revalidate(
+    settings: Settings, tags: set[str], transport: httpx.BaseTransport | None = None
+) -> None:
     if not settings.revalidate_url or not tags:
         return
     try:
@@ -2980,15 +3243,25 @@ def revalidate(settings: Settings, tags: set[str],
         log.exception("revalidate failed")
 
 
-def _record(session: Session, source: str, started: datetime, status: str,
-            counts: dict, error: str | None) -> None:
-    session.add(IngestRun(source=source, started_at=started, finished_at=datetime.now(UTC),
-                          status=status, counts=counts, error=error))
+def _record(
+    session: Session, source: str, started: datetime, status: str, counts: dict, error: str | None
+) -> None:
+    session.add(
+        IngestRun(
+            source=source,
+            started_at=started,
+            finished_at=datetime.now(UTC),
+            status=status,
+            counts=counts,
+            error=error,
+        )
+    )
     session.commit()
 
 
-def run_joinfootball(session: Session, settings: Settings, client: PoliteClient,
-                     notifier: Notifier) -> str:
+def run_joinfootball(
+    session: Session, settings: Settings, client: PoliteClient, notifier: Notifier
+) -> str:
     overall = "ok"
     all_tags: set[str] = set()
     for tid in settings.joinfootball_tournament_ids:
@@ -3000,11 +3273,13 @@ def run_joinfootball(session: Session, settings: Settings, client: PoliteClient,
             snapshots.save(root, f"joinfootball/{_tid}", name, html, _started)
 
         try:
-            bundle = fetch_bundle(client, tid, settings.joinfootball_team_id,
-                                  settings.joinfootball_base, snap)
+            bundle = fetch_bundle(
+                client, tid, settings.joinfootball_team_id, settings.joinfootball_base, snap
+            )
             jf_pipeline.sanity_check(session, source, bundle)
-            result = jf_pipeline.ingest(session, bundle, settings.joinfootball_team_id,
-                                        settings.our_team_names)
+            result = jf_pipeline.ingest(
+                session, bundle, settings.joinfootball_team_id, settings.our_team_names
+            )
             recompute(session)
             session.commit()
         except jf_pipeline.SanityError as exc:
@@ -3066,6 +3341,7 @@ def main() -> int:
     settings = get_settings()
     if args.cmd == "schedule":
         from bu_worker.schedule import start
+
         start(settings)
         return 0
 
@@ -3076,9 +3352,11 @@ def main() -> int:
         if args.source in ("content", "all"):
             status = run_content(session, settings)
         if args.source in ("joinfootball", "all"):
-            client = PoliteClient(settings.joinfootball_base,
-                                  f"BaumanUnitedBot/1.0 (+{settings.site_url})",
-                                  settings.request_delay_s)
+            client = PoliteClient(
+                settings.joinfootball_base,
+                f"BaumanUnitedBot/1.0 (+{settings.site_url})",
+                settings.request_delay_s,
+            )
             status = run_joinfootball(session, settings, client, notifier)
     return 0 if status == "ok" else 1
 
@@ -3112,23 +3390,29 @@ def start(settings: Settings) -> None:
     notifier = Notifier(settings.telegram_bot_token, settings.telegram_chat_id)
 
     def scrape() -> None:
-        client = PoliteClient(settings.joinfootball_base,
-                              f"BaumanUnitedBot/1.0 (+{settings.site_url})",
-                              settings.request_delay_s)
+        client = PoliteClient(
+            settings.joinfootball_base,
+            f"BaumanUnitedBot/1.0 (+{settings.site_url})",
+            settings.request_delay_s,
+        )
         with sessions() as session:
             run_joinfootball(session, settings, client, notifier)
 
     def matchday() -> None:
         now = datetime.now(UTC)
         with sessions() as session:
-            live = session.scalars(select(Match.id).where(
-                Match.kickoff <= now, Match.kickoff >= now - timedelta(hours=3))).first()
+            live = session.scalars(
+                select(Match.id).where(
+                    Match.kickoff <= now, Match.kickoff >= now - timedelta(hours=3)
+                )
+            ).first()
         if live is not None:
             scrape()
 
     def prune() -> None:
-        removed = snapshots.prune(Path(settings.snapshot_dir), settings.snapshot_keep_days,
-                                  datetime.now(UTC))
+        removed = snapshots.prune(
+            Path(settings.snapshot_dir), settings.snapshot_keep_days, datetime.now(UTC)
+        )
         log.info("pruned %s snapshot folders", removed)
 
     scheduler = BlockingScheduler(timezone="Europe/Moscow")
@@ -3213,52 +3497,146 @@ from bu_core.recompute import recompute
 
 def seed(db: Session) -> dict:
     season = Season(slug="2026-27", label="2026/27")
-    t = Tournament(slug="liga-inzhenerov", name="Лига Инженеров · Осень 2026",
-                   short="Лига Инженеров", source="joinfootball", external_id="1066703",
-                   season=season, url="https://jf/tournament/1066703")
-    korolev = Player(slug="aleksandr-korolev", first_name="Александр", last_name="Королев",
-                     number=10, position="MF", aliases=[], manual_fields=[], achievements=[],
-                     nickname="Король")
-    gk = Player(slug="egor-kucha", first_name="Егор", last_name="Куча", number=1,
-                position="GK", aliases=[], manual_fields=[], achievements=[])
-    old = Player(slug="old-boy", first_name="Старый", last_name="Игрок", position="FW",
-                 active=False, aliases=[], manual_fields=[], achievements=[])
+    t = Tournament(
+        slug="liga-inzhenerov",
+        name="Лига Инженеров · Осень 2026",
+        short="Лига Инженеров",
+        source="joinfootball",
+        external_id="1066703",
+        season=season,
+        url="https://jf/tournament/1066703",
+    )
+    korolev = Player(
+        slug="aleksandr-korolev",
+        first_name="Александр",
+        last_name="Королев",
+        number=10,
+        position="MF",
+        aliases=[],
+        manual_fields=[],
+        achievements=[],
+        nickname="Король",
+    )
+    gk = Player(
+        slug="egor-kucha",
+        first_name="Егор",
+        last_name="Куча",
+        number=1,
+        position="GK",
+        aliases=[],
+        manual_fields=[],
+        achievements=[],
+    )
+    old = Player(
+        slug="old-boy",
+        first_name="Старый",
+        last_name="Игрок",
+        position="FW",
+        active=False,
+        aliases=[],
+        manual_fields=[],
+        achievements=[],
+    )
     db.add_all([season, t, korolev, gk, old])
     db.flush()
-    db.add_all([
-        PlayerTournamentStats(player_id=korolev.id, tournament_id=t.id, played=5, goals=2,
-                              assists=6),
-        PlayerTournamentStats(player_id=gk.id, tournament_id=t.id, played=2),
-    ])
-    m1 = Match(slug="2026-09-06-bauman-junior", tournament_id=t.id, season_id=season.id,
-               round="1 тур", kickoff=datetime(2026, 9, 6, 17, 30, tzinfo=UTC), home=True,
-               venue_name="Металлург", opponent_name="Bauman Junior", status="finished",
-               score_us=2, score_them=3, source="joinfootball", external_id="5848533",
-               report_news_slug="start")
-    m1.events.extend([
-        MatchEvent(minute=19, type="goal", team="them", player_name="Горевой Александр"),
-        MatchEvent(minute=22, type="goal", team="us", player_id=korolev.id,
-                   player_name="Королев Александр"),
-    ])
-    m2 = Match(slug="2026-10-25-messiya", tournament_id=t.id, season_id=season.id,
-               round="6 тур", kickoff=datetime(2030, 10, 25, 18, 30, tzinfo=UTC), home=False,
-               opponent_name="Мессия", status="scheduled", source="joinfootball",
-               external_id="5922873")
+    db.add_all(
+        [
+            PlayerTournamentStats(
+                player_id=korolev.id, tournament_id=t.id, played=5, goals=2, assists=6
+            ),
+            PlayerTournamentStats(player_id=gk.id, tournament_id=t.id, played=2),
+        ]
+    )
+    m1 = Match(
+        slug="2026-09-06-bauman-junior",
+        tournament_id=t.id,
+        season_id=season.id,
+        round="1 тур",
+        kickoff=datetime(2026, 9, 6, 17, 30, tzinfo=UTC),
+        home=True,
+        venue_name="Металлург",
+        opponent_name="Bauman Junior",
+        status="finished",
+        score_us=2,
+        score_them=3,
+        source="joinfootball",
+        external_id="5848533",
+        report_news_slug="start",
+    )
+    m1.events.extend(
+        [
+            MatchEvent(minute=19, type="goal", team="them", player_name="Горевой Александр"),
+            MatchEvent(
+                minute=22,
+                type="goal",
+                team="us",
+                player_id=korolev.id,
+                player_name="Королев Александр",
+            ),
+        ]
+    )
+    m2 = Match(
+        slug="2026-10-25-messiya",
+        tournament_id=t.id,
+        season_id=season.id,
+        round="6 тур",
+        kickoff=datetime(2030, 10, 25, 18, 30, tzinfo=UTC),
+        home=False,
+        opponent_name="Мессия",
+        status="scheduled",
+        source="joinfootball",
+        external_id="5922873",
+    )
     db.add_all([m1, m2])
-    db.add_all([
-        StandingRow(tournament_id=t.id, pos=1, team_name="Раскат", played=5, won=5, drawn=0,
-                    lost=0, gf=21, ga=4, pts=15, updated_at=datetime(2026, 10, 12, tzinfo=UTC)),
-        StandingRow(tournament_id=t.id, pos=6, team_name="Bauman United", played=5, won=2,
-                    drawn=0, lost=3, gf=17, ga=19, pts=6, is_us=True,
-                    updated_at=datetime(2026, 10, 12, tzinfo=UTC)),
-    ])
-    db.add_all([
-        News(slug="start", date=date(2026, 9, 6), tag="match", title="Старт",
-             body_md="Текст", match_slug="2026-09-06-bauman-junior"),
-        News(slug="club-news", date=date(2026, 9, 10), tag="club", title="Клуб", body_md=""),
-    ])
-    db.add(ContentDoc(key="club", data={"name": "Бауман Юнайтед", "founded": 2019,
-                                        "primary_tournament": None}))
+    db.add_all(
+        [
+            StandingRow(
+                tournament_id=t.id,
+                pos=1,
+                team_name="Раскат",
+                played=5,
+                won=5,
+                drawn=0,
+                lost=0,
+                gf=21,
+                ga=4,
+                pts=15,
+                updated_at=datetime(2026, 10, 12, tzinfo=UTC),
+            ),
+            StandingRow(
+                tournament_id=t.id,
+                pos=6,
+                team_name="Bauman United",
+                played=5,
+                won=2,
+                drawn=0,
+                lost=3,
+                gf=17,
+                ga=19,
+                pts=6,
+                is_us=True,
+                updated_at=datetime(2026, 10, 12, tzinfo=UTC),
+            ),
+        ]
+    )
+    db.add_all(
+        [
+            News(
+                slug="start",
+                date=date(2026, 9, 6),
+                tag="match",
+                title="Старт",
+                body_md="Текст",
+                match_slug="2026-09-06-bauman-junior",
+            ),
+            News(slug="club-news", date=date(2026, 9, 10), tag="club", title="Клуб", body_md=""),
+        ]
+    )
+    db.add(
+        ContentDoc(
+            key="club", data={"name": "Бауман Юнайтед", "founded": 2019, "primary_tournament": None}
+        )
+    )
     db.flush()
     recompute(db)
     return {"season": season, "tournament": t, "korolev": korolev}
@@ -3297,7 +3675,8 @@ def test_club_and_history(client):
 
 def test_seasons_and_tournaments(client):
     assert client.get("/seasons").json() == [
-        {"slug": "2026-27", "label": "2026/27", "final_place": None}]
+        {"slug": "2026-27", "label": "2026/27", "final_place": None}
+    ]
     t = client.get("/tournaments", params={"season": "2026-27"}).json()
     assert t[0]["slug"] == "liga-inzhenerov" and t[0]["season"] == "2026-27"
 
@@ -3569,26 +3948,45 @@ def current_season(session: Session) -> str | None:
 
 
 def tournament_out(t: Tournament) -> TournamentOut:
-    return TournamentOut(slug=t.slug, name=t.name, short=t.short, kind=t.kind,
-                         season=t.season.slug, url=t.url)
+    return TournamentOut(
+        slug=t.slug, name=t.name, short=t.short, kind=t.kind, season=t.season.slug, url=t.url
+    )
 
 
 def match_summary(m: Match) -> MatchSummary:
     finished = m.status == "finished" and m.score_us is not None and m.score_them is not None
     return MatchSummary(
-        slug=m.slug, kickoff=m.kickoff, tournament=tournament_out(m.tournament), round=m.round,
-        home=m.home, venue_name=m.venue_name, venue_address=m.venue_address,
-        opponent_name=m.opponent_name, opponent_logo=m.opponent_logo, status=m.status,
-        score_us=m.score_us, score_them=m.score_them,
+        slug=m.slug,
+        kickoff=m.kickoff,
+        tournament=tournament_out(m.tournament),
+        round=m.round,
+        home=m.home,
+        venue_name=m.venue_name,
+        venue_address=m.venue_address,
+        opponent_name=m.opponent_name,
+        opponent_logo=m.opponent_logo,
+        status=m.status,
+        score_us=m.score_us,
+        score_them=m.score_them,
         outcome=outcome(m.score_us, m.score_them) if finished else None,  # type: ignore[arg-type]
-        stream_url=m.stream_url, source_url=m.source_url,
+        stream_url=m.stream_url,
+        source_url=m.source_url,
     )
 
 
 def news_card(n: News) -> NewsCard:
-    return NewsCard(slug=n.slug, date=n.date, tag=n.tag, title=n.title, lead=n.lead,
-                    cover=n.cover, source_platform=n.source_platform, source_url=n.source_url,
-                    match_slug=n.match_slug, featured=n.featured)
+    return NewsCard(
+        slug=n.slug,
+        date=n.date,
+        tag=n.tag,
+        title=n.title,
+        lead=n.lead,
+        cover=n.cover,
+        source_platform=n.source_platform,
+        source_url=n.source_url,
+        match_slug=n.match_slug,
+        featured=n.featured,
+    )
 
 
 def full_name(p: Player) -> str:
@@ -3677,31 +4075,39 @@ def _tournaments(session: Session, season: str | None) -> list[Tournament]:
 
 
 @router.get("/tournaments")
-def tournaments(season: str | None = None,
-                session: Session = Depends(get_session)) -> list[TournamentOut]:
+def tournaments(
+    season: str | None = None, session: Session = Depends(get_session)
+) -> list[TournamentOut]:
     return [tournament_out(t) for t in _tournaments(session, season)]
 
 
 @router.get("/standings")
-def standings(tournament: str | None = None,
-              session: Session = Depends(get_session)) -> list[StandingsOut]:
+def standings(
+    tournament: str | None = None, session: Session = Depends(get_session)
+) -> list[StandingsOut]:
     if tournament:
         selected = list(session.scalars(select(Tournament).where(Tournament.slug == tournament)))
     else:
         selected = _tournaments(session, current_season(session))
     out = []
     for t in selected:
-        rows = list(session.scalars(
-            select(StandingRow).where(StandingRow.tournament_id == t.id).order_by(StandingRow.pos)
-        ))
+        rows = list(
+            session.scalars(
+                select(StandingRow)
+                .where(StandingRow.tournament_id == t.id)
+                .order_by(StandingRow.pos)
+            )
+        )
         if not rows:
             continue
-        out.append(StandingsOut(
-            tournament=tournament_out(t),
-            updated_at=max(r.updated_at for r in rows),
-            source_url=f"{t.url}/tables" if t.url else None,
-            rows=[StandingRowOut.model_validate(r, from_attributes=True) for r in rows],
-        ))
+        out.append(
+            StandingsOut(
+                tournament=tournament_out(t),
+                updated_at=max(r.updated_at for r in rows),
+                source_url=f"{t.url}/tables" if t.url else None,
+                rows=[StandingRowOut.model_validate(r, from_attributes=True) for r in rows],
+            )
+        )
     return out
 ```
 
@@ -3763,13 +4169,18 @@ def match_detail(slug: str, session: Session = Depends(get_session)) -> MatchDet
     scorers_them: list[str] = []
     for e in m.events:
         player, assist = ref(e.player_id), ref(e.assist_id)
-        events.append(EventOut(
-            minute=e.minute, type=e.type, team=e.team,
-            player_slug=player.slug if player else None,
-            player_name=full_name(player) if player else e.player_name,
-            assist_slug=assist.slug if assist else None,
-            assist_name=full_name(assist) if assist else e.assist_name, note=e.note,
-        ))
+        events.append(
+            EventOut(
+                minute=e.minute,
+                type=e.type,
+                team=e.team,
+                player_slug=player.slug if player else None,
+                player_name=full_name(player) if player else e.player_name,
+                assist_slug=assist.slug if assist else None,
+                assist_name=full_name(assist) if assist else e.assist_name,
+                note=e.note,
+            )
+        )
         if e.type in ("goal", "penalty", "own_goal"):
             scorer = player.last_name if player else _surname(e.player_name)
             label = f"{scorer} {e.minute}'" + (" (аг)" if e.type == "own_goal" else "")
@@ -3788,9 +4199,12 @@ def match_detail(slug: str, session: Session = Depends(get_session)) -> MatchDet
     mvp = ref(m.mvp_player_id)
     return MatchDetail(
         **match_summary(m).model_dump(),
-        events=events, scorers_us=scorers_us, scorers_them=scorers_them,
+        events=events,
+        scorers_us=scorers_us,
+        scorers_them=scorers_them,
         mvp=PlayerRef(slug=mvp.slug, name=full_name(mvp), number=mvp.number) if mvp else None,
-        report=report, video_url=m.video_url,
+        report=report,
+        video_url=m.video_url,
         prev_slug=ordered[i - 1] if i > 0 else None,
         next_slug=ordered[i + 1] if i + 1 < len(ordered) else None,
     )
@@ -3821,32 +4235,47 @@ def _stats(row: PlayerSeasonStats | None) -> PlayerStats:
 def _season_rows(session: Session, slug: str | None) -> dict[int, PlayerSeasonStats]:
     if not slug:
         return {}
-    rows = session.scalars(
-        select(PlayerSeasonStats).join(Season).where(Season.slug == slug)
-    )
+    rows = session.scalars(select(PlayerSeasonStats).join(Season).where(Season.slug == slug))
     return {r.player_id: r for r in rows}
 
 
 def _sorted(players: list[Player]) -> list[Player]:
-    return sorted(players, key=lambda p: (POSITION_ORDER.get(p.position or "", 9),
-                                          p.number if p.number is not None else 999, p.last_name))
+    return sorted(
+        players,
+        key=lambda p: (
+            POSITION_ORDER.get(p.position or "", 9),
+            p.number if p.number is not None else 999,
+            p.last_name,
+        ),
+    )
 
 
 def _card(p: Player, stats: PlayerStats) -> dict:
-    return dict(slug=p.slug, first_name=p.first_name, last_name=p.last_name, number=p.number,
-                position=p.position, nickname=p.nickname, photo=p.photo,
-                is_captain=p.is_captain, season=stats)
+    return dict(
+        slug=p.slug,
+        first_name=p.first_name,
+        last_name=p.last_name,
+        number=p.number,
+        position=p.position,
+        nickname=p.nickname,
+        photo=p.photo,
+        is_captain=p.is_captain,
+        season=stats,
+    )
 
 
 @router.get("/players")
-def list_players(active: bool | None = None,
-                 session: Session = Depends(get_session)) -> list[PlayerCard]:
+def list_players(
+    active: bool | None = None, session: Session = Depends(get_session)
+) -> list[PlayerCard]:
     query = select(Player)
     if active is not None:
         query = query.where(Player.active.is_(active))
     season_rows = _season_rows(session, current_season(session))
-    return [PlayerCard(**_card(p, _stats(season_rows.get(p.id))))
-            for p in _sorted(list(session.scalars(query)))]
+    return [
+        PlayerCard(**_card(p, _stats(season_rows.get(p.id))))
+        for p in _sorted(list(session.scalars(query)))
+    ]
 
 
 @router.get("/players/{slug}")
@@ -3866,17 +4295,28 @@ def player_detail(slug: str, session: Session = Depends(get_session)) -> PlayerD
     total = PlayerStats(**{k: sum(getattr(r.stats, k) for r in seasons) for k in STAT_KEYS})
     mine = team_rows.get(p.id)
     team_best = [
-        k for k in ("goals", "assists", "mvp", "played")
-        if mine is not None and getattr(mine, k) > 0
+        k
+        for k in ("goals", "assists", "mvp", "played")
+        if mine is not None
+        and getattr(mine, k) > 0
         and getattr(mine, k) == max(getattr(r, k) for r in team_rows.values())
     ]
-    roster = [x.slug for x in _sorted(list(session.scalars(
-        select(Player).where(Player.active.is_(True)))))]
+    roster = [
+        x.slug
+        for x in _sorted(list(session.scalars(select(Player).where(Player.active.is_(True)))))
+    ]
     i = roster.index(p.slug) if p.slug in roster else -1
     return PlayerDetail(
         **_card(p, _stats(mine)),
-        role=p.role, foot=p.foot, faculty=p.faculty, joined=p.joined, fact=p.fact,
-        achievements=p.achievements or [], seasons=seasons, total=total, team_best=team_best,
+        role=p.role,
+        foot=p.foot,
+        faculty=p.faculty,
+        joined=p.joined,
+        fact=p.fact,
+        achievements=p.achievements or [],
+        seasons=seasons,
+        total=total,
+        team_best=team_best,
         prev_slug=roster[i - 1] if i > 0 else None,
         next_slug=roster[i + 1] if 0 <= i < len(roster) - 1 else None,
     )
@@ -3897,9 +4337,12 @@ router = APIRouter()
 
 
 @router.get("/news")
-def list_news(tag: str | None = None, page: int = Query(1, ge=1),
-              per_page: int = Query(9, ge=1, le=50),
-              session: Session = Depends(get_session)) -> NewsPage:
+def list_news(
+    tag: str | None = None,
+    page: int = Query(1, ge=1),
+    per_page: int = Query(9, ge=1, le=50),
+    session: Session = Depends(get_session),
+) -> NewsPage:
     query = select(News)
     if tag:
         query = query.where(News.tag == tag)
@@ -3907,8 +4350,7 @@ def list_news(tag: str | None = None, page: int = Query(1, ge=1),
     items = session.scalars(
         query.order_by(News.date.desc(), News.slug).offset((page - 1) * per_page).limit(per_page)
     )
-    return NewsPage(items=[news_card(n) for n in items], total=total, page=page,
-                    per_page=per_page)
+    return NewsPage(items=[news_card(n) for n in items], total=total, page=page, per_page=per_page)
 
 
 @router.get("/news/{slug}")
@@ -3972,8 +4414,9 @@ def test_stats_current_and_all(client):
     assert s["leaders"]["goals"][0]["slug"] == "aleksandr-korolev"
     row = next(p for p in s["players"] if p["slug"] == "aleksandr-korolev")
     assert row["ga"] == 8
-    assert s["seasons"] == [{"slug": "2026-27", "label": "2026/27", "gf": 2, "ga": 3,
-                             "final_place": None}]
+    assert s["seasons"] == [
+        {"slug": "2026-27", "label": "2026/27", "gf": 2, "ga": 3, "final_place": None}
+    ]
     assert client.get("/stats", params={"season": "all"}).json()["season"] == "all"
 
 
@@ -4012,7 +4455,7 @@ def _around_us(table: Any, size: int = 5) -> Any:
     rows = table.rows
     us = next((i for i, r in enumerate(rows) if r.is_us), 0)
     start = max(0, min(us - size // 2, len(rows) - size))
-    table.rows = rows[start:start + size]
+    table.rows = rows[start : start + size]
     return table
 
 
@@ -4020,16 +4463,18 @@ def _around_us(table: Any, size: int = 5) -> Any:
 def home(session: Session = Depends(get_session)) -> dict[str, Any]:
     now = datetime.now(UTC)
     upcoming = session.scalars(
-        select(Match).where(Match.status.in_(("scheduled", "live")),
-                            Match.kickoff >= now - LIVE_WINDOW)
+        select(Match)
+        .where(Match.status.in_(("scheduled", "live")), Match.kickoff >= now - LIVE_WINDOW)
         .order_by(Match.kickoff)
     ).first()
     last = session.scalars(
         select(Match).where(Match.status == "finished").order_by(Match.kickoff.desc())
     ).first()
     live = None
-    if upcoming and upcoming.stream_url and (
-        upcoming.status == "live" or upcoming.kickoff <= now <= upcoming.kickoff + LIVE_WINDOW
+    if (
+        upcoming
+        and upcoming.stream_url
+        and (upcoming.status == "live" or upcoming.kickoff <= now <= upcoming.kickoff + LIVE_WINDOW)
     ):
         live = match_summary(upcoming)
 
@@ -4096,22 +4541,36 @@ def stats(season: str | None = None, session: Session = Depends(get_session)) ->
         for k in KEYS:
             sums[row.player_id][k] += getattr(row, k)
     players = {p.id: p for p in session.scalars(select(Player).where(Player.id.in_(sums)))}
-    lines = [StatLine(pid, players[pid].slug, full_name(players[pid]), **v)
-             for pid, v in sums.items()]
+    lines = [
+        StatLine(pid, players[pid].slug, full_name(players[pid]), **v) for pid, v in sums.items()
+    ]
     table = sorted(
-        ({"slug": players[pid].slug, "name": full_name(players[pid]),
-          "position": players[pid].position, **v, "ga": v["goals"] + v["assists"]}
-         for pid, v in sums.items()),
+        (
+            {
+                "slug": players[pid].slug,
+                "name": full_name(players[pid]),
+                "position": players[pid].position,
+                **v,
+                "ga": v["goals"] + v["assists"],
+            }
+            for pid, v in sums.items()
+        ),
         key=lambda r: (-r["goals"], -r["assists"], r["name"]),
     )
     seasons_out = []
     for s in session.scalars(select(Season).order_by(Season.slug)):
-        finished = session.scalars(select(Match).where(
-            Match.season_id == s.id, Match.status == "finished")).all()
-        seasons_out.append({"slug": s.slug, "label": s.label,
-                            "gf": sum(m.score_us or 0 for m in finished),
-                            "ga": sum(m.score_them or 0 for m in finished),
-                            "final_place": s.final_place})
+        finished = session.scalars(
+            select(Match).where(Match.season_id == s.id, Match.status == "finished")
+        ).all()
+        seasons_out.append(
+            {
+                "slug": s.slug,
+                "label": s.label,
+                "gf": sum(m.score_us or 0 for m in finished),
+                "ga": sum(m.score_them or 0 for m in finished),
+                "final_place": s.final_place,
+            }
+        )
     club = session.get(Computed, "club")
     return {
         "season": season,
@@ -4143,8 +4602,12 @@ def sitemap(session: Session = Depends(get_session)) -> list[dict[str, Any]]:
     today = date.today().isoformat()
     items: list[dict[str, Any]] = [{"path": p, "lastmod": today} for p in STATIC]
     for m in session.scalars(select(Match)):
-        items.append({"path": f"/matches/{m.slug}",
-                      "lastmod": m.updated_at.date().isoformat() if m.updated_at else None})
+        items.append(
+            {
+                "path": f"/matches/{m.slug}",
+                "lastmod": m.updated_at.date().isoformat() if m.updated_at else None,
+            }
+        )
     for p in session.scalars(select(Player)):
         items.append({"path": f"/team/{p.slug}", "lastmod": None})
     for n in session.scalars(select(News)):
