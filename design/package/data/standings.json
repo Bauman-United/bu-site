@@ -1,0 +1,13 @@
+{
+  "season": "2026-27",
+  "tournament": "lfl",
+  "updatedAt": "2026-10-12",
+  "source": "https://lfl.ru/club14270",
+  "rows": [
+    { "pos": 1, "team": "Технолог", "played": 7, "won": 5, "drawn": 2, "lost": 0, "gf": 16, "ga": 6, "pts": 17 },
+    { "pos": 2, "team": "Бауман Юнайтед", "played": 7, "won": 5, "drawn": 1, "lost": 1, "gf": 14, "ga": 6, "pts": 16, "isUs": true },
+    { "pos": 3, "team": "ФК Политех", "played": 7, "won": 4, "drawn": 2, "lost": 1, "gf": 12, "ga": 7, "pts": 14 },
+    { "pos": 4, "team": "Энергия", "played": 7, "won": 3, "drawn": 2, "lost": 2, "gf": 10, "ga": 9, "pts": 11 },
+    { "pos": 5, "team": "Спартак-Студ", "played": 7, "won": 2, "drawn": 3, "lost": 2, "gf": 9, "ga": 10, "pts": 9 }
+  ]
+}

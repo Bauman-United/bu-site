@@ -1,0 +1,6 @@
+[
+  { "id": "lfl", "name": "ЛФЛ · Дивизион [—]", "short": "ЛФЛ", "kind": "league" },
+  { "id": "bauman-league", "name": "Бауманская лига", "short": "Бауманская лига", "kind": "league" },
+  { "id": "mgtu-cup", "name": "Кубок МГТУ", "short": "Кубок МГТУ", "kind": "cup" },
+  { "id": "friendly", "name": "Товарищеский матч", "short": "Товарищеский", "kind": "friendly" }
+]

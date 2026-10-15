@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Новости</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#0A0A0A}a:hover{color:#525252}
+.ph{background:repeating-linear-gradient(135deg,#1C1C1C 0 14px,#161616 14px 28px)}
+.phl{background:repeating-linear-gradient(135deg,#E6E6E6 0 14px,#DCDCDC 14px 28px)}
+.stripes{background:repeating-linear-gradient(90deg,#FFFFFF 0 56px,#0A0A0A 56px 112px)}
+</style>
+</helmet>
+<div style="font-family: Manrope, system-ui, sans-serif; color: #0A0A0A; background: #FFFFFF; min-height: 100%;">
+
+<header style="background: #0A0A0A; color: #FFFFFF;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; justify-content: space-between;">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #FFFFFF;"><svg width="36" height="42" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 1 L38 6 V22 C38 34 30 41 20 45 C10 41 2 34 2 22 V6 Z" fill="#0A0A0A" stroke="#FFFFFF" stroke-width="2"/><path d="M11 4.5 V40 M20 2 V44 M29 4.5 V40" stroke="#FFFFFF" stroke-width="4"/><rect x="6" y="15" width="28" height="14" fill="#0A0A0A"/><text x="20" y="26" text-anchor="middle" font-family="Oswald" font-weight="700" font-size="11" fill="#FFFFFF">БЮ</text></svg><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px; text-transform: uppercase;">Бауман Юнайтед</span></a>
+<nav aria-label="Основное меню" style="display: flex; flex-wrap: wrap; gap: 4px 24px; font-family: Oswald, sans-serif; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase;">
+<a href="Calendar.dc.html" style="text-decoration: none; color: #FFFFFF;">Матчи</a>
+<a href="Squad.dc.html" style="text-decoration: none; color: #FFFFFF;">Команда</a>
+<a href="Stats.dc.html" style="text-decoration: none; color: #FFFFFF;">Статистика</a>
+<a href="History.dc.html" style="text-decoration: none; color: #FFFFFF;">История</a>
+<a href="News.dc.html" aria-current="page" style="text-decoration: none; color: #FFFFFF; border-bottom: 2px solid #FFFFFF; padding-bottom: 2px;">Новости</a>
+<a href="Media.dc.html" style="text-decoration: none; color: #FFFFFF;">Медиа</a>
+<a href="Fantasy.dc.html" style="text-decoration: none; color: #FFFFFF;">Лига</a>
+</nav>
+</div>
+</header>
+<div class="stripes" aria-hidden="true" style="height: 8px;"></div>
+
+<section>
+<div style="max-width: 1280px; margin: 0 auto; padding: 48px 32px 24px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: flex-end;">
+<h1 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 72px; line-height: 1; text-transform: uppercase;">Новости</h1>
+<div role="group" aria-label="Фильтр по тегу" style="display: flex; flex-wrap: wrap; gap: 6px;">
+<button type="button" aria-pressed="true" style="height: 44px; padding: 0 18px; background: #0A0A0A; color: #FFFFFF; border: 2px solid #0A0A0A; font-family: Oswald, sans-serif; font-weight: 600; font-size: 15px; text-transform: uppercase;">Все</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 18px; background: #FFFFFF; color: #0A0A0A; border: 2px solid #0A0A0A; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Матч</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 18px; background: #FFFFFF; color: #0A0A0A; border: 2px solid #0A0A0A; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Клуб</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 18px; background: #FFFFFF; color: #0A0A0A; border: 2px solid #0A0A0A; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Трансфер</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 18px; background: #FFFFFF; color: #0A0A0A; border: 2px solid #0A0A0A; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Фэнтази</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 18px; background: #FFFFFF; color: #0A0A0A; border: 2px solid #0A0A0A; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Из соцсетей</button>
+</div>
+</div>
+</section>
+
+<!-- Главная новость -->
+<section>
+<div style="max-width: 1280px; margin: 0 auto; padding: 24px 32px 48px;">
+<a href="Match.dc.html" style="text-decoration: none; display: flex; flex-wrap: wrap; background: #0A0A0A; color: #FFFFFF;">
+<div class="ph" style="flex: 3 1 520px; min-height: 420px;"></div>
+<div style="flex: 2 1 360px; padding: 40px; display: flex; flex-direction: column; gap: 16px; justify-content: flex-end;">
+<div style="display: flex; gap: 10px; align-items: center; font-size: 13px;"><span style="background: #FFFFFF; color: #0A0A0A; padding: 3px 8px; font-family: Oswald, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;">Матч</span><span style="color: #BDBDBD;">12 октября</span></div>
+<h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 48px; line-height: 1; text-transform: uppercase;">Дубль Смирнова и вторая строчка в таблице</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.55; color: #D4D4D4;">[Лид отчёта в одно-два предложения.]</p>
+<span style="font-family: Oswald, sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase;">Читать →</span>
+</div>
+</a>
+</div>
+</section>
+
+<!-- Лента -->
+<section>
+<div style="max-width: 1280px; margin: 0 auto; padding: 0 32px 56px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 32px 24px;">
+<sc-for list="{{items}}" as="n" hint-placeholder-count="9">
+<sc-if value="{{n.social}}" hint-placeholder-val="{{false}}">
+<article style="border: 2px solid #0A0A0A; padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+<div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;"><span style="display: flex; align-items: center; gap: 8px; font-family: Oswald, sans-serif; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M22 3 2 11l7 2 2 7 4-5 5 4z"/></svg>{{n.tag}}</span><span style="color: #525252;">{{n.date}}</span></div>
+<p style="margin: 0; font-size: 17px; line-height: 1.55;">{{n.title}}</p>
+<a href="#" style="margin-top: auto; font-size: 14px; font-weight: 700;">Открыть оригинал ↗</a>
+</article>
+</sc-if>
+<sc-if value="{{n.regular}}" hint-placeholder-val="{{true}}">
+<article style="display: flex; flex-direction: column; gap: 12px;">
+<a href="#" aria-label="{{n.title}}" class="phl" style="display: block; aspect-ratio: 4 / 3;"></a>
+<div style="display: flex; gap: 10px; align-items: center; font-size: 13px;"><span style="background: #0A0A0A; color: #FFFFFF; padding: 3px 8px; font-family: Oswald, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;">{{n.tag}}</span><span style="color: #525252;">{{n.date}}</span></div>
+<h3 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 600; font-size: 22px; line-height: 1.2; text-transform: uppercase;"><a href="#" style="text-decoration: none;">{{n.title}}</a></h3>
+</article>
+</sc-if>
+</sc-for>
+</div>
+<nav aria-label="Страницы" style="max-width: 1280px; margin: 0 auto; padding: 0 32px 72px; display: flex; gap: 6px; justify-content: center;">
+<a href="#" aria-current="page" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #0A0A0A; color: #FFFFFF; text-decoration: none; font-family: Oswald, sans-serif; font-weight: 600;">1</a>
+<a href="#" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 2px solid #0A0A0A; box-sizing: border-box; text-decoration: none; font-family: Oswald, sans-serif;">2</a>
+<a href="#" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 2px solid #0A0A0A; box-sizing: border-box; text-decoration: none; font-family: Oswald, sans-serif;">3</a>
+<a href="#" style="height: 44px; display: flex; align-items: center; padding: 0 16px; border: 2px solid #0A0A0A; box-sizing: border-box; text-decoration: none; font-family: Oswald, sans-serif; text-transform: uppercase;">Дальше →</a>
+</nav>
+</section>
+<div class="stripes" aria-hidden="true" style="height: 8px; background-color: #0A0A0A;"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+renderVals() {
+const N = (tag, date, title, social) => ({ tag, date, title, social: !!social, regular: !social });
+return {
+items: [
+N('Фэнтази', '10 октября', 'Бауманская лига: итоги 6 тура'),
+N('Telegram', '9 октября', 'Состав на субботу готов. Сбор в 13:00 у входа на стадион, не опаздываем.', true),
+N('Клуб', '8 октября', 'Новая выездная форма уже в раздевалке'),
+N('Матч', '5 октября', 'Вымпел 2:1: обидное поражение в концовке'),
+N('Трансфер', '1 октября', 'К нам переходит Тимур Галиев'),
+N('VK', '29 сентября', 'Лучшие моменты матча со Спартак-Студ — в альбоме.', true),
+N('Матч', '28 сентября', 'Спартак-Студ 2:2: спасли игру на последней минуте'),
+N('Клуб', '3 октября', 'Набор в команду: ищем вратаря и двух защитников'),
+N('Матч', '21 сентября', '4:0 с Радием и первое место после тура')
+]
+};
+}
+}
+</script>
+</body>
+</html>

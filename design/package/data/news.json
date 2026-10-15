@@ -1,0 +1,18 @@
+[
+  {
+    "id": "smirnov-double-energiya",
+    "date": "2026-10-12",
+    "tag": "match",
+    "title": "Дубль Смирнова и вторая строчка в таблице",
+    "lead": "[Лид отчёта в одно-два предложения.]",
+    "body": "[Текст отчёта в Markdown.]",
+    "cover": "",
+    "matchId": "2026-10-11-energiya",
+    "featured": true,
+    "source": { "platform": "telegram", "url": "https://t.me/[channel]/[post]" }
+  },
+  { "id": "fantasy-round-6", "date": "2026-10-10", "tag": "fantasy", "title": "Бауманская лига: итоги 6 тура", "cover": "" },
+  { "id": "tg-squad-saturday", "date": "2026-10-09", "tag": "social", "title": "Состав на субботу готов. Сбор в 13:00 у входа на стадион, не опаздываем.", "source": { "platform": "telegram", "url": "https://t.me/[channel]/[post]" } },
+  { "id": "new-away-kit", "date": "2026-10-08", "tag": "club", "title": "Новая выездная форма уже в раздевалке", "cover": "" },
+  { "id": "galiev-joins", "date": "2026-10-01", "tag": "transfer", "title": "К нам переходит Тимур Галиев", "cover": "" }
+]

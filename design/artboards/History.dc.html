@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>История и Зал славы</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0A}
+a{color:#FFFFFF}a:hover{color:#BDBDBD}
+.ph{background:repeating-linear-gradient(135deg,#1C1C1C 0 14px,#161616 14px 28px)}
+.phl{background:repeating-linear-gradient(135deg,#E6E6E6 0 14px,#DCDCDC 14px 28px)}
+.stripes{background:repeating-linear-gradient(90deg,#FFFFFF 0 56px,#0A0A0A 56px 112px)}
+</style>
+</helmet>
+<div style="font-family: Manrope, system-ui, sans-serif; color: #FFFFFF; background: #0A0A0A; min-height: 100%;">
+
+<header style="border-bottom: 1px solid #262626;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; justify-content: space-between;">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;"><svg width="36" height="42" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 1 L38 6 V22 C38 34 30 41 20 45 C10 41 2 34 2 22 V6 Z" fill="#0A0A0A" stroke="#FFFFFF" stroke-width="2"/><path d="M11 4.5 V40 M20 2 V44 M29 4.5 V40" stroke="#FFFFFF" stroke-width="4"/><rect x="6" y="15" width="28" height="14" fill="#0A0A0A"/><text x="20" y="26" text-anchor="middle" font-family="Oswald" font-weight="700" font-size="11" fill="#FFFFFF">БЮ</text></svg><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px; text-transform: uppercase;">Бауман Юнайтед</span></a>
+<nav aria-label="Основное меню" style="display: flex; flex-wrap: wrap; gap: 4px 24px; font-family: Oswald, sans-serif; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase;">
+<a href="Calendar.dc.html" style="text-decoration: none;">Матчи</a>
+<a href="Squad.dc.html" style="text-decoration: none;">Команда</a>
+<a href="Stats.dc.html" style="text-decoration: none;">Статистика</a>
+<a href="History.dc.html" aria-current="page" style="text-decoration: none; border-bottom: 2px solid #FFFFFF; padding-bottom: 2px;">История</a>
+<a href="News.dc.html" style="text-decoration: none;">Новости</a>
+<a href="Media.dc.html" style="text-decoration: none;">Медиа</a>
+<a href="Fantasy.dc.html" style="text-decoration: none;">Лига</a>
+</nav>
+</div>
+</header>
+
+<section style="position: relative; overflow: hidden; border-bottom: 1px solid #262626;">
+<div class="stripes" aria-hidden="true" style="position: absolute; inset: 0; opacity: 0.07;"></div>
+<div style="position: relative; max-width: 1280px; margin: 0 auto; padding: 72px 32px 56px; display: flex; flex-direction: column; gap: 16px;">
+<span style="font-family: Oswald, sans-serif; font-size: 16px; letter-spacing: 0.14em; text-transform: uppercase; color: #A3A3A3;">С [ГОДА ОСНОВАНИЯ]</span>
+<h1 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 104px; line-height: 0.9; text-transform: uppercase;">История<br>клуба</h1>
+<p style="margin: 0; max-width: 620px; font-size: 18px; line-height: 1.6; color: #D4D4D4;">[Два-три предложения о том, как всё началось: кто собрал команду, первая игра, откуда название.]</p>
+<nav aria-label="Разделы истории" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;">
+<a href="#timeline" style="text-decoration: none; height: 44px; display: flex; align-items: center; padding: 0 18px; background: #FFFFFF; color: #0A0A0A; font-family: Oswald, sans-serif; font-weight: 600; font-size: 15px; text-transform: uppercase;">По сезонам</a>
+<a href="#fame" style="text-decoration: none; height: 44px; display: flex; align-items: center; padding: 0 18px; border: 1px solid #404040; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Зал славы</a>
+<a href="#legends" style="text-decoration: none; height: 44px; display: flex; align-items: center; padding: 0 18px; border: 1px solid #404040; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Легенды</a>
+</nav>
+</div>
+</section>
+
+<!-- Таймлайн -->
+<section id="timeline">
+<div style="max-width: 1080px; margin: 0 auto; padding: 64px 32px; display: flex; flex-direction: column;">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="5">
+<article style="display: flex; flex-wrap: wrap; gap: 24px 40px; padding: 0 0 48px 40px; border-left: 2px solid #FFFFFF; position: relative;">
+<span aria-hidden="true" style="position: absolute; left: -11px; top: 6px; width: 20px; height: 20px; border-radius: 50%; border: 2px solid #FFFFFF; box-sizing: border-box; {{s.dot}}"></span>
+<div style="flex: 1 1 340px; display: flex; flex-direction: column; gap: 10px;">
+<span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 56px; line-height: 1;">{{s.year}}</span>
+<span style="align-self: flex-start; font-family: Oswald, sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border: 1px solid #FFFFFF;">{{s.tag}}</span>
+<h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 600; font-size: 28px; text-transform: uppercase;">{{s.title}}</h2>
+<p style="margin: 0; font-size: 16px; line-height: 1.6; color: #D4D4D4;">{{s.text}}</p>
+</div>
+<div class="ph" style="flex: 1 1 320px; min-height: 220px;"></div>
+</article>
+</sc-for>
+</div>
+</section>
+
+<!-- Зал славы -->
+<section id="fame" style="background: #FFFFFF; color: #0A0A0A;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 64px 32px; display: flex; flex-direction: column; gap: 32px;">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 16px;"><h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 56px; line-height: 1; text-transform: uppercase;">Зал славы</h2><span style="font-family: Oswald, sans-serif; font-size: 20px; color: #525252;">4 трофея · 3 призовых места</span></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+<sc-for list="{{trophies}}" as="t" hint-placeholder-count="4">
+<article style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 32px 20px 28px; {{t.box}}">
+<svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h10v6a5 5 0 0 1-10 0z"/><path d="M7 5H4a3 3 0 0 0 3 4.5M17 5h3a3 3 0 0 1-3 4.5M12 14v4M8 21h8M9 18h6"/></svg>
+<span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 40px; line-height: 1;">{{t.place}}</span>
+<h3 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 600; font-size: 20px; text-transform: uppercase;">{{t.title}}</h3>
+<span style="font-size: 14px; {{t.sub}}">{{t.year}}</span>
+</article>
+</sc-for>
+</div>
+</div>
+</section>
+
+<!-- Легенды -->
+<section id="legends">
+<div style="max-width: 1280px; margin: 0 auto; padding: 64px 32px 72px; display: flex; flex-direction: column; gap: 28px;">
+<h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 40px; text-transform: uppercase;">Легенды и выпускники</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
+<sc-for list="{{legends}}" as="l" hint-placeholder-count="4">
+<article style="border: 1px solid #333333; display: flex; flex-direction: column;">
+<div class="ph" style="aspect-ratio: 1 / 1; position: relative; filter: grayscale(1);"><span style="position: absolute; bottom: 12px; left: 16px; font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.1em; color: #A3A3A3; text-transform: uppercase;">{{l.years}}</span></div>
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 6px;">
+<span style="font-family: Oswald, sans-serif; font-weight: 600; font-size: 20px; text-transform: uppercase;">{{l.name}}</span>
+<span style="font-size: 14px; color: #A3A3A3;">{{l.stat}}</span>
+<p style="margin: 4px 0 0; font-size: 14px; line-height: 1.5; color: #D4D4D4;">{{l.note}}</p>
+</div>
+</article>
+</sc-for>
+</div>
+</div>
+</section>
+<div class="stripes" aria-hidden="true" style="height: 8px;"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2600}}'>
+class Component extends DCLogic {
+renderVals() {
+const S = (year, tag, title, text, filled) => ({ year, tag, title, text, dot: filled ? 'background: #FFFFFF;' : 'background: #0A0A0A;' });
+const T = (place, title, year, gold) => ({ place, title, year, box: gold ? 'background: #0A0A0A; color: #FFFFFF;' : 'border: 2px solid #0A0A0A;', sub: gold ? 'color: #BDBDBD;' : 'color: #525252;' });
+return {
+steps: [
+S('[ГОД]', 'Основание', 'Первая тренировка', '[Кто собрал команду, сколько человек пришло, где играли первый матч.]', true),
+S('2022', 'Трофей', 'Зимний турнир', '[Первый кубок: с кем играли в финале, кто забил решающий гол.]', true),
+S('2023/24', 'Сезон', 'Заявка в ЛФЛ', '[Первый сезон в лиге, итоговое место, главные открытия.]', false),
+S('2025/26', 'Чемпионство', 'Первое место в дивизионе', '[Как выиграли дивизион: ключевые матчи и серия без поражений.]', true),
+S('2026', 'Клуб', 'Бауманская лига', '[Запуск своей фэнтази-лиги и сайта клуба.]', false)
+],
+trophies: [
+T('1', 'ЛФЛ · Дивизион [—]', '2025/26', true),
+T('1', 'Зимний турнир', '2022', true),
+T('1', 'Кубок МГТУ', '[ГОД]', true),
+T('1', '[Турнир]', '[ГОД]', true),
+T('2', 'ЛФЛ · Дивизион [—]', '2024/25', false),
+T('3', 'Кубок МГТУ', '[ГОД]', false),
+T('3', '[Турнир]', '[ГОД]', false)
+],
+legends: [
+{ name: '[Имя Фамилия]', years: '[ГОД]–[ГОД]', stat: 'Основатель · 70 матчей', note: '[Короткая история или цитата.]' },
+{ name: '[Имя Фамилия]', years: '[ГОД]–[ГОД]', stat: 'Лучший бомбардир · 54 гола', note: '[Короткая история или цитата.]' },
+{ name: '[Имя Фамилия]', years: '[ГОД]–[ГОД]', stat: 'Капитан · 2 трофея', note: '[Короткая история или цитата.]' },
+{ name: '[Имя Фамилия]', years: '[ГОД]–[ГОД]', stat: 'Вратарь · 21 сухой матч', note: '[Короткая история или цитата.]' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

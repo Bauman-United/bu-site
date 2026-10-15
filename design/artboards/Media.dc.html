@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Медиа</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0A}
+a{color:#FFFFFF}a:hover{color:#BDBDBD}
+.ph{background:repeating-linear-gradient(135deg,#1C1C1C 0 14px,#161616 14px 28px)}
+.stripes{background:repeating-linear-gradient(90deg,#FFFFFF 0 56px,#0A0A0A 56px 112px)}
+</style>
+</helmet>
+<div style="position: relative; font-family: Manrope, system-ui, sans-serif; color: #FFFFFF; background: #0A0A0A; min-height: 100%;">
+
+<header style="border-bottom: 1px solid #262626;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; justify-content: space-between;">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;"><svg width="36" height="42" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 1 L38 6 V22 C38 34 30 41 20 45 C10 41 2 34 2 22 V6 Z" fill="#0A0A0A" stroke="#FFFFFF" stroke-width="2"/><path d="M11 4.5 V40 M20 2 V44 M29 4.5 V40" stroke="#FFFFFF" stroke-width="4"/><rect x="6" y="15" width="28" height="14" fill="#0A0A0A"/><text x="20" y="26" text-anchor="middle" font-family="Oswald" font-weight="700" font-size="11" fill="#FFFFFF">БЮ</text></svg><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px; text-transform: uppercase;">Бауман Юнайтед</span></a>
+<nav aria-label="Основное меню" style="display: flex; flex-wrap: wrap; gap: 4px 24px; font-family: Oswald, sans-serif; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase;">
+<a href="Calendar.dc.html" style="text-decoration: none;">Матчи</a>
+<a href="Squad.dc.html" style="text-decoration: none;">Команда</a>
+<a href="Stats.dc.html" style="text-decoration: none;">Статистика</a>
+<a href="History.dc.html" style="text-decoration: none;">История</a>
+<a href="News.dc.html" style="text-decoration: none;">Новости</a>
+<a href="Media.dc.html" aria-current="page" style="text-decoration: none; border-bottom: 2px solid #FFFFFF; padding-bottom: 2px;">Медиа</a>
+<a href="Fantasy.dc.html" style="text-decoration: none;">Лига</a>
+</nav>
+</div>
+</header>
+
+<section style="border-bottom: 1px solid #262626;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 56px 32px 0; display: flex; flex-direction: column; gap: 28px;">
+<h1 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 72px; line-height: 1; text-transform: uppercase;">Медиа</h1>
+<div role="tablist" aria-label="Тип медиа" style="display: flex; gap: 32px;">
+<button type="button" role="tab" aria-selected="{{photoTab}}" onClick="{{showPhoto}}" style="min-height: 48px; background: none; color: #FFFFFF; border: 0; padding: 0 0 10px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 22px; text-transform: uppercase; {{photoTabStyle}}">Фото</button>
+<button type="button" role="tab" aria-selected="{{videoTab}}" onClick="{{showVideo}}" style="min-height: 48px; background: none; color: #FFFFFF; border: 0; padding: 0 0 10px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 22px; text-transform: uppercase; {{videoTabStyle}}">Видео и трансляции</button>
+</div>
+</div>
+</section>
+
+<sc-if value="{{photoTab}}" hint-placeholder-val="{{true}}">
+<section>
+<div style="max-width: 1280px; margin: 0 auto; padding: 40px 32px 0; display: flex; flex-direction: column; gap: 20px;">
+<h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 600; font-size: 20px; letter-spacing: 0.08em; text-transform: uppercase; color: #A3A3A3;">Альбомы</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+<sc-for list="{{albums}}" as="al" hint-placeholder-count="4">
+<button type="button" onClick="{{al.pick}}" aria-pressed="{{al.on}}" style="text-align: left; padding: 0; background: #0A0A0A; color: #FFFFFF; cursor: pointer; display: flex; flex-direction: column; {{al.ring}}">
+<div class="ph" style="width: 100%; height: 150px;"></div>
+<div style="padding: 14px 16px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; width: 100%; box-sizing: border-box;"><span style="font-family: Oswald, sans-serif; font-weight: 600; font-size: 18px; text-transform: uppercase;">{{al.title}}</span><span style="font-size: 13px; color: #A3A3A3;">{{al.count}}</span></div>
+</button>
+</sc-for>
+</div>
+</div>
+</section>
+<section>
+<div style="max-width: 1280px; margin: 0 auto; padding: 40px 32px 72px; display: flex; flex-direction: column; gap: 20px;">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap;"><h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 36px; text-transform: uppercase;">{{albumTitle}}</h2><span style="font-size: 14px; color: #A3A3A3;">Нажми на фото, чтобы открыть</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;">
+<sc-for list="{{photos}}" as="p" hint-placeholder-count="12">
+<button type="button" class="ph" onClick="{{p.open}}" aria-label="{{p.label}}" style="border: 0; padding: 0; cursor: zoom-in; {{p.size}}"></button>
+</sc-for>
+</div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{videoTab}}" hint-placeholder-val="{{false}}">
+<section>
+<div style="max-width: 1280px; margin: 0 auto; padding: 40px 32px 72px; display: flex; flex-wrap: wrap; gap: 32px;">
+<div style="flex: 2 1 600px; display: flex; flex-direction: column; gap: 16px;">
+<div class="ph" style="aspect-ratio: 16 / 9; position: relative; display: flex; align-items: center; justify-content: center;">
+<span style="position: absolute; top: 16px; left: 16px; display: inline-flex; align-items: center; gap: 8px; background: #FFFFFF; color: #0A0A0A; padding: 5px 10px; font-family: Oswald, sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.1em;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0A0A0A;"></span>LIVE</span>
+<button type="button" aria-label="Смотреть трансляцию" style="width: 96px; height: 96px; border-radius: 50%; background: #FFFFFF; border: 0; display: flex; align-items: center; justify-content: center;"><svg width="36" height="36" viewBox="0 0 24 24" fill="#0A0A0A" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+<span style="position: absolute; bottom: 16px; left: 16px; font-size: 13px; color: #A3A3A3;">Плеер VK Видео / YouTube</span>
+</div>
+<h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 32px; text-transform: uppercase;">Бауман Юнайтед — ФК Политех</h2>
+<span style="font-size: 15px; color: #A3A3A3;">ЛФЛ · 8 тур · прямая трансляция</span>
+</div>
+<div style="flex: 1 1 320px; display: flex; flex-direction: column;">
+<h3 style="margin: 0 0 8px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 18px; letter-spacing: 0.08em; text-transform: uppercase; color: #A3A3A3;">Записи и хайлайты</h3>
+<sc-for list="{{videos}}" as="v" hint-placeholder-count="5">
+<a href="#" style="text-decoration: none; display: flex; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid #262626;">
+<div class="ph" style="width: 128px; height: 72px; flex-shrink: 0; position: relative;"><span style="position: absolute; right: 4px; bottom: 4px; background: #0A0A0A; font-size: 11px; padding: 1px 4px;">{{v.len}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-weight: 700; font-size: 15px; line-height: 1.3;">{{v.title}}</span><span style="font-size: 13px; color: #A3A3A3;">{{v.meta}}</span></div>
+</a>
+</sc-for>
+</div>
+</div>
+</section>
+</sc-if>
+<div class="stripes" aria-hidden="true" style="height: 8px;"></div>
+
+<sc-if value="{{lightbox}}" hint-placeholder-val="{{false}}">
+<div role="dialog" aria-modal="true" aria-label="Просмотр фото" style="position: absolute; inset: 0; background: rgba(10,10,10,0.96); display: flex; flex-direction: column; z-index: 10;">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 32px;">
+<span style="font-family: Oswald, sans-serif; font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase;">{{albumTitle}} · {{current}} / {{total}}</span>
+<button type="button" onClick="{{close}}" aria-label="Закрыть" style="width: 48px; height: 48px; background: #FFFFFF; border: 0; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+</div>
+<div style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 24px; padding: 0 32px; max-height: 900px;">
+<button type="button" onClick="{{prev}}" aria-label="Предыдущее фото" style="width: 56px; height: 56px; flex-shrink: 0; background: none; border: 2px solid #FFFFFF; color: #FFFFFF; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+<div class="ph" style="flex: 1; max-width: 1040px; aspect-ratio: 3 / 2; display: flex; align-items: center; justify-content: center;"><span style="font-family: Oswald, sans-serif; font-size: 14px; letter-spacing: 0.12em; color: #6B6B6B; text-transform: uppercase;">[Фото {{current}}]</span></div>
+<button type="button" onClick="{{next}}" aria-label="Следующее фото" style="width: 56px; height: 56px; flex-shrink: 0; background: none; border: 2px solid #FFFFFF; color: #FFFFFF; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+</div>
+<div style="padding: 20px 32px 32px; display: flex; justify-content: center;"><a href="#" style="font-size: 14px; font-weight: 700;">Скачать оригинал</a></div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { tab: 'photo', album: 0, open: -1 };
+}
+renderVals() {
+const s = this.state;
+const albumsData = [['Матчи', 412], ['Зимний турнир 2022', 86], ['Тимбилдинги', 54], ['Персональные фото', 120]];
+const n = 12;
+const sizes = ['grid-column: span 2; grid-row: span 2; min-height: 408px;', 'min-height: 200px;', 'min-height: 200px;', 'min-height: 200px;', 'min-height: 200px;', 'grid-column: span 2; min-height: 200px;', 'min-height: 200px;', 'min-height: 200px;', 'min-height: 200px;', 'min-height: 200px;', 'grid-column: span 2; min-height: 200px;', 'min-height: 200px;'];
+const on = 'border-bottom: 3px solid #FFFFFF;';
+const off = 'border-bottom: 3px solid transparent; color: #A3A3A3;';
+return {
+photoTab: s.tab === 'photo',
+videoTab: s.tab === 'video',
+photoTabStyle: s.tab === 'photo' ? on : off,
+videoTabStyle: s.tab === 'video' ? on : off,
+showPhoto: () => this.setState({ tab: 'photo' }),
+showVideo: () => this.setState({ tab: 'video', open: -1 }),
+albums: albumsData.map((a, i) => ({ title: a[0], count: a[1] + ' фото', on: s.album === i, ring: s.album === i ? 'border: 2px solid #FFFFFF;' : 'border: 2px solid #262626;', pick: () => this.setState({ album: i }) })),
+albumTitle: albumsData[s.album][0],
+photos: sizes.map((size, i) => ({ size, label: 'Открыть фото ' + (i + 1), open: () => this.setState({ open: i }) })),
+lightbox: s.open >= 0,
+current: s.open + 1,
+total: n,
+close: () => this.setState({ open: -1 }),
+prev: () => this.setState({ open: (s.open + n - 1) % n }),
+next: () => this.setState({ open: (s.open + 1) % n }),
+videos: [
+{ title: 'Хайлайты: Бауман Юнайтед 3:1 Энергия', meta: 'ЛФЛ · 7 тур', len: '4:12' },
+{ title: 'Полная запись: Вымпел — Бауман Юнайтед', meta: 'ЛФЛ · 6 тур', len: '1:38:40' },
+{ title: 'Гол Ковалёва со штрафного', meta: 'Момент недели', len: '0:24' },
+{ title: 'Интервью капитана после Спартак-Студ', meta: 'Послематчевое', len: '3:05' },
+{ title: 'Зимний турнир 2022: как это было', meta: 'Архив', len: '7:50' }
+]
+};
+}
+}
+</script>
+</body>
+</html>

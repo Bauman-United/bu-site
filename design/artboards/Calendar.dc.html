@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Календарь и результаты</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0A}
+a{color:#FFFFFF}a:hover{color:#BDBDBD}
+.stripes{background:repeating-linear-gradient(90deg,#FFFFFF 0 56px,#0A0A0A 56px 112px)}
+</style>
+</helmet>
+<div style="font-family: Manrope, system-ui, sans-serif; color: #FFFFFF; background: #0A0A0A; min-height: 100%;">
+
+<header style="border-bottom: 1px solid #262626;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; justify-content: space-between;">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;"><svg width="36" height="42" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 1 L38 6 V22 C38 34 30 41 20 45 C10 41 2 34 2 22 V6 Z" fill="#0A0A0A" stroke="#FFFFFF" stroke-width="2"/><path d="M11 4.5 V40 M20 2 V44 M29 4.5 V40" stroke="#FFFFFF" stroke-width="4"/><rect x="6" y="15" width="28" height="14" fill="#0A0A0A"/><text x="20" y="26" text-anchor="middle" font-family="Oswald" font-weight="700" font-size="11" fill="#FFFFFF">БЮ</text></svg><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px; text-transform: uppercase;">Бауман Юнайтед</span></a>
+<nav aria-label="Основное меню" style="display: flex; flex-wrap: wrap; gap: 4px 24px; font-family: Oswald, sans-serif; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase;">
+<a href="Calendar.dc.html" aria-current="page" style="text-decoration: none; border-bottom: 2px solid #FFFFFF; padding-bottom: 2px;">Матчи</a>
+<a href="Squad.dc.html" style="text-decoration: none;">Команда</a>
+<a href="Stats.dc.html" style="text-decoration: none;">Статистика</a>
+<a href="History.dc.html" style="text-decoration: none;">История</a>
+<a href="News.dc.html" style="text-decoration: none;">Новости</a>
+<a href="Media.dc.html" style="text-decoration: none;">Медиа</a>
+<a href="Fantasy.dc.html" style="text-decoration: none;">Лига</a>
+</nav>
+</div>
+</header>
+
+<section style="border-bottom: 1px solid #262626;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 56px 32px 32px; display: flex; flex-direction: column; gap: 28px;">
+<h1 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 72px; line-height: 1; text-transform: uppercase;">Матчи</h1>
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end;">
+<div style="display: flex; flex-direction: column; gap: 8px;"><label for="season" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #A3A3A3;">Сезон</label><select id="season" style="height: 44px; min-width: 160px; background: #0A0A0A; color: #FFFFFF; border: 1px solid #404040; padding: 0 12px; font-family: Oswald, sans-serif; font-size: 16px;"><option>2026/27</option><option>2025/26</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 8px;"><span style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #A3A3A3;">Турнир</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px;">
+<button type="button" aria-pressed="true" style="height: 44px; padding: 0 18px; background: #FFFFFF; color: #0A0A0A; border: 1px solid #FFFFFF; font-family: Oswald, sans-serif; font-weight: 600; font-size: 15px; text-transform: uppercase;">Все</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 18px; background: transparent; color: #FFFFFF; border: 1px solid #404040; font-family: Oswald, sans-serif; font-weight: 500; font-size: 15px; text-transform: uppercase;">ЛФЛ</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 18px; background: transparent; color: #FFFFFF; border: 1px solid #404040; font-family: Oswald, sans-serif; font-weight: 500; font-size: 15px; text-transform: uppercase;">Бауманская лига</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 18px; background: transparent; color: #FFFFFF; border: 1px solid #404040; font-family: Oswald, sans-serif; font-weight: 500; font-size: 15px; text-transform: uppercase;">Кубки и турниры</button>
+</div></div>
+<div style="display: flex; flex-direction: column; gap: 8px;"><span style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #A3A3A3;">Где</span>
+<div style="display: flex; gap: 6px;">
+<button type="button" aria-pressed="true" style="height: 44px; padding: 0 18px; background: #FFFFFF; color: #0A0A0A; border: 1px solid #FFFFFF; font-family: Oswald, sans-serif; font-weight: 600; font-size: 15px; text-transform: uppercase;">Все</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 18px; background: transparent; color: #FFFFFF; border: 1px solid #404040; font-family: Oswald, sans-serif; font-weight: 500; font-size: 15px; text-transform: uppercase;">Дома</button>
+<button type="button" aria-pressed="false" style="height: 44px; padding: 0 18px; background: transparent; color: #FFFFFF; border: 1px solid #404040; font-family: Oswald, sans-serif; font-weight: 500; font-size: 15px; text-transform: uppercase;">В гостях</button>
+</div></div>
+</div>
+</div>
+</section>
+
+<section>
+<div style="max-width: 1280px; margin: 0 auto; padding: 48px 32px 16px; display: flex; flex-direction: column; gap: 16px;">
+<h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 32px; text-transform: uppercase;">Ближайшие</h2>
+
+<a href="#" style="text-decoration: none; background: #FFFFFF; color: #0A0A0A; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding: 24px 28px;">
+<div style="display: flex; flex-direction: column; min-width: 140px;"><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 28px; line-height: 1;">18 ОКТ</span><span style="font-size: 14px; color: #404040;">Сб · 14:00</span></div>
+<span style="font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; border: 1.5px solid #0A0A0A; padding: 3px 8px;">ЛФЛ · 8 тур</span>
+<div style="flex: 1 1 320px; display: flex; align-items: center; gap: 16px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 22px; text-transform: uppercase;"><span>Бауман Юнайтед</span><span style="color: #737373; font-size: 16px;">vs</span><span>ФК Политех</span></div>
+<span style="font-size: 14px; color: #404040;">Дома · [Стадион]</span>
+<span style="background: #0A0A0A; color: #FFFFFF; padding: 10px 16px; font-family: Oswald, sans-serif; font-weight: 700; font-size: 18px;">2д 17ч</span>
+</a>
+
+<a href="#" style="text-decoration: none; border: 1px solid #333333; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding: 24px 28px;">
+<div style="display: flex; flex-direction: column; min-width: 140px;"><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 28px; line-height: 1;">25 ОКТ</span><span style="font-size: 14px; color: #A3A3A3;">Сб · 16:30</span></div>
+<span style="font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; border: 1.5px solid #FFFFFF; padding: 3px 8px;">ЛФЛ · 9 тур</span>
+<div style="flex: 1 1 320px; display: flex; align-items: center; gap: 16px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 22px; text-transform: uppercase;"><span>Технолог</span><span style="color: #737373; font-size: 16px;">vs</span><span>Бауман Юнайтед</span></div>
+<span style="font-size: 14px; color: #A3A3A3;">В гостях · [Стадион]</span>
+</a>
+
+<a href="#" style="text-decoration: none; border: 1px solid #333333; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding: 24px 28px;">
+<div style="display: flex; flex-direction: column; min-width: 140px;"><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 28px; line-height: 1;">1 НОЯ</span><span style="font-size: 14px; color: #A3A3A3;">Сб · 12:00</span></div>
+<span style="font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; border: 1.5px solid #FFFFFF; padding: 3px 8px;">Кубок МГТУ</span>
+<div style="flex: 1 1 320px; display: flex; align-items: center; gap: 16px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 22px; text-transform: uppercase;"><span>Бауман Юнайтед</span><span style="color: #737373; font-size: 16px;">vs</span><span>Спартак-Студ</span></div>
+<span style="font-size: 14px; color: #A3A3A3;">Дома · [Стадион]</span>
+</a>
+</div>
+</section>
+
+<section>
+<div style="max-width: 1280px; margin: 0 auto; padding: 40px 32px 80px; display: flex; flex-direction: column; gap: 0;">
+<h2 style="margin: 0 0 16px; font-family: Oswald, sans-serif; font-weight: 700; font-size: 32px; text-transform: uppercase;">Сыгранные</h2>
+<div style="overflow-x: auto;">
+<table style="width: 100%; min-width: 760px; border-collapse: collapse; font-size: 16px;">
+<thead><tr style="color: #A3A3A3; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;"><th style="text-align: left; padding: 10px 8px; font-weight: 500;">Дата</th><th style="text-align: left; padding: 10px 8px; font-weight: 500;">Турнир</th><th style="text-align: left; padding: 10px 8px; font-weight: 500;">Соперник</th><th style="text-align: left; padding: 10px 8px; font-weight: 500;">Где</th><th style="text-align: center; padding: 10px 8px; font-weight: 500;">Счёт</th><th style="padding: 10px 8px;"></th></tr></thead>
+<tbody>
+<tr style="border-top: 1px solid #262626;"><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-size: 18px;">11 ОКТ</td><td style="padding: 16px 8px; color: #D4D4D4;">ЛФЛ · 7 тур</td><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 18px; text-transform: uppercase;">Энергия</td><td style="padding: 16px 8px; color: #A3A3A3;">Дома</td><td style="padding: 16px 8px; text-align: center;"><span style="display: inline-block; min-width: 64px; background: #FFFFFF; color: #0A0A0A; padding: 6px 10px; font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px;">3:1</span></td><td style="padding: 16px 8px; text-align: right;"><a href="#" style="font-weight: 600;">Матч →</a></td></tr>
+<tr style="border-top: 1px solid #262626;"><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-size: 18px;">4 ОКТ</td><td style="padding: 16px 8px; color: #D4D4D4;">ЛФЛ · 6 тур</td><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 18px; text-transform: uppercase;">Вымпел</td><td style="padding: 16px 8px; color: #A3A3A3;">В гостях</td><td style="padding: 16px 8px; text-align: center;"><span style="display: inline-block; min-width: 64px; box-sizing: border-box; border: 2px solid #FFFFFF; padding: 4px 8px; font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px;">1:2</span></td><td style="padding: 16px 8px; text-align: right;"><a href="#" style="font-weight: 600;">Матч →</a></td></tr>
+<tr style="border-top: 1px solid #262626;"><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-size: 18px;">27 СЕН</td><td style="padding: 16px 8px; color: #D4D4D4;">ЛФЛ · 5 тур</td><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 18px; text-transform: uppercase;">Спартак-Студ</td><td style="padding: 16px 8px; color: #A3A3A3;">Дома</td><td style="padding: 16px 8px; text-align: center;"><span style="display: inline-block; min-width: 64px; background: #5C5C5C; color: #FFFFFF; padding: 6px 10px; font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px;">2:2</span></td><td style="padding: 16px 8px; text-align: right;"><a href="#" style="font-weight: 600;">Матч →</a></td></tr>
+<tr style="border-top: 1px solid #262626;"><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-size: 18px;">20 СЕН</td><td style="padding: 16px 8px; color: #D4D4D4;">ЛФЛ · 4 тур</td><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 18px; text-transform: uppercase;">Радий</td><td style="padding: 16px 8px; color: #A3A3A3;">В гостях</td><td style="padding: 16px 8px; text-align: center;"><span style="display: inline-block; min-width: 64px; background: #FFFFFF; color: #0A0A0A; padding: 6px 10px; font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px;">4:0</span></td><td style="padding: 16px 8px; text-align: right;"><a href="#" style="font-weight: 600;">Матч →</a></td></tr>
+<tr style="border-top: 1px solid #262626;"><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-size: 18px;">13 СЕН</td><td style="padding: 16px 8px; color: #D4D4D4;">Бауманская лига</td><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 18px; text-transform: uppercase;">Сборная ИУ</td><td style="padding: 16px 8px; color: #A3A3A3;">Дома</td><td style="padding: 16px 8px; text-align: center;"><span style="display: inline-block; min-width: 64px; background: #FFFFFF; color: #0A0A0A; padding: 6px 10px; font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px;">2:1</span></td><td style="padding: 16px 8px; text-align: right;"><a href="#" style="font-weight: 600;">Матч →</a></td></tr>
+<tr style="border-top: 1px solid #262626; border-bottom: 1px solid #262626;"><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-size: 18px;">6 СЕН</td><td style="padding: 16px 8px; color: #D4D4D4;">ЛФЛ · 3 тур</td><td style="padding: 16px 8px; font-family: Oswald, sans-serif; font-weight: 600; font-size: 18px; text-transform: uppercase;">Технолог</td><td style="padding: 16px 8px; color: #A3A3A3;">Дома</td><td style="padding: 16px 8px; text-align: center;"><span style="display: inline-block; min-width: 64px; background: #FFFFFF; color: #0A0A0A; padding: 6px 10px; font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px;">2:0</span></td><td style="padding: 16px 8px; text-align: right;"><a href="#" style="font-weight: 600;">Матч →</a></td></tr>
+</tbody>
+</table>
+</div>
+<div style="display: flex; gap: 24px; margin-top: 20px; font-size: 13px; color: #A3A3A3; flex-wrap: wrap;">
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 16px; height: 16px; background: #FFFFFF;"></span>Победа</span>
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 16px; height: 16px; background: #5C5C5C;"></span>Ничья</span>
+<span style="display: flex; align-items: center; gap: 8px;"><span style="width: 16px; height: 16px; border: 2px solid #FFFFFF; box-sizing: border-box;"></span>Поражение</span>
+</div>
+</div>
+</section>
+<div class="stripes" aria-hidden="true" style="height: 8px;"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

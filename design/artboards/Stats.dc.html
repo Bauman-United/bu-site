@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Статистика</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0A}
+a{color:#FFFFFF}a:hover{color:#BDBDBD}
+.stripes{background:repeating-linear-gradient(90deg,#FFFFFF 0 56px,#0A0A0A 56px 112px)}
+</style>
+</helmet>
+<div style="font-family: Manrope, system-ui, sans-serif; color: #FFFFFF; background: #0A0A0A; min-height: 100%;">
+
+<header style="border-bottom: 1px solid #262626;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; justify-content: space-between;">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;"><svg width="36" height="42" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 1 L38 6 V22 C38 34 30 41 20 45 C10 41 2 34 2 22 V6 Z" fill="#0A0A0A" stroke="#FFFFFF" stroke-width="2"/><path d="M11 4.5 V40 M20 2 V44 M29 4.5 V40" stroke="#FFFFFF" stroke-width="4"/><rect x="6" y="15" width="28" height="14" fill="#0A0A0A"/><text x="20" y="26" text-anchor="middle" font-family="Oswald" font-weight="700" font-size="11" fill="#FFFFFF">БЮ</text></svg><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px; text-transform: uppercase;">Бауман Юнайтед</span></a>
+<nav aria-label="Основное меню" style="display: flex; flex-wrap: wrap; gap: 4px 24px; font-family: Oswald, sans-serif; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase;">
+<a href="Calendar.dc.html" style="text-decoration: none;">Матчи</a>
+<a href="Squad.dc.html" style="text-decoration: none;">Команда</a>
+<a href="Stats.dc.html" aria-current="page" style="text-decoration: none; border-bottom: 2px solid #FFFFFF; padding-bottom: 2px;">Статистика</a>
+<a href="History.dc.html" style="text-decoration: none;">История</a>
+<a href="News.dc.html" style="text-decoration: none;">Новости</a>
+<a href="Media.dc.html" style="text-decoration: none;">Медиа</a>
+<a href="Fantasy.dc.html" style="text-decoration: none;">Лига</a>
+</nav>
+</div>
+</header>
+
+<section style="border-bottom: 1px solid #262626;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 56px 32px 32px; display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; align-items: flex-end;">
+<h1 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 72px; line-height: 1; text-transform: uppercase;">Статистика</h1>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
+<div style="display: flex; flex-direction: column; gap: 8px;"><label for="st-season" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #A3A3A3;">Сезон</label><select id="st-season" style="height: 44px; min-width: 160px; background: #0A0A0A; color: #FFFFFF; border: 1px solid #404040; padding: 0 12px; font-family: Oswald, sans-serif; font-size: 16px;"><option>2026/27</option><option>2025/26</option><option>За всё время</option></select></div>
+<div style="display: flex; flex-direction: column; gap: 8px;"><label for="st-cup" style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #A3A3A3;">Турнир</label><select id="st-cup" style="height: 44px; min-width: 180px; background: #0A0A0A; color: #FFFFFF; border: 1px solid #404040; padding: 0 12px; font-family: Oswald, sans-serif; font-size: 16px;"><option>Все турниры</option><option>ЛФЛ</option><option>Кубки</option></select></div>
+</div>
+</div>
+</section>
+
+<!-- Лидеры -->
+<section>
+<div style="max-width: 1280px; margin: 0 auto; padding: 48px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+<sc-for list="{{boards}}" as="b" hint-placeholder-count="3">
+<article style="border: 1px solid #333333; display: flex; flex-direction: column;">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; background: #FFFFFF; color: #0A0A0A;"><h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 24px; text-transform: uppercase;">{{b.title}}</h2><span style="font-size: 13px; color: #525252;">{{b.unit}}</span></div>
+<ol style="margin: 0; padding: 8px 24px 16px; list-style: none; display: flex; flex-direction: column;">
+<sc-for list="{{b.rows}}" as="r" hint-placeholder-count="5">
+<li style="display: grid; grid-template-columns: 28px 1fr 44px; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #262626;">
+<span style="font-family: Oswald, sans-serif; font-size: 16px; color: #A3A3A3;">{{r.rank}}</span>
+<div style="display: flex; flex-direction: column; gap: 6px;"><span style="font-weight: 700; font-size: 15px;">{{r.name}}</span><div style="height: 4px; background: #262626;"><div style="height: 4px; background: #FFFFFF; {{r.bar}}"></div></div></div>
+<span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 26px; text-align: right;">{{r.val}}</span>
+</li>
+</sc-for>
+</ol>
+</article>
+</sc-for>
+</div>
+</section>
+
+<!-- Полная таблица -->
+<section style="background: #FFFFFF; color: #0A0A0A;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 56px 32px; display: flex; flex-direction: column; gap: 20px;">
+<h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 40px; text-transform: uppercase;">Все игроки</h2>
+<div style="overflow-x: auto;">
+<table style="width: 100%; min-width: 820px; border-collapse: collapse; font-size: 16px;">
+<thead>
+<tr style="border-bottom: 2px solid #0A0A0A;">
+<th style="text-align: left; padding: 0;"><button type="button" style="width: 100%; min-height: 44px; text-align: left; background: none; border: 0; padding: 0 8px; font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #525252;">Игрок</button></th>
+<th style="padding: 0;"><button type="button" style="width: 100%; min-height: 44px; text-align: right; background: none; border: 0; padding: 0 8px; font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #525252;">Поз.</button></th>
+<th style="padding: 0;"><button type="button" style="width: 100%; min-height: 44px; text-align: right; background: none; border: 0; padding: 0 8px; font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #525252;">Матчи</button></th>
+<th style="padding: 0;" aria-sort="descending"><button type="button" style="width: 100%; min-height: 44px; display: flex; gap: 4px; align-items: center; justify-content: flex-end; background: #0A0A0A; color: #FFFFFF; border: 0; padding: 0 8px; font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;">Голы<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></th>
+<th style="padding: 0;"><button type="button" style="width: 100%; min-height: 44px; text-align: right; background: none; border: 0; padding: 0 8px; font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #525252;">Передачи</button></th>
+<th style="padding: 0;"><button type="button" style="width: 100%; min-height: 44px; text-align: right; background: none; border: 0; padding: 0 8px; font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #525252;">Г+П</button></th>
+<th style="padding: 0;"><button type="button" style="width: 100%; min-height: 44px; text-align: right; background: none; border: 0; padding: 0 8px; font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #525252;">ЖК</button></th>
+<th style="padding: 0;"><button type="button" style="width: 100%; min-height: 44px; text-align: right; background: none; border: 0; padding: 0 8px; font-family: Oswald, sans-serif; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #525252;">MVP</button></th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{table}}" as="t" hint-placeholder-count="8">
+<tr style="border-bottom: 1px solid #D4D4D4;">
+<td style="padding: 12px 8px;"><a href="Player.dc.html" style="color: #0A0A0A; font-weight: 700; text-decoration: none;"><span style="font-family: Oswald, sans-serif; color: #737373; margin-right: 10px;">{{t.num}}</span>{{t.name}}</a></td>
+<td style="padding: 12px 8px; text-align: right; color: #525252;">{{t.pos}}</td>
+<td style="padding: 12px 8px; text-align: right;">{{t.m}}</td>
+<td style="padding: 12px 8px; text-align: right; font-weight: 700; background: #F2F2F2;">{{t.g}}</td>
+<td style="padding: 12px 8px; text-align: right;">{{t.a}}</td>
+<td style="padding: 12px 8px; text-align: right;">{{t.ga}}</td>
+<td style="padding: 12px 8px; text-align: right;">{{t.y}}</td>
+<td style="padding: 12px 8px; text-align: right;">{{t.mvp}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<!-- Рекорды -->
+<section>
+<div style="max-width: 1280px; margin: 0 auto; padding: 56px 32px; display: flex; flex-direction: column; gap: 24px;">
+<h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 40px; text-transform: uppercase;">Рекорды клуба</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2px; background: #333333; border: 2px solid #333333;">
+<div style="background: #0A0A0A; padding: 28px; display: flex; flex-direction: column; gap: 8px;"><span style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #A3A3A3;">Крупнейшая победа</span><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 64px; line-height: 1;">7:0</span><span style="font-size: 14px; color: #D4D4D4;">vs [Соперник] · [Сезон]</span></div>
+<div style="background: #0A0A0A; padding: 28px; display: flex; flex-direction: column; gap: 8px;"><span style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #A3A3A3;">Серия без поражений</span><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 64px; line-height: 1;">9</span><span style="font-size: 14px; color: #D4D4D4;">матчей подряд · [Сезон]</span></div>
+<div style="background: #0A0A0A; padding: 28px; display: flex; flex-direction: column; gap: 8px;"><span style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #A3A3A3;">Самый быстрый гол</span><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 64px; line-height: 1;">0:14</span><span style="font-size: 14px; color: #D4D4D4;">Иван Смирнов · [Матч]</span></div>
+<div style="background: #FFFFFF; color: #0A0A0A; padding: 28px; display: flex; flex-direction: column; gap: 8px;"><span style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #525252;">Больше всех матчей</span><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 64px; line-height: 1;">61</span><span style="font-size: 14px; color: #404040;">Дмитрий Орлов</span></div>
+</div>
+</div>
+</section>
+
+<!-- Сравнение сезонов -->
+<section style="border-top: 1px solid #262626;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 56px 32px 72px; display: flex; flex-direction: column; gap: 28px;">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 16px;">
+<h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 40px; text-transform: uppercase;">Сезоны</h2>
+<div style="display: flex; gap: 20px; font-size: 14px; color: #D4D4D4;"><span style="display: flex; gap: 8px; align-items: center;"><span style="width: 14px; height: 14px; background: #FFFFFF;"></span>Забито</span><span style="display: flex; gap: 8px; align-items: center;"><span style="width: 14px; height: 14px; background: #5C5C5C;"></span>Пропущено</span></div>
+</div>
+<div role="img" aria-label="Голы забитые и пропущенные по сезонам" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; align-items: end; height: 320px; border-bottom: 2px solid #FFFFFF; padding: 0 8px;">
+<sc-for list="{{seasons}}" as="s" hint-placeholder-count="5">
+<div style="display: flex; gap: 6px; align-items: flex-end; justify-content: center; height: 100%;">
+<div style="flex: 0 1 48px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 100%;"><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 18px;">{{s.f}}</span><div style="width: 100%; background: #FFFFFF; {{s.fh}}"></div></div>
+<div style="flex: 0 1 48px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 100%;"><span style="font-family: Oswald, sans-serif; font-size: 18px; color: #A3A3A3;">{{s.a}}</span><div style="width: 100%; background: #5C5C5C; {{s.ah}}"></div></div>
+</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; padding: 0 8px;">
+<sc-for list="{{seasons}}" as="s" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 2px;"><span style="font-family: Oswald, sans-serif; font-weight: 600; font-size: 18px;">{{s.label}}</span><span style="font-size: 13px; color: #A3A3A3;">{{s.pts}}</span></div>
+</sc-for>
+</div>
+</div>
+</section>
+<div class="stripes" aria-hidden="true" style="height: 8px;"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2200}}'>
+class Component extends DCLogic {
+renderVals() {
+const rows = (list) => { const max = list[0][1]; return list.map((x, i) => ({ rank: i + 1, name: x[0], val: x[1], bar: 'width: ' + Math.round(x[1] / max * 100) + '%;' })); };
+const T = (num, name, pos, m, g, a, y, mvp) => ({ num, name, pos, m, g, a, ga: g + a, y, mvp });
+const S = (label, f, a, pts) => ({ label, f, a, pts, fh: 'height: ' + Math.round(f / 70 * 250) + 'px;', ah: 'height: ' + Math.round(a / 70 * 250) + 'px;' });
+return {
+boards: [
+{ title: 'Бомбардиры', unit: 'голы', rows: rows([['Иван Смирнов', 8], ['Тимур Галиев', 3], ['Артём Ковалёв', 2], ['Егор Соколов', 1], ['Сергей Волков', 1]]) },
+{ title: 'Ассистенты', unit: 'передачи', rows: rows([['Артём Ковалёв', 6], ['Егор Соколов', 4], ['Иван Смирнов', 2], ['Павел Морозов', 2], ['Илья Новиков', 1]]) },
+{ title: 'Лучший игрок матча', unit: 'раз', rows: rows([['Иван Смирнов', 3], ['Артём Ковалёв', 2], ['Дмитрий Орлов', 1], ['Максим Егоров', 1], ['Тимур Галиев', 0]]) }
+],
+table: [
+T(9, 'Иван Смирнов', 'НАП', 7, 8, 2, 0, 3), T(11, 'Тимур Галиев', 'НАП', 6, 3, 1, 1, 0), T(10, 'Артём Ковалёв', 'ПЗ', 7, 2, 6, 1, 2), T(8, 'Егор Соколов', 'ПЗ', 7, 1, 4, 0, 0),
+T(2, 'Сергей Волков', 'ЗАЩ', 7, 1, 0, 2, 0), T(6, 'Павел Морозов', 'ПЗ', 6, 0, 2, 1, 0), T(4, 'Максим Егоров', 'ЗАЩ', 7, 0, 0, 1, 1), T(1, 'Дмитрий Орлов', 'ВР', 7, 0, 0, 0, 1)
+],
+seasons: [S('2022/23', 38, 41, '6 место'), S('2023/24', 47, 35, '4 место'), S('2024/25', 55, 30, '2 место'), S('2025/26', 62, 28, '1 место'), S('2026/27', 14, 6, 'идёт')]
+};
+}
+}
+</script>
+</body>
+</html>

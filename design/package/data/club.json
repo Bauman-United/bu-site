@@ -1,0 +1,26 @@
+{
+  "_note": "Значения в квадратных скобках и все имена — заглушки, заменить на реальные.",
+  "name": "Бауман Юнайтед",
+  "founded": null,
+  "city": "Москва",
+  "university": "МГТУ им. Н. Э. Баумана",
+  "slogan": "Футбольная команда МГТУ им. Н. Э. Баумана. Играем в ЛФЛ, держим свою фэнтази-лигу и не сдаёмся до финального свистка.",
+  "format": "8x8",
+  "defaultFormation": "3-3-1",
+  "socials": {
+    "telegram": "https://t.me/[channel]",
+    "vk": "https://vk.com/[group]",
+    "youtube": "https://youtube.com/@[channel]",
+    "lfl": "https://lfl.ru/club14270",
+    "fantasy": "https://bauman_league.join.football/team/1089660"
+  },
+  "contacts": {
+    "captainName": "[Имя Фамилия]",
+    "captainTelegram": "https://t.me/[username]",
+    "email": "[email]"
+  },
+  "training": { "days": "[Дни]", "time": "[Время]", "place": "[Место тренировок]", "mapUrl": "" },
+  "homeVenue": { "name": "[Стадион]", "address": "[Адрес]", "mapUrl": "" },
+  "lookingFor": ["Вратаря", "Защитника ×2", "Фотографа"],
+  "playerOfMonth": { "playerId": "dmitry-orlov", "month": "2026-10", "stat": "3 сухих матча" }
+}

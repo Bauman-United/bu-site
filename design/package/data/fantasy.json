@@ -1,0 +1,15 @@
+{
+  "embed": true,
+  "embedUrl": "https://bauman_league.join.football/team/1089660",
+  "joinUrl": "https://bauman_league.join.football/team/1089660",
+  "participants": null,
+  "currentRound": null,
+  "rules": [
+    { "title": "Собери состав", "text": "[Сколько игроков, бюджет, ограничения по позициям.]" },
+    { "title": "Выбери капитана", "text": "[Капитан приносит двойные очки.]" },
+    { "title": "Копи очки", "text": "[Гол, передача, сухой матч, MVP, карточки — сколько за каждое.]" },
+    { "title": "Забери приз", "text": "[Что получает победитель тура и сезона.]" }
+  ],
+  "fallbackTop": [],
+  "roundHighlights": { "winner": null, "mostPicked": null, "nextDeadline": null }
+}

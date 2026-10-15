@@ -1,0 +1,20 @@
+[
+  { "id": "dmitry-orlov", "number": 1, "firstName": "Дмитрий", "lastName": "Орлов", "nickname": "Стена", "position": "GK", "foot": "Правая", "faculty": "[—]", "joined": 2021, "active": true, "photo": "", "fact": "[Факт]" },
+  { "id": "nikita-belov", "number": 16, "firstName": "Никита", "lastName": "Белов", "nickname": "Кошка", "position": "GK", "joined": 2024, "active": true },
+  { "id": "sergey-volkov", "number": 2, "firstName": "Сергей", "lastName": "Волков", "nickname": "Шериф", "position": "DF", "joined": 2022, "active": true },
+  { "id": "maxim-egorov", "number": 4, "firstName": "Максим", "lastName": "Егоров", "nickname": "Бетон", "position": "DF", "joined": 2022, "active": true },
+  { "id": "alexey-popov", "number": 5, "firstName": "Алексей", "lastName": "Попов", "nickname": "Профессор", "position": "DF", "joined": 2023, "active": true },
+  { "id": "kirill-zaytsev", "number": 13, "firstName": "Кирилл", "lastName": "Зайцев", "nickname": "Заяц", "position": "DF", "joined": 2024, "active": true },
+  { "id": "artem-kovalev", "number": 10, "firstName": "Артём", "lastName": "Ковалёв", "nickname": "Мотор", "position": "MF", "role": "Опорный / центральный", "foot": "Правая", "faculty": "[ИУ7]", "joined": 2022, "active": true, "fact": "Не пропустил ни одного матча за два сезона — даже в сессию.",
+    "achievements": [
+      { "title": "[Зимний турнир 2022]", "subtitle": "Победитель", "icon": "cup" },
+      { "title": "Лучший ассистент сезона", "subtitle": "2025/26 · 11 передач", "icon": "medal" }
+    ] },
+  { "id": "pavel-morozov", "number": 6, "firstName": "Павел", "lastName": "Морозов", "nickname": "Мороз", "position": "MF", "joined": 2023, "active": true },
+  { "id": "egor-sokolov", "number": 8, "firstName": "Егор", "lastName": "Соколов", "nickname": "Сокол", "position": "MF", "joined": 2023, "active": true },
+  { "id": "ilya-novikov", "number": 14, "firstName": "Илья", "lastName": "Новиков", "nickname": "Новичок", "position": "MF", "joined": 2025, "active": true },
+  { "id": "gleb-fedorov", "number": 17, "firstName": "Глеб", "lastName": "Фёдоров", "nickname": "Федя", "position": "MF", "joined": 2024, "active": true },
+  { "id": "ivan-smirnov", "number": 9, "firstName": "Иван", "lastName": "Смирнов", "nickname": "Снайпер", "position": "FW", "joined": 2021, "active": true, "isCaptain": false },
+  { "id": "timur-galiev", "number": 11, "firstName": "Тимур", "lastName": "Галиев", "nickname": "Ракета", "position": "FW", "joined": 2026, "active": true },
+  { "id": "oleg-vasiliev", "number": 19, "firstName": "Олег", "lastName": "Васильев", "nickname": "Васёк", "position": "FW", "joined": 2025, "active": true }
+]

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Состав команды</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0A}
+a{color:#FFFFFF}a:hover{color:#BDBDBD}
+.ph{background:repeating-linear-gradient(135deg,#1C1C1C 0 14px,#161616 14px 28px)}
+.stripes{background:repeating-linear-gradient(90deg,#FFFFFF 0 56px,#0A0A0A 56px 112px)}
+</style>
+</helmet>
+<div style="font-family: Manrope, system-ui, sans-serif; color: #FFFFFF; background: #0A0A0A; min-height: 100%;">
+
+<header style="border-bottom: 1px solid #262626;">
+<div style="max-width: 1280px; margin: 0 auto; padding: 16px 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 24px; justify-content: space-between;">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;"><svg width="36" height="42" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 1 L38 6 V22 C38 34 30 41 20 45 C10 41 2 34 2 22 V6 Z" fill="#0A0A0A" stroke="#FFFFFF" stroke-width="2"/><path d="M11 4.5 V40 M20 2 V44 M29 4.5 V40" stroke="#FFFFFF" stroke-width="4"/><rect x="6" y="15" width="28" height="14" fill="#0A0A0A"/><text x="20" y="26" text-anchor="middle" font-family="Oswald" font-weight="700" font-size="11" fill="#FFFFFF">БЮ</text></svg><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 20px; text-transform: uppercase;">Бауман Юнайтед</span></a>
+<nav aria-label="Основное меню" style="display: flex; flex-wrap: wrap; gap: 4px 24px; font-family: Oswald, sans-serif; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase;">
+<a href="Calendar.dc.html" style="text-decoration: none;">Матчи</a>
+<a href="Squad.dc.html" aria-current="page" style="text-decoration: none; border-bottom: 2px solid #FFFFFF; padding-bottom: 2px;">Команда</a>
+<a href="Stats.dc.html" style="text-decoration: none;">Статистика</a>
+<a href="History.dc.html" style="text-decoration: none;">История</a>
+<a href="News.dc.html" style="text-decoration: none;">Новости</a>
+<a href="Media.dc.html" style="text-decoration: none;">Медиа</a>
+<a href="Fantasy.dc.html" style="text-decoration: none;">Лига</a>
+</nav>
+</div>
+</header>
+
+<section style="position: relative; overflow: hidden; border-bottom: 1px solid #262626;">
+<div class="stripes" aria-hidden="true" style="position: absolute; top: 0; right: 0; bottom: 0; width: 40%; opacity: 0.08;"></div>
+<div style="position: relative; max-width: 1280px; margin: 0 auto; padding: 56px 32px 40px; display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; align-items: flex-end;">
+<div style="display: flex; flex-direction: column; gap: 8px;"><span style="font-family: Oswald, sans-serif; font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; color: #A3A3A3;">Сезон 2026/27</span><h1 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 72px; line-height: 1; text-transform: uppercase;">Состав</h1></div>
+<nav aria-label="Позиции" style="display: flex; flex-wrap: wrap; gap: 6px;">
+<a href="#gk" style="text-decoration: none; height: 44px; display: flex; align-items: center; padding: 0 16px; border: 1px solid #404040; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Вратари</a>
+<a href="#df" style="text-decoration: none; height: 44px; display: flex; align-items: center; padding: 0 16px; border: 1px solid #404040; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Защитники</a>
+<a href="#mf" style="text-decoration: none; height: 44px; display: flex; align-items: center; padding: 0 16px; border: 1px solid #404040; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Полузащитники</a>
+<a href="#fw" style="text-decoration: none; height: 44px; display: flex; align-items: center; padding: 0 16px; border: 1px solid #404040; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Нападающие</a>
+<a href="#staff" style="text-decoration: none; height: 44px; display: flex; align-items: center; padding: 0 16px; border: 1px solid #404040; font-family: Oswald, sans-serif; font-size: 15px; text-transform: uppercase;">Штаб</a>
+</nav>
+</div>
+</section>
+
+<div style="max-width: 1280px; margin: 0 auto; padding: 24px 32px 80px; display: flex; flex-direction: column; gap: 48px;">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="4">
+<section id="{{g.id}}" style="display: flex; flex-direction: column; gap: 20px; padding-top: 24px;">
+<div style="display: flex; align-items: baseline; gap: 16px; border-bottom: 2px solid #FFFFFF; padding-bottom: 12px;"><h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 36px; text-transform: uppercase;">{{g.title}}</h2><span style="font-family: Oswald, sans-serif; font-size: 20px; color: #737373;">{{g.count}}</span></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+<sc-for list="{{g.players}}" as="p" hint-placeholder-count="4">
+<a href="Player.dc.html" style="text-decoration: none; color: #FFFFFF; border: 1px solid #333333; display: flex; flex-direction: column;">
+<div class="ph" style="position: relative; aspect-ratio: 4 / 5; overflow: hidden;">
+<span style="position: absolute; top: 10px; left: 14px; font-family: Oswald, sans-serif; font-weight: 700; font-size: 88px; line-height: 1; opacity: 0.22;">{{p.num}}</span>
+<sc-if value="{{p.hover}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; background: rgba(255,255,255,0.96); color: #0A0A0A; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px;">
+<span style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #404040;">Сезон 2026/27</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+<div style="display: flex; flex-direction: column;"><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 36px; line-height: 1;">7</span><span style="font-size: 13px; color: #404040;">матчей</span></div>
+<div style="display: flex; flex-direction: column;"><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 36px; line-height: 1;">2</span><span style="font-size: 13px; color: #404040;">гола</span></div>
+<div style="display: flex; flex-direction: column;"><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 36px; line-height: 1;">6</span><span style="font-size: 13px; color: #404040;">передач</span></div>
+<div style="display: flex; flex-direction: column;"><span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 36px; line-height: 1;">1</span><span style="font-size: 13px; color: #404040;">ЖК</span></div>
+</div>
+<span style="font-family: Oswald, sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase;">Профиль →</span>
+</div>
+</sc-if>
+</div>
+<div style="padding: 14px 16px 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 8px;">
+<div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-family: Oswald, sans-serif; font-weight: 600; font-size: 20px; line-height: 1.15; text-transform: uppercase;">{{p.name}}</span><span style="font-size: 13px; color: #A3A3A3;">{{p.nick}}</span></div>
+<span style="font-family: Oswald, sans-serif; font-weight: 700; font-size: 32px; line-height: 1;">{{p.num}}</span>
+</div>
+</a>
+</sc-for>
+</div>
+</section>
+</sc-for>
+
+<section id="staff" style="display: flex; flex-direction: column; gap: 20px; padding-top: 24px;">
+<div style="border-bottom: 2px solid #FFFFFF; padding-bottom: 12px;"><h2 style="margin: 0; font-family: Oswald, sans-serif; font-weight: 700; font-size: 36px; text-transform: uppercase;">Штаб и руководство</h2></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+<div style="display: flex; gap: 16px; align-items: center; border: 1px solid #333333; padding: 16px;"><div class="ph" style="width: 72px; height: 72px; flex-shrink: 0;"></div><div style="display: flex; flex-direction: column;"><span style="font-family: Oswald, sans-serif; font-weight: 600; font-size: 19px; text-transform: uppercase;">[Имя Фамилия]</span><span style="font-size: 14px; color: #A3A3A3;">Капитан и менеджер</span></div></div>
+<div style="display: flex; gap: 16px; align-items: center; border: 1px solid #333333; padding: 16px;"><div class="ph" style="width: 72px; height: 72px; flex-shrink: 0;"></div><div style="display: flex; flex-direction: column;"><span style="font-family: Oswald, sans-serif; font-weight: 600; font-size: 19px; text-transform: uppercase;">[Имя Фамилия]</span><span style="font-size: 14px; color: #A3A3A3;">Тренер</span></div></div>
+<div style="display: flex; gap: 16px; align-items: center; border: 1px solid #333333; padding: 16px;"><div class="ph" style="width: 72px; height: 72px; flex-shrink: 0;"></div><div style="display: flex; flex-direction: column;"><span style="font-family: Oswald, sans-serif; font-weight: 600; font-size: 19px; text-transform: uppercase;">[Имя Фамилия]</span><span style="font-size: 14px; color: #A3A3A3;">Медиа и соцсети</span></div></div>
+</div>
+</section>
+</div>
+<div class="stripes" aria-hidden="true" style="height: 8px;"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2000}}'>
+class Component extends DCLogic {
+renderVals() {
+const P = (num, name, nick, hover) => ({ num, name, nick, hover: !!hover });
+return {
+groups: [
+{ id: 'gk', title: 'Вратари', count: '02', players: [P(1, 'Дмитрий Орлов', '«Стена»'), P(16, 'Никита Белов', '«Кошка»')] },
+{ id: 'df', title: 'Защитники', count: '05', players: [P(2, 'Сергей Волков', '«Шериф»'), P(4, 'Максим Егоров', '«Бетон»'), P(5, 'Алексей Попов', '«Профессор»'), P(13, 'Кирилл Зайцев', '«Заяц»'), P(22, 'Роман Лебедев', '«Лебедь»')] },
+{ id: 'mf', title: 'Полузащитники', count: '05', players: [P(10, 'Артём Ковалёв', '«Мотор»', true), P(6, 'Павел Морозов', '«Мороз»'), P(8, 'Егор Соколов', '«Сокол»'), P(14, 'Илья Новиков', '«Новичок»'), P(17, 'Глеб Фёдоров', '«Федя»')] },
+{ id: 'fw', title: 'Нападающие', count: '03', players: [P(9, 'Иван Смирнов', '«Снайпер»'), P(11, 'Тимур Галиев', '«Ракета»'), P(19, 'Олег Васильев', '«Васёк»')] }
+]
+};
+}
+}
+</script>
+</body>
+</html>

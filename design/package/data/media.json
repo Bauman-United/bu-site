@@ -1,0 +1,15 @@
+{
+  "albums": [
+    { "id": "matches", "title": "Матчи", "cover": "", "photos": [] },
+    { "id": "2026-10-11-energiya", "parent": "matches", "title": "Бауман Юнайтед — Энергия", "date": "2026-10-11", "matchId": "2026-10-11-energiya", "cover": "", "photos": [
+      { "src": "/photos/2026-10-11-energiya/01.webp", "w": 1600, "h": 1067, "alt": "[Описание]" }
+    ] },
+    { "id": "winter-cup-2022", "title": "Зимний турнир 2022", "cover": "", "photos": [] },
+    { "id": "teambuilding", "title": "Тимбилдинги", "cover": "", "photos": [] },
+    { "id": "portraits", "title": "Персональные фото", "cover": "", "photos": [] }
+  ],
+  "videos": [
+    { "id": "hl-energiya", "title": "Хайлайты: Бауман Юнайтед 3:1 Энергия", "meta": "ЛФЛ · 7 тур", "kind": "highlights", "url": "", "embedUrl": "", "duration": "4:12", "matchId": "2026-10-11-energiya" },
+    { "id": "full-vympel", "title": "Полная запись: Вымпел — Бауман Юнайтед", "meta": "ЛФЛ · 6 тур", "kind": "full", "url": "", "embedUrl": "", "duration": "1:38:40", "matchId": "2026-10-04-vympel" }
+  ]
+}

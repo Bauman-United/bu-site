@@ -1,0 +1,86 @@
+[
+  {
+    "id": "2026-10-11-energiya",
+    "season": "2026-27",
+    "tournament": "lfl",
+    "round": "7 тур",
+    "kickoff": "2026-10-11T14:00:00+03:00",
+    "home": true,
+    "venue": { "name": "[Стадион]", "address": "[Адрес]", "mapUrl": "" },
+    "opponent": { "name": "Энергия", "logo": "" },
+    "status": "finished",
+    "score": { "us": 3, "them": 1 },
+    "lineup": {
+      "formation": "3-3-1",
+      "starters": [
+        { "playerId": "dmitry-orlov", "slot": "GK" },
+        { "playerId": "sergey-volkov", "slot": "LB" },
+        { "playerId": "maxim-egorov", "slot": "CB" },
+        { "playerId": "alexey-popov", "slot": "RB" },
+        { "playerId": "egor-sokolov", "slot": "LM" },
+        { "playerId": "artem-kovalev", "slot": "CM" },
+        { "playerId": "pavel-morozov", "slot": "RM" },
+        { "playerId": "ivan-smirnov", "slot": "ST" }
+      ],
+      "bench": [
+        { "playerId": "timur-galiev" },
+        { "playerId": "ilya-novikov" },
+        { "playerId": "kirill-zaytsev" },
+        { "playerId": "gleb-fedorov" },
+        { "playerId": "nikita-belov" }
+      ]
+    },
+    "events": [
+      { "minute": 12, "type": "goal", "team": "us", "playerId": "ivan-smirnov", "assistId": "artem-kovalev" },
+      { "minute": 31, "type": "yellow", "team": "us", "playerId": "alexey-popov", "note": "фол в центре поля" },
+      { "minute": 40, "type": "goal", "team": "them", "playerName": "[Игрок]" },
+      { "minute": 54, "type": "goal", "team": "us", "playerId": "artem-kovalev", "note": "штрафной" },
+      { "minute": 67, "type": "goal", "team": "us", "playerId": "ivan-smirnov", "assistId": "egor-sokolov" },
+      { "minute": 70, "type": "sub", "team": "us", "inId": "timur-galiev", "outId": "egor-sokolov" },
+      { "minute": 78, "type": "sub", "team": "us", "inId": "ilya-novikov", "outId": "pavel-morozov" }
+    ],
+    "mvp": { "playerId": "ivan-smirnov", "votes": { "ivan-smirnov": 28, "artem-kovalev": 13, "dmitry-orlov": 7 } },
+    "reportNewsId": "smirnov-double-energiya",
+    "streamUrl": "",
+    "videoUrl": "",
+    "albumId": "2026-10-11-energiya"
+  },
+  {
+    "id": "2026-10-04-vympel",
+    "season": "2026-27",
+    "tournament": "lfl",
+    "round": "6 тур",
+    "kickoff": "2026-10-04T16:00:00+03:00",
+    "home": false,
+    "venue": { "name": "[Стадион]", "address": "[Адрес]" },
+    "opponent": { "name": "Вымпел" },
+    "status": "finished",
+    "score": { "us": 1, "them": 2 },
+    "events": [
+      { "minute": 22, "type": "goal", "team": "us", "playerId": "timur-galiev", "assistId": "artem-kovalev" }
+    ]
+  },
+  {
+    "id": "2026-10-18-politeh",
+    "season": "2026-27",
+    "tournament": "lfl",
+    "round": "8 тур",
+    "kickoff": "2026-10-18T14:00:00+03:00",
+    "home": true,
+    "venue": { "name": "[Стадион]", "address": "[Адрес]", "mapUrl": "" },
+    "opponent": { "name": "ФК Политех" },
+    "status": "scheduled",
+    "streamUrl": ""
+  },
+  {
+    "id": "2026-10-25-tehnolog",
+    "season": "2026-27",
+    "tournament": "lfl",
+    "round": "9 тур",
+    "kickoff": "2026-10-25T16:30:00+03:00",
+    "home": false,
+    "venue": { "name": "[Стадион]", "address": "[Адрес]" },
+    "opponent": { "name": "Технолог" },
+    "status": "scheduled"
+  }
+]
