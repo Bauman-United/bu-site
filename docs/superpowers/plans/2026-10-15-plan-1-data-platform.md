@@ -2104,7 +2104,7 @@ git add worker && git commit -m "feat(worker): join.football ingest pipeline wit
 
 Правила: `club`/`history` → `ContentDoc`; турниры из `tournaments.yaml` → `Tournament(source="manual")`; игрок из YAML ищется по slug, затем по ФИО, иначе создаётся; заданные поля пишутся и попадают в `manual_fields`; новости — полная синхронизация (удалённые из репо удаляются из БД); матч из `matches/<slug>.yaml`: если матч с таким slug уже есть — дополняются `report_news`, `stream_url`, `video_url`, `mvp`, а события — только если у матча их нет; иначе создаётся ручной матч (`source="manual"`, нужны `tournament`, `kickoff`, `home`, `opponent`, `status`).
 
-- [ ] **Step 1: Падающие тесты**
+- [x] **Step 1: Падающие тесты**
 
 `worker/tests/test_pipeline_content.py`:
 ```python
@@ -2217,7 +2217,7 @@ def test_manual_match_with_squad_and_events(db):
 Run: `uv run pytest worker/tests/test_pipeline_content.py`
 Expected: FAIL.
 
-- [ ] **Step 2: Реализация**
+- [x] **Step 2: Реализация**
 
 `worker/bu_worker/pipeline/content.py`:
 ```python
@@ -2403,12 +2403,12 @@ def sync_content(session: Session, bundle: ContentBundle) -> IngestResult:
     return result
 ```
 
-- [ ] **Step 3: Тесты зелёные**
+- [x] **Step 3: Тесты зелёные**
 
 Run: `uv run pytest worker/tests/test_pipeline_content.py -v`
 Expected: PASS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add worker && git commit -m "feat(worker): sync content/ into database with manual overrides"
