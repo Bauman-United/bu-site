@@ -36,6 +36,7 @@ POSITIONS = {"Вр.": "GK", "Зщ.": "DF", "Пз.": "MF", "Нп.": "FW"}
 _PERIOD = re.compile(r"(\d{1,2}) ([а-я]+) (\d{4}) - (\d{1,2}) ([а-я]+) (\d{4})")
 _DAY = re.compile(r"(\d{1,2}) ([а-я]+)")
 _SCORE = re.compile(r"(\d+)\s*[-:]\s*(\d+)")
+_CLOCK = re.compile(r"(\d{1,2}):(\d{2})")
 _TEAM_ID = re.compile(r"team_id=(\d+)")
 _LAST_ID = re.compile(r"/(\d+)(?:\?|$)")
 
@@ -139,7 +140,8 @@ def parse_calendar(html: str, period_start: date, period_end: date) -> list[Cale
             match_id = _LAST_ID.search(_attr(score_link, "href") or "")
             if not match_id:
                 continue
-            hh, mm = (_text(item.css_first(".blk-tcalendar__time")) or "00:00").split(":")
+            clock = _CLOCK.search(_text(item.css_first(".blk-tcalendar__time")))
+            hh, mm = (clock[1], clock[2]) if clock else ("0", "0")  # «Перенесён», «--:--»
             place = item.css_first(".blk-tcalendar__place")
             score = _SCORE.search(_text(item.css_first(".blk-tcalendar__score-main")))
             home_id, home_name, home_logo = _team_side(item, "left")
@@ -191,6 +193,8 @@ def parse_match(html: str) -> MatchDetail:
         minute_text = (_attr(node, "data-time") or "").strip().rstrip("'").split("+")[0]
         if kind is None or not minute_text.isdigit():
             continue
+        if "team1" not in classes and "team2" not in classes:
+            raise ParseError("event without team side")
         side: Side = "home" if "team1" in classes else "away"
         events.append(
             ParsedEvent(
@@ -203,6 +207,9 @@ def parse_match(html: str) -> MatchDetail:
             )
         )
     events.sort(key=lambda e: e.minute)
+    score = [_int(_text(n)) for n in tree.css(".blk-matchheader__score-item") if _text(n)]
+    if sum(score) > 0 and not any(e.type in ("goal", "penalty", "own_goal") for e in events):
+        raise ParseError("score has goals but timeline is missing")
 
     mvp_name: str | None = None
     mvp_side: Side | None = None

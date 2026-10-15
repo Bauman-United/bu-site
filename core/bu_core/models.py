@@ -99,6 +99,7 @@ class Match(Base):
     report_news_slug: Mapped[str | None] = mapped_column(String(160))
     stream_url: Mapped[str | None] = mapped_column(String(500))
     video_url: Mapped[str | None] = mapped_column(String(500))
+    manual_fields: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )

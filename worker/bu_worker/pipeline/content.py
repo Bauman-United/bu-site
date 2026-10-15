@@ -111,12 +111,16 @@ def _sync_match(session: Session, slug: str, content: MatchContent, result: Inge
         match.score_us = content.score.us if content.score else None
         match.score_them = content.score.them if content.score else None
     session.flush()
-    if content.events and (match.source == "manual" or not match.events):
+    manual = set(match.manual_fields or [])
+    if content.events:  # события из content/ важнее спарсенных, парсер их больше не трогает
         match.events.clear()
         session.flush()
         match.events.extend(_events(session, content))
+        manual.add("events")
     if content.mvp:
         match.mvp_player_id = _player_id_by_slug(session, content.mvp)
+        manual.add("mvp")
+    match.manual_fields = sorted(manual)
     match.report_news_slug = content.report_news or match.report_news_slug
     match.stream_url = content.stream_url or match.stream_url
     match.video_url = content.video_url or match.video_url
@@ -154,6 +158,8 @@ def sync_content(session: Session, bundle: ContentBundle) -> IngestResult:
         result.tags.add(f"player:{player.slug}")
 
     keep = {n.slug for n in bundle.news}
+    removed = session.scalars(select(News.slug).where(News.slug.not_in(keep))).all()
+    result.tags |= {f"news:{slug}" for slug in removed}
     session.execute(delete(News).where(News.slug.not_in(keep)))
     for n in bundle.news:
         news = session.scalars(select(News).where(News.slug == n.slug)).one_or_none()

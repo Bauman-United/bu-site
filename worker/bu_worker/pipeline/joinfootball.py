@@ -52,7 +52,9 @@ def sanity_check(session: Session, source_key: str, bundle: JoinFootballBundle) 
         if value == 0:
             raise SanityError(f"{key}: source returned 0 items")
         before = (previous.counts or {}).get(key, 0) if previous else 0
-        if before and value < before * MIN_RATIO:
+        # таблица турнира не может «похудеть» — любые потерянные строки = сломанная вёрстка
+        limit = before if key == "standings" else before * MIN_RATIO
+        if before and value < limit:
             raise SanityError(f"{key}: dropped from {before} to {value}")
 
 
@@ -97,6 +99,17 @@ def _resolve_player(
         warnings.append(str(exc))
         return None
     if player_id is not None:
+        other = session.scalars(
+            select(PlayerSourceLink).where(
+                PlayerSourceLink.player_id == player_id, PlayerSourceLink.source == SOURCE
+            )
+        ).first()
+        if other is not None:  # тёзка: у найденного игрока уже другой id в источнике
+            warnings.append(
+                f"namesake {parsed.full_name!r} (id {parsed.external_id}) vs id "
+                f"{other.external_id}: add an alias in content/players to split them"
+            )
+            return None
         player = session.get(Player, player_id)
     else:
         first, last = split_last_first(parsed.full_name)
@@ -126,10 +139,12 @@ def _ingest_players(
     session: Session, bundle: JoinFootballBundle, tournament: Tournament, result: IngestResult
 ) -> PlayerIndex:
     index = player_index(session)
+    present: set[int] = set()
     for parsed in bundle.players:
         player = _resolve_player(session, index, parsed, result.warnings)
         if player is None:
             continue
+        present.add(player.id)
         manual = set(player.manual_fields or [])
         if "number" not in manual:
             player.number = parsed.number
@@ -144,6 +159,16 @@ def _ingest_players(
         stats.played, stats.goals, stats.assists = parsed.played, parsed.goals, parsed.assists
         stats.yellow, stats.red = parsed.yellow, parsed.red
         result.tags.add(f"player:{player.slug}")
+    session.flush()
+    departed = session.scalars(
+        select(Player)
+        .join(PlayerTournamentStats, PlayerTournamentStats.player_id == Player.id)
+        .where(PlayerTournamentStats.tournament_id == tournament.id, Player.id.not_in(present))
+    )
+    for player in departed:  # отзаявлен из турнира
+        if "active" not in (player.manual_fields or []):
+            player.active = False
+            result.tags.add(f"player:{player.slug}")
     session.flush()
     return index
 
@@ -198,8 +223,10 @@ def _ingest_match(
         match.status = match.status if match.status in {"live", "cancelled"} else "scheduled"
 
     detail = bundle.details.get(entry.external_id)
-    if detail is not None:
-        our_side = "home" if home else "away"
+    manual = set(match.manual_fields or [])
+    our_side = "home" if home else "away"
+    # пустой разбор не затирает уже известные события; ручные события из content/ важнее
+    if detail is not None and detail.events and "events" not in manual:
         match.events.clear()
         session.flush()
         for ev in detail.events:
@@ -220,6 +247,7 @@ def _ingest_match(
                     else None,
                 )
             )
+    if detail is not None and detail.mvp_name and "mvp" not in manual:
         match.mvp_player_id = (
             _find_in_index(index, detail.mvp_name, result.warnings)
             if detail.mvp_side == our_side

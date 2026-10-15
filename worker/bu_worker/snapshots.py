@@ -1,6 +1,9 @@
+import re
 import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
+
+_RUN = re.compile(r"\d{4}-\d{2}-\d{2}-\d{4}")
 
 
 def save(root: Path, source: str, name: str, html: str, now: datetime) -> Path:
@@ -14,8 +17,13 @@ def save(root: Path, source: str, name: str, html: str, now: datetime) -> Path:
 def prune(root: Path, keep_days: int, now: datetime) -> int:
     cutoff = (now - timedelta(days=keep_days)).strftime("%Y-%m-%d")
     removed = 0
-    for folder in root.glob("*/*"):
-        if folder.is_dir() and folder.name[:10] < cutoff:
+    for folder in sorted(root.rglob("*")):
+        if (
+            folder.exists()
+            and folder.is_dir()
+            and _RUN.fullmatch(folder.name)
+            and folder.name[:10] < cutoff
+        ):
             shutil.rmtree(folder)
             removed += 1
     return removed

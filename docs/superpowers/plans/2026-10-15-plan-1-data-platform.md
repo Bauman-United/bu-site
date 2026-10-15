@@ -4388,7 +4388,7 @@ git add api && git commit -m "feat(api): catalog, matches, players and news endp
   - `GET /sitemap` → `[{"path": str, "lastmod": str|None}]` — статические разделы + матчи + активные/все игроки + новости
   - `uv run python -m bu_api.export_openapi web/openapi.json` пишет схему для генерации TS-типов в плане 2.
 
-- [ ] **Step 1: Падающие тесты**
+- [x] **Step 1: Падающие тесты**
 
 `api/tests/test_home.py`:
 ```python
@@ -4430,7 +4430,7 @@ def test_sitemap(client):
 
 Run: `uv run pytest api/tests/test_home.py api/tests/test_stats_sitemap.py` → FAIL.
 
-- [ ] **Step 2: `/home`**
+- [x] **Step 2: `/home`**
 
 `api/bu_api/routes/home.py`:
 ```python
@@ -4510,7 +4510,7 @@ def home(session: Session = Depends(get_session)) -> dict[str, Any]:
     }
 ```
 
-- [ ] **Step 3: `/stats` и `/sitemap`**
+- [x] **Step 3: `/stats` и `/sitemap`**
 
 `api/bu_api/routes/stats.py`:
 ```python
@@ -4642,7 +4642,7 @@ if __name__ == "__main__":
     main()
 ```
 
-- [ ] **Step 4: Тесты, линт, ручная проверка**
+- [x] **Step 4: Тесты, линт, ручная проверка**
 
 Run: `uv run pytest -v && uv run ruff check . && uv run ruff format --check .`
 Expected: всё зелёное (при необходимости `uv run ruff format .` и `ruff check --fix`).
@@ -4653,7 +4653,7 @@ Expected: JSON с реальными данными из dev-БД (после Ta
 Run: `uv run python -m bu_api.export_openapi web/openapi.json`
 Expected: файл создан.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add api web/openapi.json && git commit -m "feat(api): home, stats, sitemap endpoints and OpenAPI export"

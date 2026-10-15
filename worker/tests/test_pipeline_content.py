@@ -101,3 +101,38 @@ def test_manual_match_with_squad_and_events(db):
     assert match.events[0].player_id == korolev.id
     assert match.events[1].player_name == "Сидоров" and match.events[1].player_id is None
     assert db.get(MatchAppearance, (match.id, korolev.id)) is not None
+
+
+def test_deleted_news_slug_is_revalidated(db):
+    one = NewsContent(slug="a", date=date(2026, 9, 1), tag="club", title="A")
+    sync_content(db, make_bundle(news=[one]))
+    result = sync_content(db, make_bundle(news=[]))
+    assert "news:a" in result.tags
+
+
+def test_content_mvp_and_events_mark_manual_fields(db):
+    korolev = Player(
+        slug="aleksandr-korolev",
+        first_name="Александр",
+        last_name="Королев",
+        aliases=[],
+        manual_fields=[],
+        achievements=[],
+    )
+    t = TournamentContent(slug="lfl-2026-27", name="ЛФЛ", short="ЛФЛ", season="2026-27")
+    db.add(korolev)
+    db.flush()
+    m = MatchContent.model_validate(
+        {
+            "tournament": "lfl-2026-27",
+            "kickoff": "2026-10-11T14:00:00+03:00",
+            "home": True,
+            "opponent": {"name": "Энергия"},
+            "status": "finished",
+            "mvp": "aleksandr-korolev",
+            "events": [{"minute": 3, "type": "goal", "team": "us", "player": "aleksandr-korolev"}],
+        }
+    )
+    sync_content(db, make_bundle(tournaments=[t], matches={"x": m}))
+    match = db.scalars(select(Match).where(Match.slug == "x")).one()
+    assert set(match.manual_fields) == {"mvp", "events"}

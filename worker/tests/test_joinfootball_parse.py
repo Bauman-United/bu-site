@@ -110,3 +110,27 @@ def test_broken_html_raises():
         parse_application("<html><body>maintenance</body></html>")
     with pytest.raises(ParseError):
         parse_standings("<html></html>")
+
+
+def test_match_without_timeline_but_with_goals_raises():
+    import re
+
+    html = re.sub(r'<div class="game-timeline__event [^>]*>', "<div>", read("match_5848533.html"))
+    with pytest.raises(ParseError):
+        parse_match(html)
+
+
+def test_match_event_without_team_class_raises():
+    html = read("match_5848533.html").replace(" team1 ", " ").replace(" team2 ", " ")
+    with pytest.raises(ParseError):
+        parse_match(html)
+
+
+def test_calendar_unparseable_time_falls_back_to_midnight():
+    html = read("calendar.html").replace(
+        '<span class="blk-tcalendar__time">20:30</span>',
+        '<span class="blk-tcalendar__time">--:--</span>',
+        1,
+    )
+    entries = parse_calendar(html, date(2026, 9, 5), date(2026, 11, 22))
+    assert len(entries) == 45

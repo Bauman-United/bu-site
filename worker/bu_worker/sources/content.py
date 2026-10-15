@@ -3,10 +3,11 @@
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Literal
+from zoneinfo import ZoneInfo
 
 import frontmatter
 import yaml
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
 
 class ContentError(Exception):
@@ -114,6 +115,13 @@ class MatchContent(_Strict):
     report_news: str | None = None
     stream_url: str | None = None
     video_url: str | None = None
+
+    @field_validator("kickoff")
+    @classmethod
+    def _moscow_by_default(cls, value: datetime | None) -> datetime | None:
+        if value is not None and value.tzinfo is None:
+            return value.replace(tzinfo=ZoneInfo("Europe/Moscow"))
+        return value
 
 
 class ContentBundle(BaseModel):

@@ -1,4 +1,7 @@
+import functools
 import logging
+import threading
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -16,10 +19,28 @@ from bu_worker.runner import run_joinfootball
 log = logging.getLogger(__name__)
 
 
+def single_flight(fn: Callable[[], None]) -> Callable[[], None]:
+    """Не даёт двум запускам задачи идти одновременно: второй просто пропускается."""
+    lock = threading.Lock()
+
+    @functools.wraps(fn)
+    def wrapper() -> None:
+        if not lock.acquire(blocking=False):
+            log.info("%s already running, skipped", fn.__name__)
+            return
+        try:
+            fn()
+        finally:
+            lock.release()
+
+    return wrapper
+
+
 def start(settings: Settings) -> None:
     sessions = make_sessionmaker(make_engine())
     notifier = Notifier(settings.telegram_bot_token, settings.telegram_chat_id)
 
+    @single_flight
     def scrape() -> None:
         client = PoliteClient(
             settings.joinfootball_base,

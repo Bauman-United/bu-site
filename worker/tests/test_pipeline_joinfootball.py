@@ -120,3 +120,72 @@ def test_sanity_rejects_shrunk_data(db):
     empty = good.model_copy(update={"standings": []})
     with pytest.raises(SanityError):
         sanity_check(db, "joinfootball:1066703", empty)
+
+
+def test_empty_detail_does_not_wipe_events_or_mvp(db):
+    ingest(db, bundle(), TEAM, NAMES)
+    m = db.scalars(select(Match).where(Match.external_id == "5848533")).one()
+    korolev = db.scalars(select(Player).where(Player.slug == "aleksandr-korolev")).one()
+    m.mvp_player_id = korolev.id
+    db.flush()
+    from bu_worker.dto import MatchDetail
+
+    empty = bundle().model_copy(update={"details": {"5848533": MatchDetail(events=[])}})
+    ingest(db, empty, TEAM, NAMES)
+    db.refresh(m)
+    assert len(m.events) == 7
+    assert m.mvp_player_id == korolev.id
+
+
+def test_manual_mvp_and_events_survive_scrape(db):
+    ingest(db, bundle(), TEAM, NAMES)
+    m = db.scalars(select(Match).where(Match.external_id == "5848533")).one()
+    korolev = db.scalars(select(Player).where(Player.slug == "aleksandr-korolev")).one()
+    m.mvp_player_id = korolev.id
+    m.events.clear()
+    db.flush()
+    m.events.append(MatchEvent(minute=1, type="goal", team="us", player_id=korolev.id))
+    m.manual_fields = ["mvp", "events"]
+    db.flush()
+    ingest(db, bundle(), TEAM, NAMES)
+    db.refresh(m)
+    assert m.mvp_player_id == korolev.id
+    assert [e.minute for e in m.events] == [1]
+
+
+def test_standings_shrink_is_rejected(db):
+    good = bundle()
+    db.add(
+        IngestRun(
+            source="joinfootball:1066703",
+            started_at=datetime.now(UTC),
+            status="ok",
+            counts={"players": 25, "matches": 9, "standings": 10},
+        )
+    )
+    db.flush()
+    with pytest.raises(SanityError):
+        sanity_check(
+            db, "joinfootball:1066703", good.model_copy(update={"standings": good.standings[:7]})
+        )
+
+
+def test_namesakes_are_not_merged(db):
+    b = bundle()
+    twin = b.players[0].model_copy(update={"external_id": "999999"})
+    result = ingest(db, b.model_copy(update={"players": [*b.players, twin]}), TEAM, NAMES)
+    assert count(db, Player) == 25
+    assert any(twin.full_name in w for w in result.warnings)
+
+
+def test_departed_players_become_inactive(db):
+    b = bundle()
+    ingest(db, b, TEAM, NAMES)
+    gone = b.players[-1]
+    ingest(db, b.model_copy(update={"players": b.players[:-1]}), TEAM, NAMES)
+    from bu_core.models import PlayerSourceLink
+
+    link = db.scalars(
+        select(PlayerSourceLink).where(PlayerSourceLink.external_id == gone.external_id)
+    ).one()
+    assert db.get(Player, link.player_id).active is False

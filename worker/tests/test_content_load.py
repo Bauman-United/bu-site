@@ -76,3 +76,12 @@ events:
     match = load_content(tmp_path).matches["2026-10-11-energiya"]
     assert match.score is not None and match.score.us == 3
     assert match.events[0].player == "aleksandr-korolev"
+
+
+def test_naive_kickoff_is_moscow_time(tmp_path):
+    from datetime import timedelta
+
+    minimal(tmp_path)
+    write(tmp_path, "matches/x.yaml", "kickoff: 2026-10-20T19:30:00\n")
+    kickoff = load_content(tmp_path).matches["x"].kickoff
+    assert kickoff is not None and kickoff.utcoffset() == timedelta(hours=3)
