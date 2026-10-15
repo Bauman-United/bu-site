@@ -2434,7 +2434,7 @@ git add worker && git commit -m "feat(worker): sync content/ into database with 
 
 Источник статистики игрока: для турниров с `source != "manual"` — `PlayerTournamentStats`; для `manual` — `MatchAppearance` (матчи) и `MatchEvent` (голы/ассисты/карточки). MVP — `Match.mvp_player_id` по всем турнирам.
 
-- [ ] **Step 1: Падающие тесты чистых функций**
+- [x] **Step 1: Падающие тесты чистых функций**
 
 `core/tests/test_stats.py`:
 ```python
@@ -2495,7 +2495,7 @@ def test_records():
 Run: `uv run pytest core/tests/test_stats.py`
 Expected: FAIL.
 
-- [ ] **Step 2: Реализация `stats.py`**
+- [x] **Step 2: Реализация `stats.py`**
 
 `core/bu_core/stats.py`:
 ```python
@@ -2603,7 +2603,7 @@ def records(
 
 Run: `uv run pytest core/tests/test_stats.py` → PASS.
 
-- [ ] **Step 3: Падающий тест пересчёта**
+- [x] **Step 3: Падающий тест пересчёта**
 
 `core/tests/test_recompute.py`:
 ```python
@@ -2700,7 +2700,7 @@ def test_recompute_empty_db(db):
 
 Run: `uv run pytest core/tests/test_recompute.py` → FAIL.
 
-- [ ] **Step 4: Реализация `recompute.py`**
+- [x] **Step 4: Реализация `recompute.py`**
 
 `core/bu_core/recompute.py`:
 ```python
@@ -2855,12 +2855,12 @@ def recompute(session: Session) -> None:
     session.flush()
 ```
 
-- [ ] **Step 5: Тесты зелёные**
+- [x] **Step 5: Тесты зелёные**
 
 Run: `uv run pytest core/tests -v`
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add core && git commit -m "feat(core): stats functions and aggregate recompute"
