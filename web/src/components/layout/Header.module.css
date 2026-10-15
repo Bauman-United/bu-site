@@ -1,0 +1,48 @@
+.header { border-bottom: 1px solid var(--c-line); }
+.inner {
+  max-width: var(--container); margin: 0 auto; padding: 16px var(--gutter);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 24px;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--c-paper); }
+.brandName {
+  font-family: var(--f-display); font-weight: 700; font-size: 22px;
+  letter-spacing: 0.04em; text-transform: uppercase; line-height: 1;
+}
+
+.nav {
+  display: flex; flex-wrap: wrap; gap: 4px 24px; flex: 1 1 400px; justify-content: center;
+  font-family: var(--f-display); font-size: 15px; letter-spacing: var(--ls-caps); text-transform: uppercase;
+}
+.navLink {
+  display: inline-flex; align-items: center; min-height: var(--touch);
+  text-decoration: none; text-underline-offset: 8px; text-decoration-thickness: 2px;
+}
+.navLink:hover { color: #BDBDBD; }
+.navLink[aria-current="page"] { text-decoration-line: underline; }
+
+.actions { display: flex; align-items: center; gap: 8px; }
+.socials { display: flex; align-items: center; gap: 8px; }
+.social {
+  width: var(--touch); height: var(--touch); display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--c-border); text-decoration: none;
+  font-family: var(--f-display); font-weight: 700; font-size: 14px;
+}
+.social:hover { color: #BDBDBD; }
+.join {
+  margin-left: 8px; background: var(--c-paper); color: var(--c-ink); text-decoration: none;
+  display: inline-flex; align-items: center; min-height: var(--touch); padding: 13px 20px;
+  font-family: var(--f-display); font-weight: 600; font-size: 15px; line-height: 1;
+  letter-spacing: var(--ls-caps); text-transform: uppercase;
+}
+.join:hover { background: var(--c-muted-2); color: var(--c-ink); }
+
+/* Мобильная шапка: герб + название и бургер */
+@media (max-width: 1023px) {
+  .inner { flex-wrap: nowrap; justify-content: space-between; padding-block: 12px; }
+  .brand { gap: 10px; }
+  .brand svg { width: 30px; height: 35px; }
+  .brandName { font-size: 18px; }
+  .brandName br { display: none; }
+  .nav, .actions { display: none; }
+}

@@ -1,6 +1,6 @@
 .button {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  min-height: var(--touch); padding: 14px 22px; text-decoration: none;
+  min-height: var(--touch); padding: 14px 22px; text-decoration: none; border: 0; cursor: pointer;
   font-family: var(--f-display); font-weight: 600; font-size: 15px; line-height: 1;
   letter-spacing: var(--ls-caps); text-transform: uppercase;
   transition: background-color .15s, color .15s;

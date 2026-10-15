@@ -1,0 +1,4 @@
+.wrap { min-height: 50vh; }
+.title { font-size: var(--fs-h1); margin: 12px 0 16px; }
+.text { color: var(--c-muted-2); max-width: 560px; margin: 0 0 32px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }

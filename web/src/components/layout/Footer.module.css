@@ -1,0 +1,26 @@
+.footer { border-top: 1px solid var(--c-line); }
+.inner {
+  max-width: var(--container); margin: 0 auto; padding: 48px var(--gutter);
+  display: flex; flex-wrap: wrap; gap: 32px; justify-content: space-between;
+  font-size: 14px; color: var(--c-muted);
+}
+.about, .column { display: flex; flex-direction: column; gap: 8px; }
+.name {
+  font-family: var(--f-display); font-weight: 700; font-size: 20px;
+  color: var(--c-paper); text-transform: uppercase;
+}
+.columns { display: flex; gap: 48px; flex-wrap: wrap; }
+.link { color: var(--c-muted-2); }
+.link:hover { color: #BDBDBD; }
+.stripes { height: 8px; }
+
+@media (max-width: 640px) {
+  .inner { padding-block: 28px; font-size: 13px; }
+  .name { font-size: 18px; }
+}
+
+/* Сенсорные экраны: цели касания не меньше 44px */
+@media (pointer: coarse) {
+  .column { gap: 0; }
+  .link { display: flex; align-items: center; min-height: var(--touch); }
+}

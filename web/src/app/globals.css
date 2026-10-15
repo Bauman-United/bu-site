@@ -88,3 +88,7 @@ img { max-width: 100%; display: block; }
 .eyebrow { font-family: var(--f-display); font-size: var(--fs-label); letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--c-muted); }
 .section--paper .eyebrow { color: var(--c-muted-on-paper); }
 .table-scroll { overflow-x: auto; }
+.skip-link:focus { position: fixed; top: 8px; left: 8px; z-index: 200; width: auto; height: auto; clip: auto; padding: 12px 16px; background: var(--c-paper); color: var(--c-ink); }
+/* Подвал прижат к низу экрана на коротких страницах */
+body { display: flex; flex-direction: column; }
+body > main { flex: 1 0 auto; }

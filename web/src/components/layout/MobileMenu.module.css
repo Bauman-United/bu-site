@@ -1,0 +1,46 @@
+.burger {
+  width: var(--touch); height: var(--touch); flex: none; padding: 0;
+  display: none; align-items: center; justify-content: center;
+  background: none; border: 1px solid var(--c-border); color: var(--c-paper); cursor: pointer;
+}
+
+.dialog {
+  position: fixed; inset: 0; z-index: 100; overflow-y: auto;
+  display: flex; flex-direction: column;
+  background: var(--c-ink); color: var(--c-paper);
+}
+.top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px var(--gutter); border-bottom: 1px solid var(--c-line);
+}
+.top .burger { display: flex; }
+.brand {
+  display: flex; align-items: center; gap: 10px; text-decoration: none;
+  font-family: var(--f-display); font-weight: 700; font-size: 18px;
+  letter-spacing: 0.04em; text-transform: uppercase; line-height: 1;
+}
+.brand svg { width: 30px; height: 35px; }
+
+.nav { display: flex; flex-direction: column; gap: 8px; padding: 32px var(--gutter); flex: 1 0 auto; }
+.link {
+  display: flex; align-items: center; min-height: 56px; text-decoration: none;
+  font-family: var(--f-display); font-weight: 700; font-size: 32px; line-height: 1;
+  letter-spacing: var(--ls-caps); text-transform: uppercase;
+  text-underline-offset: 8px; text-decoration-thickness: 2px;
+}
+.link[aria-current="page"] { text-decoration-line: underline; }
+
+.bottom {
+  display: flex; flex-direction: column; gap: 16px;
+  padding: 24px var(--gutter) 32px; border-top: 1px solid var(--c-line);
+}
+.join {
+  display: flex; align-items: center; justify-content: center; min-height: 52px; padding: 16px 20px;
+  background: var(--c-paper); color: var(--c-ink); text-decoration: none;
+  font-family: var(--f-display); font-weight: 600; font-size: 16px; line-height: 1;
+  letter-spacing: var(--ls-caps); text-transform: uppercase;
+}
+
+@media (max-width: 1023px) {
+  .burger { display: flex; }
+}
