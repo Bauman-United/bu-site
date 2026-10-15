@@ -1278,7 +1278,7 @@ git add worker && git commit -m "feat(worker): join.football HTML parsers with r
 **Interfaces:**
 - Produces: `load_content(root: Path) -> ContentBundle`; `ContentError(path, message)`; модели `ClubDoc` (extra=allow, обязательные `name`, `primary_tournament: str | None`), `PlayerContent`, `NewsContent(slug, date, tag, title, lead, cover, source, match, featured, body)`, `TournamentContent(slug, name, short, kind, season)`, `MatchContent`, `ContentBundle(club: dict, history: dict, tournaments, players: dict[str, PlayerContent], news: list[NewsContent], matches: dict[str, MatchContent])`.
 
-- [ ] **Step 1: Падающие тесты**
+- [x] **Step 1: Падающие тесты**
 
 `worker/tests/test_content_load.py`:
 ```python
@@ -1366,7 +1366,7 @@ events:
 Run: `uv run pytest worker/tests/test_content_load.py`
 Expected: FAIL.
 
-- [ ] **Step 2: Реализация**
+- [x] **Step 2: Реализация**
 
 `worker/bu_worker/sources/content.py`:
 ```python
@@ -1546,7 +1546,7 @@ def load_content(root: Path) -> ContentBundle:
     )
 ```
 
-- [ ] **Step 3: Стартовый контент**
+- [x] **Step 3: Стартовый контент**
 
 `content/club.yaml`:
 ```yaml
@@ -1601,12 +1601,12 @@ match: 2026-09-06-bauman-junior
 Осенний сезон Лиги Инженеров Бауманской футбольной лиги открыт. В первом туре «Бауман Юнайтед» уступил Bauman Junior со счётом 2:3. Голы забили Александр Королев и Кирилл Колочков.
 ```
 
-- [ ] **Step 4: Тесты зелёные**
+- [x] **Step 4: Тесты зелёные**
 
 Run: `uv run pytest worker/tests/test_content_load.py -v`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add worker content && git commit -m "feat(worker): content/ loader with validation and seed content"

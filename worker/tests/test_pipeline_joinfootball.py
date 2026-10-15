@@ -1,0 +1,122 @@
+from datetime import UTC, datetime
+from pathlib import Path
+
+import pytest
+from bu_core.models import (
+    IngestRun,
+    Match,
+    MatchEvent,
+    Player,
+    PlayerTournamentStats,
+    StandingRow,
+)
+from bu_worker.dto import JoinFootballBundle
+from bu_worker.pipeline.joinfootball import SanityError, ingest, sanity_check
+from bu_worker.sources.joinfootball.parse import (
+    parse_application,
+    parse_calendar,
+    parse_match,
+    parse_standings,
+    parse_tournament_info,
+)
+from sqlalchemy import func, select
+
+FIX = Path(__file__).parent / "fixtures" / "joinfootball"
+TEAM = "1089660"
+NAMES = ["Bauman United"]
+
+
+def bundle() -> JoinFootballBundle:
+    read = lambda n: (FIX / n).read_text(encoding="utf-8")  # noqa: E731
+    info = parse_tournament_info(read("calendar.html"), "1066703", "https://x/tournament/1066703")
+    calendar = [
+        e
+        for e in parse_calendar(read("calendar.html"), info.period_start, info.period_end)
+        if TEAM in (e.home_team_id, e.away_team_id)
+    ]
+    return JoinFootballBundle(
+        tournament=info,
+        players=parse_application(read("application.html")),
+        calendar=calendar,
+        details={"5848533": parse_match(read("match_5848533.html"))},
+        standings=parse_standings(read("tables.html")),
+    )
+
+
+def count(db, model) -> int:
+    return db.scalar(select(func.count()).select_from(model))
+
+
+def test_ingest_creates_everything(db):
+    result = ingest(db, bundle(), TEAM, NAMES)
+    assert count(db, Player) == 25
+    assert count(db, Match) == 9
+    assert count(db, StandingRow) == 10
+    assert result.counts == {"players": 25, "matches": 9, "standings": 10}
+    assert "matches" in result.tags and "player:aleksandr-korolev" in result.tags
+
+    m = db.scalars(select(Match).where(Match.external_id == "5848533")).one()
+    assert m.slug == "2026-09-06-bauman-junior"
+    assert (m.home, m.score_us, m.score_them, m.status) == (True, 2, 3, "finished")
+    assert m.tournament.season.slug == "2026-27"
+    ours = [e for e in m.events if e.team == "us"]
+    assert {e.player_name for e in ours if e.type == "goal"} == {
+        "Королев Александр",
+        "Колочков Кирилл",
+    }
+    korolev = db.scalars(select(Player).where(Player.slug == "aleksandr-korolev")).one()
+    assert any(e.player_id == korolev.id for e in ours)
+    assert m.mvp_player_id is None  # MVP матча — игрок соперника
+
+    stats = db.get(PlayerTournamentStats, (korolev.id, m.tournament_id))
+    assert (stats.played, stats.goals, stats.assists) == (5, 2, 6)
+    us_row = db.scalars(select(StandingRow).where(StandingRow.is_us)).one()
+    assert us_row.pos == 6
+
+
+def test_ingest_is_idempotent(db):
+    ingest(db, bundle(), TEAM, NAMES)
+    ingest(db, bundle(), TEAM, NAMES)
+    assert count(db, Player) == 25
+    assert count(db, Match) == 9
+    assert count(db, MatchEvent) == 7
+    assert count(db, StandingRow) == 10
+
+
+def test_away_match_is_mirrored(db):
+    ingest(db, bundle(), TEAM, NAMES)
+    away = db.scalars(select(Match).where(Match.external_id == "5922873")).one()
+    assert away.home is False
+    assert away.opponent_name == "Мессия"
+    assert away.status == "scheduled" and away.score_us is None
+
+
+def test_manual_fields_win(db):
+    ingest(db, bundle(), TEAM, NAMES)
+    korolev = db.scalars(select(Player).where(Player.slug == "aleksandr-korolev")).one()
+    korolev.number = 7
+    korolev.manual_fields = ["number"]
+    db.flush()
+    ingest(db, bundle(), TEAM, NAMES)
+    db.refresh(korolev)
+    assert korolev.number == 7
+
+
+def test_sanity_rejects_shrunk_data(db):
+    good = bundle()
+    db.add(
+        IngestRun(
+            source="joinfootball:1066703",
+            started_at=datetime.now(UTC),
+            status="ok",
+            counts={"players": 25, "matches": 9, "standings": 10},
+        )
+    )
+    db.flush()
+    sanity_check(db, "joinfootball:1066703", good)  # не бросает
+    shrunk = good.model_copy(update={"players": good.players[:5]})
+    with pytest.raises(SanityError):
+        sanity_check(db, "joinfootball:1066703", shrunk)
+    empty = good.model_copy(update={"standings": []})
+    with pytest.raises(SanityError):
+        sanity_check(db, "joinfootball:1066703", empty)
