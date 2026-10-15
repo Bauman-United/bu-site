@@ -1,0 +1,27 @@
+import { buildMetadata, pageTitle, siteUrl } from "./seo";
+
+describe("seo", () => {
+  beforeEach(() => {
+    process.env.BU_SITE_URL = "https://baumanunited.ru/";
+    process.env.BU_NOINDEX = "1";
+  });
+
+  it("titles", () => {
+    expect(pageTitle()).toBe("Бауман Юнайтед — футбольная команда МГТУ им. Н. Э. Баумана");
+    expect(pageTitle("Матчи")).toBe("Матчи — Бауман Юнайтед | футбольная команда МГТУ им. Баумана");
+  });
+
+  it("canonical, og and noindex", () => {
+    expect(siteUrl()).toBe("https://baumanunited.ru");
+    const m = buildMetadata({ title: "Матчи", description: "Календарь", path: "/matches" });
+    expect(m.alternates?.canonical).toBe("https://baumanunited.ru/matches");
+    expect(m.openGraph).toMatchObject({ locale: "ru_RU", url: "https://baumanunited.ru/matches" });
+    expect(m.robots).toMatchObject({ index: false, follow: false });
+  });
+
+  it("indexable when BU_NOINDEX=0 unless page asks noindex", () => {
+    process.env.BU_NOINDEX = "0";
+    expect(buildMetadata({ description: "x", path: "/" }).robots).toMatchObject({ index: true });
+    expect(buildMetadata({ description: "x", path: "/m", noindex: true }).robots).toMatchObject({ index: false, follow: true });
+  });
+});
