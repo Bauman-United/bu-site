@@ -1,0 +1,30 @@
+[project]
+name = "bu-site"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["bu-core", "bu-worker", "bu-api"]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["core", "worker", "api"]
+
+[tool.uv.sources]
+bu-core = { workspace = true }
+bu-worker = { workspace = true }
+bu-api = { workspace = true }
+
+[dependency-groups]
+dev = ["pytest>=8.3", "ruff>=0.6", "mypy>=1.11", "types-PyYAML"]
+
+[tool.pytest.ini_options]
+testpaths = ["core/tests", "worker/tests", "api/tests"]
+addopts = "--import-mode=importlib -q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
