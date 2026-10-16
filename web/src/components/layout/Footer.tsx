@@ -3,17 +3,13 @@ import { telegramUrl } from "@/lib/telegram";
 import type { Club } from "@/lib/types";
 import s from "./Footer.module.css";
 import { NAV } from "./nav";
-import { socialLinks } from "./socials";
+import { externalLinks } from "./socials";
 
 export function Footer({ club }: { club: Club }) {
   const place = [club.city ?? "Москва", club.university ?? "МГТУ им. Н. Э. Баумана"].join(" · ");
   const { captain_name, email } = club.contacts ?? {};
   const captain_telegram = telegramUrl(club.contacts?.captain_telegram);
-  const external = [
-    ...socialLinks(club).map(({ label, href }) => ({ label, href })),
-    ...(club.socials?.lfl ? [{ label: "Страница в ЛФЛ", href: club.socials.lfl }] : []),
-    ...(club.socials?.joinfootball ? [{ label: "Bauman League", href: club.socials.joinfootball }] : []),
-  ];
+  const external = externalLinks(club);
   return (
     <footer className={s.footer}>
       <div className={s.inner}>

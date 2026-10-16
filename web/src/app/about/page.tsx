@@ -39,7 +39,7 @@ export default async function AboutPage() {
         </section>
       )}
       <ClubNumbers numbers={home.numbers} />
-      <ClubLinks club={club} title="Команда в сети" withLeague />
+      <ClubLinks club={club} title="Команда в сети" />
       <section className="section section--paper" aria-labelledby="about-cta">
         <div className={`container ${s.cta}`}>
           <div className={s.ctaText}>
