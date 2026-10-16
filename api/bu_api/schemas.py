@@ -15,7 +15,7 @@ class TournamentOut(BaseModel):
 
 class MatchSummary(BaseModel):
     slug: str
-    kickoff: datetime
+    kickoff: datetime | None  # None — дата ещё не назначена («Дата уточняется»)
     tournament: TournamentOut
     round: str | None
     home: bool

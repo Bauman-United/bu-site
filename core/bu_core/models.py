@@ -83,7 +83,7 @@ class Match(Base):
     tournament_id: Mapped[int] = mapped_column(ForeignKey("tournament.id"))
     season_id: Mapped[int] = mapped_column(ForeignKey("season.id"))
     round: Mapped[str | None] = mapped_column(String(64))
-    kickoff: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    kickoff: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     home: Mapped[bool] = mapped_column(Boolean)
     venue_name: Mapped[str | None] = mapped_column(String(200))
     venue_address: Mapped[str | None] = mapped_column(String(300))

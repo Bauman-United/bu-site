@@ -31,7 +31,7 @@ class ParsedPlayer(BaseModel):
 
 class CalendarEntry(BaseModel):
     external_id: str
-    kickoff: datetime
+    kickoff: datetime | None  # None — дата матча на сайте лиги «Не задано»
     round: str | None
     venue_name: str | None
     venue_address: str | None

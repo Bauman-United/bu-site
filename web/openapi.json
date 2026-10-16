@@ -751,8 +751,15 @@
             "title": "Slug"
           },
           "kickoff": {
-            "type": "string",
-            "format": "date-time",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Kickoff"
           },
           "tournament": {
@@ -984,8 +991,15 @@
             "title": "Slug"
           },
           "kickoff": {
-            "type": "string",
-            "format": "date-time",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Kickoff"
           },
           "tournament": {

@@ -113,6 +113,14 @@ def _sync_match(session: Session, slug: str, content: MatchContent, result: Inge
         match.score_them = content.score.them if content.score else None
     session.flush()
     manual = set(match.manual_fields or [])
+    if match.source != "manual":  # матч из источника: дату/место можно задать вручную
+        if content.kickoff is not None:
+            match.kickoff = content.kickoff
+            manual.add("kickoff")
+        if content.venue is not None:
+            match.venue_name = content.venue.name
+            match.venue_address = content.venue.address
+            manual.add("venue")
     if content.events:  # события из content/ важнее спарсенных, парсер их больше не трогает
         match.events.clear()
         session.flush()

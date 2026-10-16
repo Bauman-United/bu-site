@@ -1,9 +1,11 @@
 import {
+  DATE_TBD,
   countdownParts,
   formatDate,
   formatDateShort,
   formatDayMonth,
   formatTime,
+  formatWhen,
   outcomeLabel,
   outcomeLetter,
   plural,
@@ -66,5 +68,15 @@ describe("formatDayMonth", () => {
     expect(formatDayMonth("2026-10-18T14:00:00+03:00")).toBe("18 окт");
     expect(formatDayMonth("2026-08-31T22:30:00Z")).toBe("1 сен");
     expect(formatDayMonth("2026-05-02T12:00:00+03:00")).toBe("2 май");
+  });
+});
+
+describe("formatWhen", () => {
+  it("weekday, date and time in Moscow", () => {
+    expect(formatWhen("2026-10-24T18:30:00Z")).toBe("Сб, 24 октября 2026 · 21:30");
+  });
+  it("unknown kickoff", () => {
+    expect(formatWhen(null)).toBe(DATE_TBD);
+    expect(DATE_TBD).toBe("Дата уточняется");
   });
 });

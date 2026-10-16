@@ -56,3 +56,15 @@ test("standings page", async ({ page }) => {
   await expect(page.locator("tr[aria-current='true']")).toContainText("Bauman United");
   await expect(page.getByText(/Обновлено 12 октября 2026/)).toBeVisible();
 });
+
+test("undated match shows «Дата уточняется» and its page renders", async ({ page }) => {
+  await page.goto("/matches");
+  const card = page.locator("a", { hasText: "Квазар" }).first();
+  await expect(card).toBeVisible();
+  await expect(card).toContainText("Дата уточняется");
+  const res = await page.goto("/matches/kvazar-5877228");
+  expect(res?.status()).toBe(200);
+  await expect(page.getByText("Квазар").first()).toBeVisible();
+  await expect(page.getByText("Дата уточняется").first()).toBeVisible();
+  await expect(page.getByRole("timer")).toHaveCount(0);
+});

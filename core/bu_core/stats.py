@@ -10,7 +10,7 @@ Outcome = Literal["W", "D", "L"]
 @dataclass(frozen=True)
 class Result:
     slug: str
-    kickoff: datetime
+    kickoff: datetime | None  # None — дата неизвестна, такие идут последними
     us: int
     them: int
 
@@ -35,7 +35,7 @@ def outcome(us: int, them: int) -> Outcome:
 
 
 def _chrono(results: list[Result]) -> list[Result]:
-    return sorted(results, key=lambda x: x.kickoff)
+    return sorted(results, key=lambda x: (x.kickoff is None, x.kickoff or datetime.min))
 
 
 def form(results: list[Result], n: int = 5) -> list[dict[str, Any]]:

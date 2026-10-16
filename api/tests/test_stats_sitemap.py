@@ -16,3 +16,11 @@ def test_sitemap(client):
     assert "/matches/2026-09-06-bauman-junior" in paths
     assert "/team/aleksandr-korolev" in paths
     assert "/news/start" in paths
+
+
+def test_sitemap_includes_undated_match(client, db):
+    from .test_matches import add_undated
+
+    add_undated(db)
+    paths = {item["path"] for item in client.get("/sitemap").json()}
+    assert "/matches/kvazar-5877228" in paths

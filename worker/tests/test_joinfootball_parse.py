@@ -150,3 +150,19 @@ def test_calendar_logos_are_full_size():
     entries = parse_calendar(read("calendar.html"), date(2026, 9, 5), date(2026, 11, 22))
     first = next(e for e in entries if e.external_id == "5848533")
     assert first.away_logo == "https://st.joinsport.io/team/1256048/logo/65fabe0d6e0ea.jpg"
+
+
+def test_calendar_undated_units_yield_entries_without_kickoff():
+    entries = parse_calendar(
+        read("cup_calendar_undated.html"), date(2026, 9, 20), date(2026, 11, 28)
+    )
+    by_id = {e.external_id: e for e in entries}
+    kvazar = by_id["5877228"]
+    assert kvazar.kickoff is None
+    assert {kvazar.home_name, kvazar.away_name} == {"Квазар", "Bauman United"}
+    assert "1089660" in (kvazar.home_team_id, kvazar.away_team_id)
+    assert kvazar.round == "Четвертьфинал"
+    assert kvazar.home_score is None and kvazar.away_score is None
+    # датированные матчи разбираются как раньше
+    assert by_id["5877221"].kickoff == datetime(2026, 10, 4, 21, 30, tzinfo=MSK)
+    assert any(e.kickoff is None for e in entries if e.external_id != "5877228")

@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { notFound } from "next/navigation";
 import { getMatch } from "@/lib/api";
-import { formatDate, formatTime } from "@/lib/format";
+import { DATE_TBD, formatDate, formatTime } from "@/lib/format";
 import { OG_FONT, OG_INK, OG_MUTED, OG_PAPER, OG_SIZE, ogFonts } from "@/lib/og";
 import { SITE_NAME } from "@/lib/seo";
 import { isPlayed } from "./match-meta";
@@ -45,7 +45,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             </div>
             {!played && (
               <div style={{ display: "flex", fontSize: 32, color: OG_MUTED, marginTop: 12 }}>
-                {`${formatDate(match.kickoff)} · ${formatTime(match.kickoff)}`.toUpperCase()}
+                {(match.kickoff ? `${formatDate(match.kickoff)} · ${formatTime(match.kickoff)}` : DATE_TBD).toUpperCase()}
               </div>
             )}
           </div>

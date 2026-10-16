@@ -38,6 +38,16 @@ describe("json-ld", () => {
     });
   });
 
+  it("SportsEvent without a known date omits startDate", () => {
+    const ld = sportsEventLd({
+      slug: "kvazar-5877228", kickoff: null, home: false,
+      opponent_name: "Квазар", status: "scheduled", venue_name: null, venue_address: null,
+      tournament: { name: "Кубок Специалистов · Осень 2026" }, round: "Четвертьфинал",
+    } as never);
+    expect(ld).not.toHaveProperty("startDate");
+    expect(ld).toMatchObject({ "@type": "SportsEvent", name: "Квазар — Бауман Юнайтед" });
+  });
+
   it("breadcrumbs", () => {
     const ld = breadcrumbsLd([{ name: "Команда", path: "/team" }, { name: "Королев", path: "/team/a" }]);
     expect(ld.itemListElement[1]).toMatchObject({ position: 2, item: "https://baumanunited.ru/team/a" });

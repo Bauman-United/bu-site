@@ -201,3 +201,69 @@ def test_player_photo_from_source_unless_manual(db):
     ingest(db, bundle(), TEAM, NAMES)
     db.refresh(korolev)
     assert korolev.photo == "/media/players/korolev.webp"
+
+
+def cup_bundle(calendar_html: str | None = None) -> JoinFootballBundle:
+    read = lambda n: (FIX / n).read_text(encoding="utf-8")  # noqa: E731
+    html = calendar_html if calendar_html is not None else read("cup_calendar_undated.html")
+    info = parse_tournament_info(html, "1067299", "https://x/tournament/1067299")
+    calendar = [
+        e
+        for e in parse_calendar(html, info.period_start, info.period_end)
+        if TEAM in (e.home_team_id, e.away_team_id)
+    ]
+    return JoinFootballBundle(
+        tournament=info,
+        players=parse_application(read("cup_application.html")),
+        calendar=calendar,
+        details={},
+        standings=[],
+    )
+
+
+def kvazar(db) -> Match:
+    return db.scalars(select(Match).where(Match.external_id == "5877228")).one()
+
+
+def test_undated_match_is_ingested(db):
+    result = ingest(db, cup_bundle(), TEAM, NAMES)
+    m = kvazar(db)
+    assert m.kickoff is None
+    assert m.slug == "kvazar-5877228"
+    assert (m.opponent_name, m.status, m.round) == ("Квазар", "scheduled", "Четвертьфинал")
+    assert "match:kvazar-5877228" in result.tags
+
+
+def test_undated_match_gets_date_later_and_keeps_slug(db):
+    ingest(db, cup_bundle(), TEAM, NAMES)
+    m = kvazar(db)
+    m.kickoff = datetime(2026, 10, 25, 18, 30, tzinfo=UTC)
+    db.flush()
+    ingest(db, cup_bundle(), TEAM, NAMES)  # снова «Не задано» — известную дату не стираем
+    db.refresh(m)
+    assert m.kickoff == datetime(2026, 10, 25, 18, 30, tzinfo=UTC)
+
+    dated = cup_bundle()
+    entry = next(e for e in dated.calendar if e.external_id == "5877228")
+    entry.kickoff = datetime(2026, 11, 1, 17, 0, tzinfo=UTC)
+    ingest(db, dated, TEAM, NAMES)
+    db.refresh(m)
+    assert m.kickoff == datetime(2026, 11, 1, 17, 0, tzinfo=UTC)
+    assert m.slug == "kvazar-5877228"
+
+
+def test_manual_kickoff_and_venue_survive_scrape(db):
+    ingest(db, cup_bundle(), TEAM, NAMES)
+    m = kvazar(db)
+    m.kickoff = datetime(2026, 10, 25, 18, 30, tzinfo=UTC)
+    m.venue_name, m.venue_address = "Свой стадион", "Москва"
+    m.manual_fields = ["kickoff", "venue"]
+    db.flush()
+    dated = cup_bundle()
+    entry = next(e for e in dated.calendar if e.external_id == "5877228")
+    entry.kickoff = datetime(2026, 11, 1, 17, 0, tzinfo=UTC)
+    entry.venue_name, entry.venue_address = "Металлург", "Новая Дорога"
+    ingest(db, dated, TEAM, NAMES)
+    db.refresh(m)
+    assert m.kickoff == datetime(2026, 10, 25, 18, 30, tzinfo=UTC)
+    assert (m.venue_name, m.venue_address) == ("Свой стадион", "Москва")

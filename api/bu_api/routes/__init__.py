@@ -25,7 +25,7 @@ def match_summary(m: Match) -> MatchSummary:
     finished = m.status == "finished" and m.score_us is not None and m.score_them is not None
     return MatchSummary(
         slug=m.slug,
-        kickoff=m.kickoff.astimezone(MSK),
+        kickoff=m.kickoff.astimezone(MSK) if m.kickoff else None,
         tournament=tournament_out(m.tournament),
         round=m.round,
         home=m.home,

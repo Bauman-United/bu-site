@@ -22,15 +22,18 @@ async function resolveFilters(searchParams: SearchParams) {
   return { parsed, seasons, tournaments, season, tournament };
 }
 
+/** Время для сортировки: матчи без даты — после всех датированных. */
+const when = (iso: string | null) => (iso ? Date.parse(iso) : Number.POSITIVE_INFINITY);
+
 /** Ближайшие (по возрастанию) и сыгранные (по убыванию) + момент запроса для отсчёта «2д 17ч». */
 async function loadMatches(q: MatchQuery) {
   const matches = await getMatches(q);
   const upcoming = matches
     .filter((m) => m.status === "scheduled" || m.status === "live")
-    .sort((a, b) => Date.parse(a.kickoff) - Date.parse(b.kickoff));
+    .sort((a, b) => when(a.kickoff) - when(b.kickoff));
   const played = matches
     .filter((m) => m.status === "finished")
-    .sort((a, b) => Date.parse(b.kickoff) - Date.parse(a.kickoff));
+    .sort((a, b) => when(b.kickoff) - when(a.kickoff));
   // Страница динамическая (searchParams), поэтому отсчёт считается на момент запроса.
   return { upcoming, played, nowMs: Date.now() };
 }

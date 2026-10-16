@@ -38,6 +38,7 @@ _DAY = re.compile(r"(\d{1,2}) ([а-я]+)")
 _SCORE = re.compile(r"(\d+)\s*[-:]\s*(\d+)")
 _CLOCK = re.compile(r"(\d{1,2}):(\d{2})")
 _TEAM_ID = re.compile(r"team_id=(\d+)")
+_UNDATED = "не задано"
 _LAST_ID = re.compile(r"/(\d+)(?:\?|$)")
 
 
@@ -140,10 +141,15 @@ def parse_calendar(html: str, period_start: date, period_end: date) -> list[Cale
     tree = HTMLParser(html)
     entries: dict[str, CalendarEntry] = {}
     for unit in tree.css(".blk-tcalendar__unit"):
-        day_match = _DAY.search(_text(unit.css_first(".blk-tcalendar__head-text")))
-        if not day_match:
+        head = _text(unit.css_first(".blk-tcalendar__head-text"))
+        day_match = _DAY.search(head)
+        day: date | None
+        if day_match:
+            day = _date_in_period(int(day_match[1]), day_match[2], period_start, period_end)
+        elif head.lower() == _UNDATED:
+            day = None  # «Не задано»: матч назначен, дата ещё не известна
+        else:
             continue
-        day = _date_in_period(int(day_match[1]), day_match[2], period_start, period_end)
         for item in unit.css("li.blk-tcalendar__item"):
             score_link = item.css_first("a.blk-tcalendar__score")
             match_id = _LAST_ID.search(_attr(score_link, "href") or "")
@@ -157,7 +163,9 @@ def parse_calendar(html: str, period_start: date, period_end: date) -> list[Cale
             away_id, away_name, away_logo = _team_side(item, "right")
             entries[match_id[1]] = CalendarEntry(
                 external_id=match_id[1],
-                kickoff=datetime.combine(day, time(int(hh), int(mm)), tzinfo=MSK),
+                kickoff=datetime.combine(day, time(int(hh), int(mm)), tzinfo=MSK)
+                if day is not None
+                else None,
                 round=_text(item.css_first(".blk-tcalendar__round")) or None,
                 venue_name=_text(item.css_first(".blk-tcalendar__place-name")) or None,
                 venue_address=_attr(place, "title"),

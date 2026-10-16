@@ -31,14 +31,26 @@ def home(session: Session = Depends(get_session)) -> dict[str, Any]:
         .where(Match.status.in_(("scheduled", "live")), Match.kickoff >= now - LIVE_WINDOW)
         .order_by(Match.kickoff)
     ).first()
+    if upcoming is None:  # датированных впереди нет — показываем матч с «Дата уточняется»
+        upcoming = session.scalars(
+            select(Match)
+            .where(Match.status.in_(("scheduled", "live")), Match.kickoff.is_(None))
+            .order_by(Match.id)
+        ).first()
     last = session.scalars(
-        select(Match).where(Match.status == "finished").order_by(Match.kickoff.desc())
+        select(Match).where(Match.status == "finished").order_by(Match.kickoff.desc().nulls_last())
     ).first()
     live = None
     if (
         upcoming
         and upcoming.stream_url
-        and (upcoming.status == "live" or upcoming.kickoff <= now <= upcoming.kickoff + LIVE_WINDOW)
+        and (
+            upcoming.status == "live"
+            or (
+                upcoming.kickoff is not None
+                and upcoming.kickoff <= now <= upcoming.kickoff + LIVE_WINDOW
+            )
+        )
     ):
         live = match_summary(upcoming)
 

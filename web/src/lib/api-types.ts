@@ -294,11 +294,8 @@ export interface components {
         MatchDetail: {
             /** Slug */
             slug: string;
-            /**
-             * Kickoff
-             * Format: date-time
-             */
-            kickoff: string;
+            /** Kickoff */
+            kickoff: string | null;
             tournament: components["schemas"]["TournamentOut"];
             /** Round */
             round: string | null;
@@ -343,11 +340,8 @@ export interface components {
         MatchSummary: {
             /** Slug */
             slug: string;
-            /**
-             * Kickoff
-             * Format: date-time
-             */
-            kickoff: string;
+            /** Kickoff */
+            kickoff: string | null;
             tournament: components["schemas"]["TournamentOut"];
             /** Round */
             round: string | null;

@@ -129,7 +129,7 @@ def seed(session: Session, empty: bool = False) -> None:
             tournament_id=t.id,
             season_id=season.id,
             round=rnd,
-            kickoff=datetime(*day, tzinfo=UTC),
+            kickoff=datetime(*day, tzinfo=UTC) if day else None,
             home=home,
             venue_name="Металлург",
             venue_address="Москва, улица Новая Дорога, 11с1",
@@ -178,7 +178,9 @@ def seed(session: Session, empty: bool = False) -> None:
     m4 = match(
         "2030-10-24-messiya", (2030, 10, 24, 18, 30), False, "Мессия", "scheduled", rnd="6 тур"
     )
-    session.add_all([m1, m2, m3, m4])
+    # дата на сайте лиги «Не задано» → на сайте «Дата уточняется»
+    m5 = match("kvazar-5877228", None, False, "Квазар", "scheduled", rnd="Четвертьфинал")
+    session.add_all([m1, m2, m3, m4, m5])
     teams = [
         "Раскат",
         "ФК ФН",

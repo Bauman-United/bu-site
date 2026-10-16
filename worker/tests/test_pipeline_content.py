@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import UTC, date, datetime
 
 from bu_core.models import ContentDoc, Match, MatchAppearance, News, Player
 from bu_worker.pipeline.content import sync_content
@@ -136,3 +136,48 @@ def test_content_mvp_and_events_mark_manual_fields(db):
     sync_content(db, make_bundle(tournaments=[t], matches={"x": m}))
     match = db.scalars(select(Match).where(Match.slug == "x")).one()
     assert set(match.manual_fields) == {"mvp", "events"}
+
+
+def _source_match(db) -> Match:
+    t = TournamentContent(slug="cup", name="Кубок", short="Кубок", season="2026-27")
+    sync_content(db, make_bundle(tournaments=[t]))
+    from bu_core.models import Tournament
+
+    tournament = db.scalars(select(Tournament).where(Tournament.slug == "cup")).one()
+    match = Match(
+        slug="kvazar-5877228",
+        source="joinfootball",
+        external_id="5877228",
+        tournament_id=tournament.id,
+        season_id=tournament.season_id,
+        kickoff=None,
+        home=False,
+        opponent_name="Квазар",
+        status="scheduled",
+        venue_name="Металлург",
+        manual_fields=[],
+    )
+    db.add(match)
+    db.flush()
+    return match
+
+
+def test_content_sets_kickoff_and_venue_on_source_match(db):
+    match = _source_match(db)
+    m = MatchContent.model_validate(
+        {"kickoff": "2026-10-25T18:30:00", "venue": {"name": "Арена", "address": "Москва"}}
+    )
+    sync_content(db, make_bundle(matches={"kvazar-5877228": m}))
+    db.refresh(match)
+    assert match.kickoff == datetime(2026, 10, 25, 15, 30, tzinfo=UTC)
+    assert (match.venue_name, match.venue_address) == ("Арена", "Москва")
+    assert set(match.manual_fields) == {"kickoff", "venue"}
+    assert (match.opponent_name, match.source) == ("Квазар", "joinfootball")
+
+
+def test_content_without_kickoff_leaves_source_match_alone(db):
+    match = _source_match(db)
+    sync_content(db, make_bundle(matches={"kvazar-5877228": MatchContent(stream_url="https://s")}))
+    db.refresh(match)
+    assert match.kickoff is None and match.venue_name == "Металлург"
+    assert match.manual_fields == []

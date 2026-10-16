@@ -1,5 +1,5 @@
 import type { MatchDetail } from "@/lib/types";
-import { formatDate, formatTime, outcomeLabel } from "@/lib/format";
+import { DATE_TBD, formatDate, formatTime, outcomeLabel } from "@/lib/format";
 import { SITE_NAME } from "@/lib/seo";
 
 export function isPlayed(m: MatchDetail): boolean {
@@ -10,7 +10,7 @@ export function isPlayed(m: MatchDetail): boolean {
 export function matchTitle(m: MatchDetail): string {
   return isPlayed(m)
     ? `${SITE_NAME} ${m.score_us}:${m.score_them} ${m.opponent_name}`
-    : `${SITE_NAME} — ${m.opponent_name}, ${formatDate(m.kickoff)}`;
+    : `${SITE_NAME} — ${m.opponent_name}, ${m.kickoff ? formatDate(m.kickoff) : DATE_TBD.toLowerCase()}`;
 }
 
 export function matchDescription(m: MatchDetail): string {
@@ -21,5 +21,6 @@ export function matchDescription(m: MatchDetail): string {
     return `${where}. ${result}${goals}`;
   }
   const venue = m.venue_name ? `, ${m.venue_name}` : "";
-  return `Матч ${where}: ${formatDate(m.kickoff)} ${formatTime(m.kickoff)}${venue}.`;
+  const when = m.kickoff ? `${formatDate(m.kickoff)} ${formatTime(m.kickoff)}` : DATE_TBD.toLowerCase();
+  return `Матч ${where}: ${when}${venue}.`;
 }

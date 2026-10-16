@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { MatchSummary } from "@/lib/types";
-import { formatDate, formatTime, formatWeekday } from "@/lib/format";
+import { formatWhen } from "@/lib/format";
 import { ButtonLink } from "@/components/ui/Button";
 import { Countdown } from "@/components/ui/Countdown";
 import { Crest } from "@/components/ui/Crest";
@@ -20,8 +20,7 @@ function OpponentMark({ match }: { match: MatchSummary }) {
 /** Белая секция «Следующий матч»: гербы, турнир/тур, дата и место, обратный отсчёт, «Как добраться». */
 export function NextMatch({ match }: { match: MatchSummary }) {
   const head = [match.tournament.short, match.round].filter(Boolean).join(" · ");
-  const weekday = formatWeekday(match.kickoff);
-  const when = `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)}, ${formatDate(match.kickoff)} · ${formatTime(match.kickoff)}`;
+  const when = formatWhen(match.kickoff);
   const venue = [match.venue_name, match.venue_address].filter(Boolean).join(", ");
   const mapQuery = match.venue_address ?? match.venue_name;
   return (
@@ -44,14 +43,20 @@ export function NextMatch({ match }: { match: MatchSummary }) {
             </div>
           </div>
           <div className={s.info}>
-            <time className={s.when} dateTime={match.kickoff}>{when}</time>
+            {match.kickoff ? (
+              <time className={s.when} dateTime={match.kickoff}>{when}</time>
+            ) : (
+              <span className={s.when}>{when}</span>
+            )}
             {venue && <span className={s.muted}>{venue}</span>}
             <span className={s.muted}>{match.home ? "Дома" : "В гостях"}</span>
           </div>
           <div className={s.actions}>
-            <div className={s.timer}>
-              <Countdown kickoff={match.kickoff} />
-            </div>
+            {match.kickoff && (
+              <div className={s.timer}>
+                <Countdown kickoff={match.kickoff} />
+              </div>
+            )}
             {mapQuery && (
               <div className={s.route}>
                 <ButtonLink href={`https://yandex.ru/maps/?text=${encodeURIComponent(mapQuery)}`} onPaper external>

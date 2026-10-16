@@ -233,7 +233,11 @@ def _ingest_match(
         select(Match).where(Match.source == source, Match.external_id == entry.external_id)
     ).one_or_none()
     if match is None:
-        base = f"{entry.kickoff.date().isoformat()}-{slugify(opponent)}"
+        base = (
+            f"{entry.kickoff.date().isoformat()}-{slugify(opponent)}"
+            if entry.kickoff is not None
+            else f"{slugify(opponent)}-{entry.external_id}"  # дата «Не задано»
+        )
         match = Match(
             source=source, external_id=entry.external_id, slug=unique_slug(session, Match, base)
         )
@@ -241,10 +245,14 @@ def _ingest_match(
     match.tournament_id = tournament.id
     match.season_id = tournament.season_id
     match.round = entry.round
-    match.kickoff = entry.kickoff
+    manual = set(match.manual_fields or [])
+    # дата/место из content/ важнее; «Не задано» не стирает уже известную дату
+    if "kickoff" not in manual and entry.kickoff is not None:
+        match.kickoff = entry.kickoff
     match.home = home
-    match.venue_name = entry.venue_name
-    match.venue_address = entry.venue_address
+    if "venue" not in manual:
+        match.venue_name = entry.venue_name
+        match.venue_address = entry.venue_address
     match.opponent_name = opponent
     match.opponent_logo = entry.away_logo if home else entry.home_logo
     match.source_url = (
@@ -262,7 +270,6 @@ def _ingest_match(
         match.status = match.status if match.status in {"live", "cancelled"} else "scheduled"
 
     detail = bundle.details.get(entry.external_id)
-    manual = set(match.manual_fields or [])
     our_side = "home" if home else "away"
     # пустой разбор не затирает уже известные события; ручные события из content/ важнее
     if detail is not None and detail.events and "events" not in manual:

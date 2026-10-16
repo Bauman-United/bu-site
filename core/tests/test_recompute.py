@@ -87,3 +87,77 @@ def test_recompute_mixes_sources(db):
 def test_recompute_empty_db(db):
     recompute(db)
     assert db.get(Computed, "meta").data == {"current_season": None}
+
+
+def test_recompute_tolerates_undated_matches(db):
+    season = Season(slug="2026-27", label="2026/27")
+    later = Season(slug="2027-28", label="2027/28")
+    cup = Tournament(slug="cup", name="Кубок", short="Кубок", source="manual", season=season)
+    next_cup = Tournament(slug="cup2", name="Кубок", short="Кубок", source="manual", season=later)
+    db.add_all([season, later, cup, next_cup])
+    db.flush()
+    common = dict(home=True, source="manual")
+    db.add_all(
+        [
+            Match(
+                slug="played",
+                tournament_id=cup.id,
+                season_id=season.id,
+                kickoff=datetime(2026, 9, 6, tzinfo=UTC),
+                opponent_name="X",
+                status="finished",
+                score_us=1,
+                score_them=0,
+                **common,
+            ),
+            Match(  # без даты, но со счётом (дата так и не появилась на сайте лиги)
+                slug="undated-finished",
+                tournament_id=cup.id,
+                season_id=season.id,
+                kickoff=None,
+                opponent_name="Z",
+                status="finished",
+                score_us=0,
+                score_them=2,
+                **common,
+            ),
+            Match(
+                slug="undated",
+                tournament_id=next_cup.id,
+                season_id=later.id,
+                kickoff=None,
+                opponent_name="Квазар",
+                status="scheduled",
+                **common,
+            ),
+        ]
+    )
+    db.flush()
+
+    recompute(db)
+
+    assert db.get(Computed, "meta").data == {"current_season": "2026-27"}
+    form = db.get(Computed, "season:2026-27").data["form"]
+    assert [f["slug"] for f in form] == ["played", "undated-finished"]
+
+
+def test_recompute_only_undated_matches(db):
+    season = Season(slug="2026-27", label="2026/27")
+    cup = Tournament(slug="cup", name="Кубок", short="Кубок", source="manual", season=season)
+    db.add_all([season, cup])
+    db.flush()
+    db.add(
+        Match(
+            slug="undated",
+            tournament_id=cup.id,
+            season_id=season.id,
+            kickoff=None,
+            home=True,
+            opponent_name="Квазар",
+            status="scheduled",
+            source="manual",
+        )
+    )
+    db.flush()
+    recompute(db)
+    assert db.get(Computed, "meta").data == {"current_season": "2026-27"}

@@ -26,7 +26,7 @@ export function ResultsTable({ matches }: { matches: MatchSummary[] }) {
           <tbody>
             {matches.map((m) => (
               <tr key={m.slug} className={s.row}>
-                <td className={s.date}>{formatDayMonth(m.kickoff)}</td>
+                <td className={s.date}>{m.kickoff ? formatDayMonth(m.kickoff) : "—"}</td>
                 <td className={s.tournament}>{[m.tournament.short, m.round].filter(Boolean).join(" · ")}</td>
                 <td className={s.opponent}>{m.opponent_name}</td>
                 <td className={s.where}>{m.home ? "Дома" : "В гостях"}</td>

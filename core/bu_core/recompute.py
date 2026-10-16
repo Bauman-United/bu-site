@@ -106,11 +106,16 @@ def recompute(session: Session) -> None:
     players = {p.id: p for p in session.scalars(select(Player))}
     seasons = {s.id: s for s in session.scalars(select(Season))}
     finished = session.scalars(select(Match).where(Match.status == "finished")).all()
-    all_matches = session.scalars(select(Match).order_by(Match.kickoff)).all()
+    all_matches = session.scalars(select(Match).order_by(Match.kickoff.asc().nulls_last())).all()
 
     now = datetime.now(UTC)
     current = None
-    past_or_soon = [m for m in all_matches if m.kickoff <= now] or all_matches
+    # матчи без даты не определяют текущий сезон, пока есть хоть один датированный
+    past_or_soon = (
+        [m for m in all_matches if m.kickoff is not None and m.kickoff <= now]
+        or [m for m in all_matches if m.kickoff is not None]
+        or all_matches
+    )
     if past_or_soon:
         current = seasons[past_or_soon[-1].season_id].slug
     _put(session, "meta", {"current_season": current})

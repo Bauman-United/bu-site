@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { MatchDetail } from "@/lib/types";
-import { formatDate, formatTime, formatWeekday, outcomeLabel } from "@/lib/format";
+import { DATE_TBD, formatDate, formatWhen, outcomeLabel } from "@/lib/format";
 import { SITE_NAME } from "@/lib/seo";
 import { Countdown } from "@/components/ui/Countdown";
 import { Crest } from "@/components/ui/Crest";
@@ -32,6 +32,7 @@ function Status({ match }: { match: MatchDetail }) {
   if (match.status === "live") return <LiveBadge />;
   if (match.status === "finished") return <span className={s.chip}>Финальный свисток</span>;
   if (match.status === "cancelled") return <span className={s.chip}>Матч отменён</span>;
+  if (!match.kickoff) return <span className={s.chip}>{DATE_TBD}</span>;
   return <time className={s.chip} dateTime={match.kickoff}>{formatDate(match.kickoff)}</time>;
 }
 
@@ -41,8 +42,7 @@ export function Scoreboard({ match, nav }: { match: MatchDetail; nav?: { href: s
   const them = <Side mark={<OpponentMark match={match} />} name={match.opponent_name} scorers={match.scorers_them} />;
   const hasScore = match.score_us != null && match.score_them != null && match.status !== "scheduled";
   const [left, right] = match.home ? [match.score_us, match.score_them] : [match.score_them, match.score_us];
-  const weekday = formatWeekday(match.kickoff);
-  const when = `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)}, ${formatDate(match.kickoff)} · ${formatTime(match.kickoff)}`;
+  const when = formatWhen(match.kickoff);
   const head = [match.tournament.short, match.round].filter(Boolean).join(" · ");
   const [homeName, awayName] = match.home ? [SITE_NAME, match.opponent_name] : [match.opponent_name, SITE_NAME];
 
@@ -55,7 +55,7 @@ export function Scoreboard({ match, nav }: { match: MatchDetail; nav?: { href: s
         </h1>
         <p className={s.meta}>
           {head && <span>{head}</span>}
-          <time dateTime={match.kickoff}>{when}</time>
+          {match.kickoff ? <time dateTime={match.kickoff}>{when}</time> : <span>{when}</span>}
           {match.venue_name && <span>{match.venue_name}</span>}
           <span>{match.home ? "Дома" : "В гостях"}</span>
         </p>
@@ -74,7 +74,7 @@ export function Scoreboard({ match, nav }: { match: MatchDetail; nav?: { href: s
           </div>
           {match.home ? them : us}
         </div>
-        {match.status === "scheduled" && <Countdown kickoff={match.kickoff} />}
+        {match.status === "scheduled" && match.kickoff && <Countdown kickoff={match.kickoff} />}
         {match.status === "live" && match.stream_url && (
           <a className={s.stream} href={match.stream_url} target="_blank" rel="noopener">
             Смотреть трансляцию ↗

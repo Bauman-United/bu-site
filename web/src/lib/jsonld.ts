@@ -38,7 +38,7 @@ export function sportsEventLd(m: MatchSummary | MatchDetail) {
     "@type": "SportsEvent",
     name: `${home.name} — ${away.name}`,
     sport: "Football",
-    startDate: m.kickoff,
+    ...(m.kickoff ? { startDate: m.kickoff } : {}),
     eventStatus: STATUS[m.status] ?? STATUS.scheduled,
     homeTeam: home,
     awayTeam: away,

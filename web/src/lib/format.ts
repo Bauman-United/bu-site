@@ -46,6 +46,16 @@ export function formatWeekday(iso: string): string {
   return parts(iso, { weekday: "short" }).weekday;
 }
 
+/** Дата матча ещё не назначена (на сайте лиги «Не задано»). */
+export const DATE_TBD = "Дата уточняется";
+
+/** «Сб, 24 октября 2026 · 21:30» или «Дата уточняется». */
+export function formatWhen(iso: string | null): string {
+  if (!iso) return DATE_TBD;
+  const weekday = formatWeekday(iso);
+  return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)}, ${formatDate(iso)} · ${formatTime(iso)}`;
+}
+
 export function outcomeLabel(o: Outcome): string {
   return { W: "Победа", D: "Ничья", L: "Поражение" }[o];
 }

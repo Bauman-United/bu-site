@@ -10,6 +10,8 @@ from bu_api.routes import full_name, match_summary, news_card, players_by_id
 from bu_api.schemas import EventOut, MatchDetail, MatchSummary, PlayerRef
 
 router = APIRouter()
+# матчи без даты — после всех датированных
+CHRONO = (Match.kickoff.asc().nulls_last(), Match.id)
 
 
 def _surname(name: str | None) -> str:
@@ -24,7 +26,7 @@ def list_matches(
     status: str | None = None,
     session: Session = Depends(get_session),
 ) -> list[MatchSummary]:
-    query = select(Match).join(Tournament).order_by(Match.kickoff)
+    query = select(Match).join(Tournament).order_by(*CHRONO)
     if season:
         query = query.join(Season, Season.id == Match.season_id).where(Season.slug == season)
     if tournament:
@@ -79,7 +81,7 @@ def match_detail(slug: str, session: Session = Depends(get_session)) -> MatchDet
         news = session.scalars(select(News).where(News.match_slug == m.slug)).first()
         report = news_card(news) if news else None
 
-    ordered = list(session.scalars(select(Match.slug).order_by(Match.kickoff)))
+    ordered = list(session.scalars(select(Match.slug).order_by(*CHRONO)))
     i = ordered.index(m.slug)
     mvp = ref(m.mvp_player_id)
     return MatchDetail(

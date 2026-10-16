@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { MatchDetail, MatchSummary } from "@/lib/types";
-import { formatDate, formatTime, outcomeLabel } from "@/lib/format";
+import { DATE_TBD, formatDate, formatTime, outcomeLabel } from "@/lib/format";
 import { Crest } from "./Crest";
 import { LiveBadge } from "./LiveBadge";
 import s from "./MatchCard.module.css";
@@ -16,7 +16,11 @@ function OpponentLogo({ src }: { src: string | null }) {
 /** Белая карточка матча (на чёрной странице): шапка, команды, счёт/время, низ со ссылкой. Хозяева — слева. */
 export function MatchCard({ match, variant }: { match: MatchSummary | MatchDetail; variant: "result" | "upcoming" }) {
   const head = [match.tournament.short, match.round].filter(Boolean).join(" · ");
-  const when = variant === "upcoming" ? `${formatDate(match.kickoff)} · ${formatTime(match.kickoff)}` : formatDate(match.kickoff);
+  const when = !match.kickoff
+    ? DATE_TBD
+    : variant === "upcoming"
+      ? `${formatDate(match.kickoff)} · ${formatTime(match.kickoff)}`
+      : formatDate(match.kickoff);
   const where = match.home ? "Дома" : "В гостях";
   const hasScore = variant === "result" && match.score_us !== null && match.score_them !== null;
   const [left, right] = match.home ? [match.score_us, match.score_them] : [match.score_them, match.score_us];
@@ -71,7 +75,7 @@ export function MatchCard({ match, variant }: { match: MatchSummary | MatchDetai
             </span>
           </span>
         ) : (
-          <span className={s.vs}>{variant === "upcoming" ? formatTime(match.kickoff) : "VS"}</span>
+          <span className={s.vs}>{variant === "upcoming" && match.kickoff ? formatTime(match.kickoff) : "VS"}</span>
         )}
         {match.home ? them : usRight}
       </div>
