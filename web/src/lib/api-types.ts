@@ -150,6 +150,8 @@ export interface paths {
         /**
          * List Players
          * @description `roster=true` — общий состав: текущая заявка плюс все, кто играл в сезоне/турнире.
+         *
+         *     `league=bl|lfl` — суммы по всем турнирам лиги текущего сезона (вместе с кубками).
          */
         get: operations["list_players_players_get"];
         put?: never;
@@ -933,6 +935,7 @@ export interface operations {
             query?: {
                 active?: boolean | null;
                 tournament?: string | null;
+                league?: ("bl" | "lfl") | null;
                 roster?: boolean;
             };
             header?: never;

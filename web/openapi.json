@@ -333,7 +333,7 @@
     "/players": {
       "get": {
         "summary": "List Players",
-        "description": "`roster=true` — общий состав: текущая заявка плюс все, кто играл в сезоне/турнире.",
+        "description": "`roster=true` — общий состав: текущая заявка плюс все, кто играл в сезоне/турнире.\n\n`league=bl|lfl` — суммы по всем турнирам лиги текущего сезона (вместе с кубками).",
         "operationId": "list_players_players_get",
         "parameters": [
           {
@@ -366,6 +366,26 @@
                 }
               ],
               "title": "Tournament"
+            }
+          },
+          {
+            "name": "league",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "bl",
+                    "lfl"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "League"
             }
           },
           {
