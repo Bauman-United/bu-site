@@ -33,7 +33,7 @@ def test_parse_channel_page():
 def test_only_real_posts_become_news():
     posts, _ = page()
     kept = sorted(p.id for p in posts if to_news(p) is not None)
-    assert kept == [995, 1003, 1004, 1005, 1006, 1007, 1013]
+    assert kept == [1003, 1004, 1005, 1006, 1007, 1013]  # 995 — пост с составом на игру
 
 
 def test_news_fields_and_tags():
@@ -56,7 +56,7 @@ def test_ingest_upserts_and_survives_content_sync(db):
 
     posts, _ = page()
     result = ingest(db, posts)
-    assert result.counts == {"posts": 16, "news": 7}
+    assert result.counts == {"posts": 16, "news": 6}
     assert "news" in result.tags and "news:tg-1007" in result.tags
     original = by_id(posts, 1007)
     edited = original.model_copy(
@@ -152,3 +152,46 @@ def test_fetch_pages_back_until_since_or_known():
         snapshot=lambda name, html: None,
     )
     assert len(requested) == 1 and min(p.date.date() for p in recent) >= date(2026, 10, 13)
+
+
+def _post(text: str) -> TgPost:
+    return TgPost(
+        id=7,
+        url="https://t.me/x/7",
+        date=datetime(2026, 10, 1, tzinfo=UTC),
+        text=text,
+        markdown=text,
+        photo=None,
+    )
+
+
+LONG = " Сегодня сыграем с Bauman Junior в рамках открытия сезона в Бауманской Лиге." * 4
+
+
+def test_lineup_and_matchday_posts_are_dropped():
+    assert to_news(_post("Наш состав на сегодняшнюю встречу!" + LONG)) is None
+    assert to_news(_post("День матча!\n" + LONG)) is None
+    assert to_news(_post("МАТЧДЭЙ. Бауман Юнайтед — Реактор." + LONG)) is None
+    assert to_news(_post("Matchday! Едем на Металлург." + LONG)) is None
+
+
+def test_posts_mentioning_squad_inside_are_kept():
+    assert to_news(_post("БЮ продолжает собирать свой золотой состав 5 летней давности." + LONG))
+
+
+def test_ingest_purges_saved_news_that_no_longer_qualify(db):
+    db.add(
+        News(
+            slug="tg-995",
+            origin="telegram",
+            date=datetime(2026, 10, 11).date(),
+            tag="match",
+            title="Наш состав на игру с Реактором!",
+            body_md="Наш состав на игру с Реактором!\n\nВ защите будет подчищать Федя Мешков.",
+            featured=False,
+        )
+    )
+    db.flush()
+    result = ingest(db, [])
+    assert db.scalar(select(News).where(News.slug == "tg-995")) is None
+    assert "news:tg-995" in result.tags

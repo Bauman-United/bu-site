@@ -119,7 +119,8 @@ def test_match_without_timeline_does_not_fail_tournament(db, tmp_path):
     import re
 
     no_timeline = re.sub(
-        r'<div class="game-timeline__event [^>]*>', "<div>",
+        r'<div class="game-timeline__event [^>]*>',
+        "<div>",
         (FIX / "match_5848533.html").read_text(encoding="utf-8"),
     )
 
@@ -133,8 +134,9 @@ def test_match_without_timeline_does_not_fail_tournament(db, tmp_path):
             return httpx.Response(200, text=no_timeline)
         return httpx.Response(404)
 
-    client = PoliteClient("https://jf.test", "BaumanUnitedBot/1.0", 0,
-                          transport=httpx.MockTransport(handler))
+    client = PoliteClient(
+        "https://jf.test", "BaumanUnitedBot/1.0", 0, transport=httpx.MockTransport(handler)
+    )
     assert run_joinfootball(db, settings(tmp_path), client, Notifier(None, None)) == "ok"
     m = db.scalars(select(Match).where(Match.external_id == "5848533")).one()
     assert (m.score_us, m.score_them) == (2, 3) and m.events == []

@@ -19,6 +19,10 @@ LEAD_MAX = 220
 _URL = re.compile(r"https?://\S+")
 _SENTENCE_END = re.compile(r"(?<=[.!?…])\s+|\n+")
 _TRANSFER = re.compile(r"трансфер|переход|подписани|пополнил|в наши ряды", re.I)
+# Не новости: составы на игру и анонсы «день матча» (по началу поста).
+_NOT_NEWS = re.compile(
+    r"^\W*(наш (стартовый )?состав|стартовый состав|день матча|матч ?д[эе]й|match ?day)", re.I
+)
 _MATCH = re.compile(r"матч|соперник|кубк|кубок|\bтур\b|сч[её]т|игр[уаеы]\b|состав на", re.I)
 
 
@@ -41,9 +45,13 @@ def _cut(text: str, limit: int) -> str:
     return f"{head}…"
 
 
+def is_excluded(text: str) -> bool:
+    return bool(_NOT_NEWS.match(text.strip()))
+
+
 def to_news(post: TgPost) -> NewsDraft | None:
     plain = " ".join(_URL.sub("", post.text).split())
-    if len(plain) < MIN_TEXT:
+    if len(plain) < MIN_TEXT or is_excluded(post.text):
         return None
     parts = [p.strip() for p in _SENTENCE_END.split(post.text) if p.strip()]
     title = _cut(parts[0].rstrip("."), TITLE_MAX)
@@ -83,6 +91,11 @@ def ingest(session: Session, posts: list[TgPost]) -> IngestResult:
         news.body_md, news.cover = draft.body_md, draft.cover
         news.source_platform, news.source_url = "telegram", draft.source_url
         result.tags.add(f"news:{draft.slug}")
+    # Правила отбора могли ужесточиться — убираем уже сохранённые посты, которые им не подходят.
+    for news in session.scalars(select(News).where(News.origin == "telegram")):
+        if is_excluded(news.body_md):
+            result.tags.add(f"news:{news.slug}")
+            session.delete(news)
     session.flush()
     result.counts = {"posts": len(posts), "news": kept}
     result.tags |= {"news", "home"}
