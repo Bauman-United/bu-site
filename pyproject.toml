@@ -21,11 +21,12 @@ dev = ["pytest>=8.3", "ruff>=0.6", "mypy>=1.11", "types-PyYAML"]
 [tool.pytest.ini_options]
 testpaths = ["core/tests", "worker/tests", "api/tests"]
 addopts = "--import-mode=importlib -q"
+markers = ["canary: live network checks against sources"]
 filterwarnings = ["ignore:Using `httpx` with `starlette.testclient` is deprecated"]
 
 [tool.ruff]
 line-length = 100
-extend-exclude = ["core/migrations/versions"]
+extend-exclude = ["core/migrations/versions", "docs", "design"]
 target-version = "py312"
 
 [tool.ruff.lint]
