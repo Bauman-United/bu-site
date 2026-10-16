@@ -41,6 +41,7 @@ export function Footer({ club }: { club: Club }) {
               <Link key={item.href} className={s.link} href={item.href}>{item.label}</Link>
             ))}
             <Link className={s.link} href="/join">Хочу в команду</Link>
+            <Link className={s.link} href="/partners">Стать партнёром</Link>
           </div>
           {external.length > 0 && (
             <div className={s.column}>

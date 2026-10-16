@@ -1,0 +1,16 @@
+.main {
+  padding-top: 64px; padding-bottom: 72px;
+  display: flex; flex-wrap: wrap; gap: 56px;
+}
+.intro { flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.h1 { font-size: clamp(52px, 7vw, 88px); line-height: 1.05; }
+.lead { margin: 0; font-size: var(--fs-body-l); line-height: 1.6; color: var(--c-muted-2); max-width: 36em; }
+.mail { margin: 8px 0 0; font-size: 16px; color: var(--c-muted-2); }
+.mail a { color: var(--c-paper); }
+.mail a:hover { color: var(--c-muted-2); }
+
+@media (max-width: 640px) {
+  .main { padding-top: 32px; padding-bottom: 40px; gap: 32px; }
+  .intro { flex-basis: 100%; }
+  .lead { font-size: 16px; }
+}

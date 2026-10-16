@@ -34,12 +34,13 @@
   display: flex; flex-direction: column; gap: 16px;
   padding: 24px var(--gutter) 32px; border-top: 1px solid var(--c-line);
 }
-.join {
+.join, .partner {
   display: flex; align-items: center; justify-content: center; min-height: 52px; padding: 16px 20px;
   background: var(--c-paper); color: var(--c-ink); text-decoration: none;
   font-family: var(--f-display); font-weight: 600; font-size: 16px; line-height: 1;
   letter-spacing: var(--ls-caps); text-transform: uppercase;
 }
+.partner { background: transparent; color: var(--c-paper); border: 1px solid var(--c-paper); padding: 15px 19px; }
 
 @media (max-width: 1023px) {
   .burger { display: flex; }

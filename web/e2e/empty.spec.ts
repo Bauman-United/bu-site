@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-for (const path of ["/", "/matches", "/standings", "/team", "/news", "/about", "/join"]) {
+for (const path of ["/", "/matches", "/standings", "/team", "/news", "/about", "/join", "/partners"]) {
   test(`empty db renders ${path}`, async ({ page }) => {
     const res = await page.goto(path);
     expect(res?.status()).toBe(200);

@@ -3,7 +3,7 @@ from collections.abc import Callable
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
 
-from bu_api.routes import catalog, home, join, matches, news, players, sitemap, stats
+from bu_api.routes import catalog, home, join, matches, news, partners, players, sitemap, stats
 
 
 def create_app(session_factory: Callable[[], Session], close_sessions: bool = False) -> FastAPI:
@@ -16,7 +16,7 @@ def create_app(session_factory: Callable[[], Session], close_sessions: bool = Fa
     def health() -> dict[str, bool]:
         return {"ok": True}
 
-    for module in (catalog, matches, players, news, home, stats, sitemap, join):
+    for module in (catalog, matches, players, news, home, stats, sitemap, join, partners):
         app.include_router(module.router)
     return app
 

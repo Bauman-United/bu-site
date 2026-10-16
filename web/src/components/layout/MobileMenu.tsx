@@ -84,6 +84,7 @@ export function MobileMenu({ socials }: { socials: ReactNode }) {
           <div className={s.bottom}>
             {socials}
             <Link href="/join" className={s.join} onClick={close}>Хочу в команду</Link>
+            <Link href="/partners" className={s.partner} onClick={close}>Стать партнёром</Link>
           </div>
         </div>
       )}

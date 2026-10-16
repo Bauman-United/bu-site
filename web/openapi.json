@@ -665,7 +665,54 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JoinResult"
+                  "$ref": "#/components/schemas/FormResult"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests"
+          },
+          "502": {
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/partners": {
+      "post": {
+        "summary": "Partners",
+        "operationId": "partners_partners_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartnerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormResult"
                 }
               }
             }
@@ -778,6 +825,19 @@
         ],
         "title": "EventOut"
       },
+      "FormResult": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok"
+        ],
+        "title": "FormResult"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -854,19 +914,6 @@
           "contact"
         ],
         "title": "JoinRequest"
-      },
-      "JoinResult": {
-        "properties": {
-          "ok": {
-            "type": "boolean",
-            "title": "Ok"
-          }
-        },
-        "type": "object",
-        "required": [
-          "ok"
-        ],
-        "title": "JoinResult"
       },
       "MatchDetail": {
         "properties": {
@@ -1500,6 +1547,34 @@
           "per_page"
         ],
         "title": "NewsPage"
+      },
+      "PartnerRequest": {
+        "properties": {
+          "about": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "About"
+          },
+          "contact": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 3,
+            "title": "Contact"
+          },
+          "website": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Website",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "about",
+          "contact"
+        ],
+        "title": "PartnerRequest"
       },
       "PlayerCard": {
         "properties": {

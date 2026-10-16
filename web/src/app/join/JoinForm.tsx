@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { BAUMAN_OPTIONS, type JoinField, POSITIONS, initialJoinState } from "@/lib/join";
 import { submitJoin } from "./actions";
+import f from "@/components/ui/FormCard.module.css";
 import s from "./JoinForm.module.css";
 
 interface Props { contact: { href: string; external: boolean } | null }
@@ -19,7 +20,7 @@ function TelegramIcon() {
 
 function CaptainLink({ contact }: { contact: NonNullable<Props["contact"]> }) {
   return (
-    <a className={s.secondary} href={contact.href}
+    <a className={f.secondary} href={contact.href}
       {...(contact.external ? { target: "_blank", rel: "noopener" } : {})}>
       <TelegramIcon />
       Написать капитану
@@ -33,9 +34,9 @@ export function JoinForm({ contact }: Props) {
 
   if (state.status === "success") {
     return (
-      <section className={s.card} aria-labelledby="join-card">
-        <h2 id="join-card" className={s.title}>Заявка</h2>
-        <p className={s.success} role="status">Заявка отправлена! Капитан напишет тебе в ближайшее время.</p>
+      <section className={f.card} aria-labelledby="join-card">
+        <h2 id="join-card" className={f.title}>Заявка</h2>
+        <p className={f.success} role="status">Заявка отправлена! Капитан напишет тебе в ближайшее время.</p>
       </section>
     );
   }
@@ -49,54 +50,54 @@ export function JoinForm({ contact }: Props) {
     } as const;
   };
   const errorText = (field: JoinField) =>
-    errors[field] ? <p id={`join-${field}-error`} className={s.error}>{errors[field]}</p> : null;
+    errors[field] ? <p id={`join-${field}-error`} className={f.error}>{errors[field]}</p> : null;
 
   return (
-    <form className={s.card} action={action} noValidate aria-labelledby="join-card">
-      <h2 id="join-card" className={s.title}>Заявка</h2>
+    <form className={f.card} action={action} noValidate aria-labelledby="join-card">
+      <h2 id="join-card" className={f.title}>Заявка</h2>
 
       {state.status === "error" && (
-        <div className={s.alert} role="alert">
+        <div className={f.alert} role="alert">
           <p>{state.message}</p>
           {contact && <CaptainLink contact={contact} />}
         </div>
       )}
 
-      <div className={s.field}>
-        <label htmlFor="join-name" className={s.label}>Фамилия и имя</label>
-        <input id="join-name" name="name" type="text" className={s.input} required minLength={2} maxLength={100}
+      <div className={f.field}>
+        <label htmlFor="join-name" className={f.label}>Фамилия и имя</label>
+        <input id="join-name" name="name" type="text" className={f.input} required minLength={2} maxLength={100}
           autoComplete="name" placeholder="Иванов Иван" defaultValue={values.name} {...err("name")} />
         {errorText("name")}
       </div>
 
       <div className={s.row}>
-        <div className={s.field}>
-          <label htmlFor="join-position" className={s.label}>Позиция</label>
-          <select id="join-position" name="position" className={s.input} required
+        <div className={f.field}>
+          <label htmlFor="join-position" className={f.label}>Позиция</label>
+          <select id="join-position" name="position" className={f.input} required
             defaultValue={values.position} {...err("position")}>
             <option value="" disabled>Выбери</option>
             {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
           {errorText("position")}
         </div>
-        <div className={s.field}>
-          <label htmlFor="join-age" className={s.label}>Возраст</label>
-          <input id="join-age" name="age" type="number" inputMode="numeric" className={s.input} required
+        <div className={f.field}>
+          <label htmlFor="join-age" className={f.label}>Возраст</label>
+          <input id="join-age" name="age" type="number" inputMode="numeric" className={f.input} required
             min={14} max={70} placeholder="20" defaultValue={values.age} {...err("age")} />
           {errorText("age")}
         </div>
       </div>
 
-      <div className={s.field}>
-        <label htmlFor="join-experience" className={s.label}>Опыт: где и сколько играл</label>
-        <textarea id="join-experience" name="experience" rows={4} className={s.textarea} required
+      <div className={f.field}>
+        <label htmlFor="join-experience" className={f.label}>Опыт: где и сколько играл</label>
+        <textarea id="join-experience" name="experience" rows={4} className={f.textarea} required
           minLength={10} maxLength={1500} placeholder="Секция, школа, любительские лиги, сколько лет"
           defaultValue={values.experience} {...err("experience")} />
         {errorText("experience")}
       </div>
 
       <fieldset className={s.fieldset} role="radiogroup" aria-labelledby="join-bauman-legend" {...err("bauman")}>
-        <legend id="join-bauman-legend" className={s.label}>Учишься в Бауманке?</legend>
+        <legend id="join-bauman-legend" className={f.label}>Учишься в Бауманке?</legend>
         <div className={s.radios}>
           {BAUMAN_OPTIONS.map((opt) => (
             <label key={opt} className={s.radio}>
@@ -108,21 +109,21 @@ export function JoinForm({ contact }: Props) {
         {errorText("bauman")}
       </fieldset>
 
-      <div className={s.field}>
-        <label htmlFor="join-contact" className={s.label}>Контакт для связи</label>
-        <input id="join-contact" name="contact" type="text" className={s.input} required minLength={3}
+      <div className={f.field}>
+        <label htmlFor="join-contact" className={f.label}>Контакт для связи</label>
+        <input id="join-contact" name="contact" type="text" className={f.input} required minLength={3}
           maxLength={200} placeholder="@username или ссылка на соцсеть" defaultValue={values.contact}
           {...err("contact", "join-contact-hint")} />
-        <p id="join-contact-hint" className={s.hint}>Ссылка на соцсеть или ник в Telegram</p>
+        <p id="join-contact-hint" className={f.hint}>Ссылка на соцсеть или ник в Telegram</p>
         {errorText("contact")}
       </div>
 
-      <div className={s.honeypot} aria-hidden="true">
+      <div className={f.honeypot} aria-hidden="true">
         <label htmlFor="join-website">Сайт</label>
         <input id="join-website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
       </div>
 
-      <button type="submit" className={s.submit} disabled={pending} aria-disabled={pending}>
+      <button type="submit" className={f.submit} disabled={pending} aria-disabled={pending}>
         {pending ? "Отправляем…" : "Отправить заявку"}
       </button>
 

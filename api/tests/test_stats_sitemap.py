@@ -12,7 +12,8 @@ def test_stats_current_and_all(client):
 
 def test_sitemap(client):
     paths = {item["path"] for item in client.get("/sitemap").json()}
-    assert {"/", "/matches", "/team", "/news", "/standings", "/about", "/join"} <= paths
+    static = {"/", "/matches", "/team", "/news", "/standings", "/about", "/join", "/partners"}
+    assert static <= paths
     assert "/matches/2026-09-06-bauman-junior" in paths
     assert "/team/aleksandr-korolev" in paths
     assert "/news/start" in paths

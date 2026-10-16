@@ -23,7 +23,8 @@ export function Header({ club }: { club: Club }) {
         </nav>
         <div className={s.actions}>
           <SocialIcons links={socials} className={s.socials} itemClassName={s.social} />
-          <Link href="/join" className={s.join}>Хочу в команду</Link>
+          <Link href="/partners" className={`${s.cta} ${s.partner}`}>Стать партнёром</Link>
+          <Link href="/join" className={`${s.cta} ${s.join}`}>Хочу в команду</Link>
         </div>
         <MobileMenu
           socials={<SocialIcons links={socials} className={s.socials} itemClassName={s.social} />}

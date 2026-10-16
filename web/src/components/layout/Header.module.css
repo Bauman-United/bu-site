@@ -29,13 +29,27 @@
   font-family: var(--f-display); font-weight: 700; font-size: 14px;
 }
 .social:hover { color: #BDBDBD; }
-.join {
-  margin-left: 8px; background: var(--c-paper); color: var(--c-ink); text-decoration: none;
+.cta {
   display: inline-flex; align-items: center; min-height: var(--touch); padding: 13px 20px;
+  text-decoration: none; white-space: nowrap;
   font-family: var(--f-display); font-weight: 600; font-size: 15px; line-height: 1;
   letter-spacing: var(--ls-caps); text-transform: uppercase;
+  transition: background-color .15s, color .15s;
 }
+/* Secondary: контурная кнопка, ховер — белая заливка */
+.partner { margin-left: 8px; border: 1px solid var(--c-paper); padding: 12px 19px; color: var(--c-paper); }
+.partner:hover { background: var(--c-paper); color: var(--c-ink); }
+.join { background: var(--c-paper); color: var(--c-ink); }
 .join:hover { background: var(--c-muted-2); color: var(--c-ink); }
+
+/* 1024–1279: две кнопки не помещаются рядом с соцсетями — соцсети остаются в подвале и меню */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .inner { gap: 20px; }
+  .nav { gap: 4px 18px; flex-basis: auto; }
+  .actions .socials { display: none; }
+  .cta { padding-inline: 14px; }
+  .partner { padding-inline: 13px; }
+}
 
 /* Мобильная шапка: герб + название и бургер */
 @media (max-width: 1023px) {
