@@ -491,6 +491,8 @@ export interface components {
             }[];
             /** Seasons */
             seasons: components["schemas"]["SeasonRow"][];
+            /** Tournaments */
+            tournaments: components["schemas"]["TournamentStatsRow"][];
             total: components["schemas"]["PlayerStats"];
             /** Team Best */
             team_best: string[];
@@ -607,6 +609,13 @@ export interface components {
             season: string;
             /** Url */
             url: string | null;
+        };
+        /** TournamentStatsRow */
+        TournamentStatsRow: {
+            tournament: components["schemas"]["TournamentOut"];
+            /** Season */
+            season: string;
+            stats: components["schemas"]["PlayerStats"];
         };
         /** ValidationError */
         ValidationError: {

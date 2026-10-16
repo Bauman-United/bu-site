@@ -33,3 +33,12 @@ test("player og image", async ({ request }) => {
   const res = await request.get("/team/aleksandr-korolev/opengraph-image");
   expect(res.headers()["content-type"]).toContain("image/png");
 });
+
+test("player profile splits stats by tournament", async ({ page }) => {
+  await page.goto("/team/aleksandr-korolev");
+  const table = page.getByRole("table", { name: "По турнирам" });
+  await expect(table).toBeVisible();
+  const row = table.getByRole("row", { name: /Лига Инженеров/ });
+  await expect(row).toContainText("3"); // сыграно матчей в сид-данных e2e
+  await expect(table.getByRole("columnheader", { name: "КК" })).toBeVisible();
+});

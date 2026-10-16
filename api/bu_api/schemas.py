@@ -110,6 +110,12 @@ class SeasonRow(BaseModel):
     stats: PlayerStats
 
 
+class TournamentStatsRow(BaseModel):
+    tournament: TournamentOut
+    season: str
+    stats: PlayerStats
+
+
 class PlayerDetail(PlayerCard):
     role: str | None
     foot: str | None
@@ -118,6 +124,7 @@ class PlayerDetail(PlayerCard):
     fact: str | None
     achievements: list[dict[str, Any]]
     seasons: list[SeasonRow]
+    tournaments: list[TournamentStatsRow]
     total: PlayerStats
     team_best: list[str]
     prev_slug: str | None

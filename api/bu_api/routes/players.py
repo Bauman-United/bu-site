@@ -1,13 +1,20 @@
 from collections.abc import Mapping
 
 from bu_core.models import Player, PlayerSeasonStats, PlayerTournamentStats, Season, Tournament
+from bu_core.recompute import tournament_lines
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from bu_api.deps import get_session
-from bu_api.routes import current_season
-from bu_api.schemas import PlayerCard, PlayerDetail, PlayerStats, SeasonRow
+from bu_api.routes import current_season, tournament_out
+from bu_api.schemas import (
+    PlayerCard,
+    PlayerDetail,
+    PlayerStats,
+    SeasonRow,
+    TournamentStatsRow,
+)
 
 router = APIRouter()
 POSITION_ORDER = {"GK": 0, "DF": 1, "MF": 2, "FW": 3}
@@ -110,6 +117,25 @@ def player_detail(slug: str, session: Session = Depends(get_session)) -> PlayerD
         for x in _sorted(list(session.scalars(select(Player).where(Player.active.is_(True)))))
     ]
     i = roster.index(p.slug) if p.slug in roster else -1
+    per_tournament = tournament_lines(session, p.id)
+    tournaments = {
+        t.id: t
+        for t in session.scalars(
+            select(Tournament).where(Tournament.id.in_([tid for _, tid in per_tournament]))
+        )
+    }
+    by_tournament = sorted(
+        (
+            TournamentStatsRow(
+                tournament=tournament_out(tournaments[tid]),
+                season=tournaments[tid].season.slug,
+                stats=PlayerStats(**values),
+            )
+            for (_, tid), values in per_tournament.items()
+        ),
+        key=lambda r: (r.season, r.stats.played, r.tournament.name),
+        reverse=True,
+    )
     return PlayerDetail(
         **_card(p, _stats(mine)),
         role=p.role,
@@ -119,6 +145,7 @@ def player_detail(slug: str, session: Session = Depends(get_session)) -> PlayerD
         fact=p.fact,
         achievements=p.achievements or [],
         seasons=seasons,
+        tournaments=by_tournament,
         total=total,
         team_best=team_best,
         prev_slug=roster[i - 1] if i > 0 else None,

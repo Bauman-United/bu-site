@@ -1556,6 +1556,13 @@
             "type": "array",
             "title": "Seasons"
           },
+          "tournaments": {
+            "items": {
+              "$ref": "#/components/schemas/TournamentStatsRow"
+            },
+            "type": "array",
+            "title": "Tournaments"
+          },
           "total": {
             "$ref": "#/components/schemas/PlayerStats"
           },
@@ -1607,6 +1614,7 @@
           "fact",
           "achievements",
           "seasons",
+          "tournaments",
           "total",
           "team_best",
           "prev_slug",
@@ -1891,6 +1899,27 @@
           "url"
         ],
         "title": "TournamentOut"
+      },
+      "TournamentStatsRow": {
+        "properties": {
+          "tournament": {
+            "$ref": "#/components/schemas/TournamentOut"
+          },
+          "season": {
+            "type": "string",
+            "title": "Season"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/PlayerStats"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tournament",
+          "season",
+          "stats"
+        ],
+        "title": "TournamentStatsRow"
       },
       "ValidationError": {
         "properties": {

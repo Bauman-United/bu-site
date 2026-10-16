@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, TypeGuard
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
@@ -32,43 +32,67 @@ def _put(session: Session, key: str, data: dict[str, Any]) -> None:
         row.data = data
 
 
-def _season_lines(session: Session) -> dict[tuple[int, int], dict[str, int]]:
-    lines: dict[tuple[int, int], dict[str, int]] = defaultdict(lambda: dict.fromkeys(FIELDS, 0))
+Lines = dict[tuple[int, int], dict[str, int]]
 
-    rows = session.execute(
-        select(PlayerTournamentStats, Tournament.season_id)
+
+def tournament_lines(session: Session, player_id: int | None = None) -> Lines:
+    """Статистика игроков по турнирам: ключ (player_id, tournament_id).
+
+    Турниры источников — агрегаты из заявок (PlayerTournamentStats); ручные турниры
+    (content/) — из составов и событий матчей. MVP — по матчам любого турнира.
+    """
+    lines: Lines = defaultdict(lambda: dict.fromkeys(FIELDS, 0))
+
+    def mine(pid: int | None) -> TypeGuard[int]:
+        return pid is not None and (player_id is None or pid == player_id)
+
+    for stats, tournament_id in session.execute(
+        select(PlayerTournamentStats, PlayerTournamentStats.tournament_id)
         .join(Tournament, Tournament.id == PlayerTournamentStats.tournament_id)
         .where(Tournament.source != "manual")
-    )
-    for stats, season_id in rows:
-        line = lines[(stats.player_id, season_id)]
-        for f in ("played", "goals", "assists", "yellow", "red"):
-            line[f] += getattr(stats, f)
+    ):
+        if mine(stats.player_id):
+            line = lines[(stats.player_id, tournament_id)]
+            for f in ("played", "goals", "assists", "yellow", "red"):
+                line[f] += getattr(stats, f)
 
     manual = select(Match.id).join(Tournament).where(Tournament.source == "manual")
-    for player_id, season_id in session.execute(
-        select(MatchAppearance.player_id, Match.season_id)
+    for pid, tournament_id in session.execute(
+        select(MatchAppearance.player_id, Match.tournament_id)
         .join(Match, Match.id == MatchAppearance.match_id)
         .where(Match.id.in_(manual))
     ):
-        lines[(player_id, season_id)]["played"] += 1
-    for ev, season_id in session.execute(
-        select(MatchEvent, Match.season_id)
+        if mine(pid):
+            lines[(pid, tournament_id)]["played"] += 1
+    for ev, tournament_id in session.execute(
+        select(MatchEvent, Match.tournament_id)
         .join(Match, Match.id == MatchEvent.match_id)
         .where(Match.id.in_(manual), MatchEvent.team == "us")
     ):
-        if ev.player_id and ev.type in ("goal", "penalty"):
-            lines[(ev.player_id, season_id)]["goals"] += 1
-        if ev.assist_id and ev.type in ("goal", "penalty"):
-            lines[(ev.assist_id, season_id)]["assists"] += 1
-        if ev.player_id and ev.type in ("yellow", "red"):
-            lines[(ev.player_id, season_id)][ev.type] += 1
+        if mine(ev.player_id) and ev.type in ("goal", "penalty"):
+            lines[(ev.player_id, tournament_id)]["goals"] += 1
+        if mine(ev.assist_id) and ev.type in ("goal", "penalty"):
+            lines[(ev.assist_id, tournament_id)]["assists"] += 1
+        if mine(ev.player_id) and ev.type in ("yellow", "red"):
+            lines[(ev.player_id, tournament_id)][ev.type] += 1
 
-    for mvp_id, season_id in session.execute(
-        select(Match.mvp_player_id, Match.season_id).where(Match.mvp_player_id.is_not(None))
+    for mvp_id, tournament_id in session.execute(
+        select(Match.mvp_player_id, Match.tournament_id).where(Match.mvp_player_id.is_not(None))
     ):
-        if mvp_id is not None:
-            lines[(mvp_id, season_id)]["mvp"] += 1
+        if mine(mvp_id):
+            lines[(mvp_id, tournament_id)]["mvp"] += 1
+    return lines
+
+
+def _season_lines(session: Session) -> Lines:
+    season_of = {
+        tid: sid for tid, sid in session.execute(select(Tournament.id, Tournament.season_id))
+    }
+    lines: Lines = defaultdict(lambda: dict.fromkeys(FIELDS, 0))
+    for (pid, tournament_id), values in tournament_lines(session).items():
+        line = lines[(pid, season_of[tournament_id])]
+        for f in FIELDS:
+            line[f] += values[f]
     return lines
 
 

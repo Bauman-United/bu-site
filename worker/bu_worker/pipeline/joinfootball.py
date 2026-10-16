@@ -29,6 +29,17 @@ SOURCE = "joinfootball"
 MIN_RATIO = 0.5
 
 
+# Приоритет фото: БЛ (CDN join.football) важнее ЛФЛ; ручное фото защищено manual_fields.
+_PHOTO_HOSTS = {"st.joinsport.io": 2, "lfl.ru": 1, "www.lfl.ru": 1}
+
+
+def _photo_rank(url: str | None) -> int:
+    if not url:
+        return 0
+    host = url.split("://", 1)[-1].split("/", 1)[0]
+    return _PHOTO_HOSTS.get(host, 0)
+
+
 class SanityError(Exception):
     pass
 
@@ -170,7 +181,8 @@ def _ingest_players(
         if "position" not in manual and parsed.position:
             player.position = parsed.position
         if "photo" not in manual and parsed.photo_url:
-            player.photo = parsed.photo_url
+            if _photo_rank(parsed.photo_url) >= _photo_rank(player.photo):
+                player.photo = parsed.photo_url
         if "active" not in manual:
             player.active = parsed.active
         stats = session.get(PlayerTournamentStats, (player.id, tournament.id))

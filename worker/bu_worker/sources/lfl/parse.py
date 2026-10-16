@@ -4,6 +4,7 @@ import re
 from datetime import date, datetime, time
 from zoneinfo import ZoneInfo
 
+from bu_core.text import normalize_name
 from selectolax.lexbor import LexborHTMLParser as HTMLParser
 from selectolax.lexbor import LexborNode as Node
 
@@ -306,3 +307,36 @@ def parse_match(html: str) -> MatchDetail:
         raise ParseError(f"parsed {goals} goals for score total {score_total}")
     events.sort(key=lambda event: event.minute)
     return MatchDetail(events=events)
+
+
+_NAME_WORD = re.compile(r"[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*")
+
+
+def _name_key(full_name: str) -> str | None:
+    """«Королёв Александр Дмитриевич» -> «королев александр» (фамилия + имя, без отчества)."""
+    words = _NAME_WORD.findall(full_name)
+    return normalize_name(" ".join(words[:2])) if len(words) >= 2 else None
+
+
+def parse_player_photos(html: str) -> dict[str, str]:
+    """Страница «Подробный список» клуба: фото игроков по ключу «фамилия имя»."""
+    tree = HTMLParser(html)
+    photos: dict[str, str] = {}
+    last_logo: str | None = None
+    for node in tree.css(".player_logo, .player_title_name"):
+        classes = (node.attributes.get("class") or "").split()
+        if "player_logo" in classes:
+            last_logo = _attr(node.css_first("img"), "src")
+            continue
+        key = _name_key(_text(node))
+        if key and last_logo:
+            photos[key] = last_logo.replace("http://", "https://", 1)
+        last_logo = None
+    return photos
+
+
+def attach_photos(players: list[ParsedPlayer], photos: dict[str, str]) -> list[ParsedPlayer]:
+    return [
+        p.model_copy(update={"photo_url": photos.get(_name_key(p.full_name) or "")})
+        for p in players
+    ]

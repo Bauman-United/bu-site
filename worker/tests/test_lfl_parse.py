@@ -171,3 +171,51 @@ def test_lfl_bundle_ingests_with_its_own_source(db):
         "league",
         "2026-27",
     )
+
+
+PLAYERS_LIST = """
+<div class="player_logo"><a href="https://lfl.ru/photo/persons/source/217632.jpg">
+  <img src="https://lfl.ru/photo/persons/source/217632.jpg" height="110"></a></div>
+<div class="player_title"><p class="player_title_name">
+  <a href="/person217632">Королёв Александр Дмитриевич</a></p></div>
+<div class="player_logo"><a href="x"><img src="https://lfl.ru/photo/persons/source/235393.jpg"></a></div>
+<div class="player_title"><p class="player_title_name">
+  <a href="/person235393">Моисеев Павел Александрович-//</a></p></div>
+<div class="player_logo"></div>
+<div class="player_title"><p class="player_title_name">
+  <a href="/person1">Безфото Иван Иванович</a></p></div>
+"""
+
+
+def test_player_photos_keyed_by_last_and_first_name():
+    from bu_worker.sources.lfl.parse import parse_player_photos
+
+    assert parse_player_photos(PLAYERS_LIST) == {
+        "королев александр": "https://lfl.ru/photo/persons/source/217632.jpg",
+        "моисеев павел": "https://lfl.ru/photo/persons/source/235393.jpg",
+    }
+
+
+def test_attach_photos_matches_squad_names():
+    from bu_worker.dto import ParsedPlayer
+    from bu_worker.sources.lfl.parse import attach_photos, parse_player_photos
+
+    def player(ext: str, name: str) -> ParsedPlayer:
+        return ParsedPlayer(
+            external_id=ext,
+            full_name=name,
+            number=None,
+            position="MF",
+            played=1,
+            goals=0,
+            assists=0,
+            yellow=0,
+            red=0,
+        )
+
+    out = attach_photos(
+        [player("266203", "Королёв Александр"), player("9", "Неизвестный Игрок")],
+        parse_player_photos(PLAYERS_LIST),
+    )
+    assert out[0].photo_url == "https://lfl.ru/photo/persons/source/217632.jpg"
+    assert out[1].photo_url is None

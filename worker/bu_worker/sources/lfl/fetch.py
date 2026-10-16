@@ -4,9 +4,11 @@ from bu_worker.dto import JoinFootballBundle, MatchDetail
 from bu_worker.http import PoliteClient
 from bu_worker.sources.lfl.parse import (
     ParseError,
+    attach_photos,
     parse_calendar,
     parse_current_player_ids,
     parse_match,
+    parse_player_photos,
     parse_players,
     parse_season_id,
     parse_standings,
@@ -44,6 +46,10 @@ def fetch_bundle(
             f"&tournament_id={tournament_id}&club_id={club_id}",
         ),
         current_player_ids,
+    )
+    # Фото есть только на странице «Подробный список»; сопоставляем по фамилии и имени.
+    players = attach_photos(
+        players, parse_player_photos(get("players_list", f"/club{club_id}/players_list"))
     )
     details: dict[str, MatchDetail] = {}
     for entry in calendar:
