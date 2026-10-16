@@ -7,14 +7,14 @@ from bu_core.settings import get_settings
 
 from bu_worker.http import PoliteClient
 from bu_worker.notify import Notifier
-from bu_worker.runner import run_content, run_joinfootball
+from bu_worker.runner import run_content, run_joinfootball, run_lfl
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(prog="bu_worker")
     sub = parser.add_subparsers(dest="cmd", required=True)
     run = sub.add_parser("run")
-    run.add_argument("source", choices=["joinfootball", "content", "all"])
+    run.add_argument("source", choices=["joinfootball", "lfl", "content", "all"])
     sub.add_parser("schedule")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -40,6 +40,15 @@ def main() -> int:
                 settings.request_delay_s,
             )
             status = run_joinfootball(session, settings, client, notifier)
+        if args.source in ("lfl", "all"):
+            client = PoliteClient(
+                settings.lfl_base,
+                f"BaumanUnitedBot/1.0 (+{settings.site_url})",
+                settings.request_delay_s,
+            )
+            lfl_status = run_lfl(session, settings, client, notifier)
+            if lfl_status != "ok":
+                status = lfl_status
     return 0 if status == "ok" else 1
 
 

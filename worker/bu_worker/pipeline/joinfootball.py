@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from datetime import UTC, datetime
 
 from bu_core.matching import AmbiguousMatchError, PlayerIndex, PlayerName
@@ -40,7 +41,13 @@ def _counts(bundle: JoinFootballBundle) -> dict[str, int]:
     }
 
 
-def sanity_check(session: Session, source_key: str, bundle: JoinFootballBundle) -> None:
+def sanity_check(
+    session: Session,
+    source_key: str,
+    bundle: JoinFootballBundle,
+    *,
+    require_standings: bool = True,
+) -> None:
     new = _counts(bundle)
     previous = session.scalars(
         select(IngestRun)
@@ -49,7 +56,7 @@ def sanity_check(session: Session, source_key: str, bundle: JoinFootballBundle) 
         .limit(1)
     ).one_or_none()
     for key, value in new.items():
-        if value == 0:
+        if value == 0 and (key != "standings" or require_standings):
             raise SanityError(f"{key}: source returned 0 items")
         before = (previous.counts or {}).get(key, 0) if previous else 0
         # таблица турнира не может «похудеть» — любые потерянные строки = сломанная вёрстка
@@ -58,21 +65,23 @@ def sanity_check(session: Session, source_key: str, bundle: JoinFootballBundle) 
             raise SanityError(f"{key}: dropped from {before} to {value}")
 
 
-def _upsert_tournament(session: Session, bundle: JoinFootballBundle) -> Tournament:
+def _upsert_tournament(
+    session: Session, bundle: JoinFootballBundle, source: str = SOURCE
+) -> Tournament:
     info = bundle.tournament
     season = ensure_season(session, season_slug_for(info.period_start))
     tournament = session.scalars(
         select(Tournament).where(
-            Tournament.source == SOURCE, Tournament.external_id == info.external_id
+            Tournament.source == source, Tournament.external_id == info.external_id
         )
     ).one_or_none()
     if tournament is None:
         tournament = Tournament(
-            source=SOURCE,
+            source=source,
             external_id=info.external_id,
             slug=unique_slug(session, Tournament, slugify(info.name)),
             short=info.name.split(" · ")[0],
-            kind="league",
+            kind="cup" if "кубок" in info.name.lower() else "league",
         )
         session.add(tournament)
     tournament.name = info.name
@@ -83,11 +92,15 @@ def _upsert_tournament(session: Session, bundle: JoinFootballBundle) -> Tourname
 
 
 def _resolve_player(
-    session: Session, index: PlayerIndex, parsed: ParsedPlayer, warnings: list[str]
+    session: Session,
+    index: PlayerIndex,
+    parsed: ParsedPlayer,
+    warnings: list[str],
+    source: str = SOURCE,
 ) -> Player | None:
     link = session.scalars(
         select(PlayerSourceLink).where(
-            PlayerSourceLink.source == SOURCE,
+            PlayerSourceLink.source == source,
             PlayerSourceLink.external_id == parsed.external_id,
         )
     ).one_or_none()
@@ -101,7 +114,7 @@ def _resolve_player(
     if player_id is not None:
         other = session.scalars(
             select(PlayerSourceLink).where(
-                PlayerSourceLink.player_id == player_id, PlayerSourceLink.source == SOURCE
+                PlayerSourceLink.player_id == player_id, PlayerSourceLink.source == source
             )
         ).first()
         if other is not None:  # тёзка: у найденного игрока уже другой id в источнике
@@ -129,7 +142,7 @@ def _resolve_player(
     session.add(
         PlayerSourceLink(
             player_id=player.id,
-            source=SOURCE,
+            source=source,
             external_id=parsed.external_id,
             external_name=parsed.full_name,
         )
@@ -138,22 +151,28 @@ def _resolve_player(
 
 
 def _ingest_players(
-    session: Session, bundle: JoinFootballBundle, tournament: Tournament, result: IngestResult
+    session: Session,
+    bundle: JoinFootballBundle,
+    tournament: Tournament,
+    result: IngestResult,
+    source: str = SOURCE,
 ) -> PlayerIndex:
     index = player_index(session)
     present: set[int] = set()
     for parsed in bundle.players:
-        player = _resolve_player(session, index, parsed, result.warnings)
+        player = _resolve_player(session, index, parsed, result.warnings, source)
         if player is None:
             continue
         present.add(player.id)
         manual = set(player.manual_fields or [])
-        if "number" not in manual:
+        if "number" not in manual and parsed.number is not None:
             player.number = parsed.number
         if "position" not in manual and parsed.position:
             player.position = parsed.position
+        if "photo" not in manual and parsed.photo_url:
+            player.photo = parsed.photo_url
         if "active" not in manual:
-            player.active = True
+            player.active = parsed.active
         stats = session.get(PlayerTournamentStats, (player.id, tournament.id))
         if stats is None:
             stats = PlayerTournamentStats(player_id=player.id, tournament_id=tournament.id)
@@ -193,16 +212,18 @@ def _ingest_match(
     our_team_id: str,
     index: PlayerIndex,
     result: IngestResult,
+    source: str = SOURCE,
+    match_url: Callable[[str], str] | None = None,
 ) -> None:
     home = entry.home_team_id == our_team_id
     opponent = entry.away_name if home else entry.home_name
     match = session.scalars(
-        select(Match).where(Match.source == SOURCE, Match.external_id == entry.external_id)
+        select(Match).where(Match.source == source, Match.external_id == entry.external_id)
     ).one_or_none()
     if match is None:
         base = f"{entry.kickoff.date().isoformat()}-{slugify(opponent)}"
         match = Match(
-            source=SOURCE, external_id=entry.external_id, slug=unique_slug(session, Match, base)
+            source=source, external_id=entry.external_id, slug=unique_slug(session, Match, base)
         )
         session.add(match)
     match.tournament_id = tournament.id
@@ -214,7 +235,11 @@ def _ingest_match(
     match.venue_address = entry.venue_address
     match.opponent_name = opponent
     match.opponent_logo = entry.away_logo if home else entry.home_logo
-    match.source_url = f"{bundle.tournament.url.split('/tournament/')[0]}/match/{entry.external_id}"
+    match.source_url = (
+        match_url(entry.external_id)
+        if match_url is not None
+        else f"{bundle.tournament.url.split('/tournament/')[0]}/match/{entry.external_id}"
+    )
     finished = entry.home_score is not None and entry.away_score is not None
     if finished:
         match.score_us = entry.home_score if home else entry.away_score
@@ -278,13 +303,29 @@ def _ingest_standings(
 
 
 def ingest(
-    session: Session, bundle: JoinFootballBundle, our_team_id: str, our_names: list[str]
+    session: Session,
+    bundle: JoinFootballBundle,
+    our_team_id: str,
+    our_names: list[str],
+    *,
+    source: str = SOURCE,
+    match_url: Callable[[str], str] | None = None,
 ) -> IngestResult:
     result = IngestResult(counts=_counts(bundle))
-    tournament = _upsert_tournament(session, bundle)
-    index = _ingest_players(session, bundle, tournament, result)
+    tournament = _upsert_tournament(session, bundle, source)
+    index = _ingest_players(session, bundle, tournament, result, source)
     for entry in bundle.calendar:
-        _ingest_match(session, entry, bundle, tournament, our_team_id, index, result)
+        _ingest_match(
+            session,
+            entry,
+            bundle,
+            tournament,
+            our_team_id,
+            index,
+            result,
+            source,
+            match_url,
+        )
     _ingest_standings(session, bundle, tournament, our_names)
     result.tags |= {"matches", "players", "standings", "home", "stats"}
     return result

@@ -24,9 +24,10 @@ function url(path: string, query?: Query): string {
 }
 
 export async function apiGet<T>(path: string, opts: { tags?: string[]; query?: Query } = {}): Promise<T> {
-  const res = await fetch(url(path, opts.query), {
-    next: { revalidate: REVALIDATE_SECONDS, tags: opts.tags ?? [] },
-  } as RequestInit);
+  const cacheOptions: RequestInit = process.env.NODE_ENV === "development"
+    ? { cache: "no-store" }
+    : { next: { revalidate: REVALIDATE_SECONDS, tags: opts.tags ?? [] } } as RequestInit;
+  const res = await fetch(url(path, opts.query), cacheOptions);
   if (!res.ok) throw new ApiError(res.status, path);
   return (await res.json()) as T;
 }
@@ -47,7 +48,11 @@ export const getMatches = (q: MatchQuery = {}) =>
   apiGet<MatchSummary[]>("/matches", { tags: ["matches"], query: { ...q } });
 export const getMatch = (slug: string) =>
   apiGetOrNull<MatchDetail>(`/matches/${encodeURIComponent(slug)}`, { tags: ["matches", `match:${slug}`] });
-export const getPlayers = () => apiGet<PlayerCard[]>("/players", { tags: ["players"], query: { active: "true" } });
+export const getPlayers = (tournament?: string) =>
+  apiGet<PlayerCard[]>("/players", {
+    tags: ["players"],
+    query: tournament ? { tournament } : { active: "true" },
+  });
 export const getPlayer = (slug: string) =>
   apiGetOrNull<PlayerDetail>(`/players/${encodeURIComponent(slug)}`, { tags: ["players", `player:${slug}`] });
 export const getNews = (q: { tag?: string; page?: number } = {}) =>

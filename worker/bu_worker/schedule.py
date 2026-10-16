@@ -14,7 +14,7 @@ from sqlalchemy import select
 from bu_worker import snapshots
 from bu_worker.http import PoliteClient
 from bu_worker.notify import Notifier
-from bu_worker.runner import run_joinfootball
+from bu_worker.runner import run_joinfootball, run_lfl
 
 log = logging.getLogger(__name__)
 
@@ -42,13 +42,19 @@ def start(settings: Settings) -> None:
 
     @single_flight
     def scrape() -> None:
-        client = PoliteClient(
+        joinfootball_client = PoliteClient(
             settings.joinfootball_base,
             f"BaumanUnitedBot/1.0 (+{settings.site_url})",
             settings.request_delay_s,
         )
+        lfl_client = PoliteClient(
+            settings.lfl_base,
+            f"BaumanUnitedBot/1.0 (+{settings.site_url})",
+            settings.request_delay_s,
+        )
         with sessions() as session:
-            run_joinfootball(session, settings, client, notifier)
+            run_joinfootball(session, settings, joinfootball_client, notifier)
+            run_lfl(session, settings, lfl_client, notifier)
 
     def matchday() -> None:
         now = datetime.now(UTC)

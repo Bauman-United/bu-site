@@ -350,6 +350,22 @@
               ],
               "title": "Active"
             }
+          },
+          {
+            "name": "tournament",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tournament"
+            }
           }
         ],
         "responses": {

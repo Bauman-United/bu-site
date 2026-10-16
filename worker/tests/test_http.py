@@ -15,7 +15,7 @@ def test_respects_robots_and_sets_user_agent():
     seen = []
 
     def handler(request: httpx.Request) -> httpx.Response:
-        seen.append((request.url.path, request.headers["user-agent"]))
+        seen.append((request.url.path, request.headers["user-agent"], request.headers["accept"]))
         if request.url.path == "/robots.txt":
             return httpx.Response(200, text=ROBOTS)
         return httpx.Response(200, text="<html>ok</html>")
@@ -24,8 +24,11 @@ def test_respects_robots_and_sets_user_agent():
     assert client.get("/match/1") == "<html>ok</html>"
     with pytest.raises(DisallowedError):
         client.get("/player/5")
-    assert ("/match/1", "BaumanUnitedBot/1.0") in seen
-    assert all(path != "/player/5" for path, _ in seen)
+    assert any(
+        path == "/match/1" and agent == "BaumanUnitedBot/1.0" and "text/html" in accept
+        for path, agent, accept in seen
+    )
+    assert all(path != "/player/5" for path, _, _ in seen)
 
 
 def test_retries_server_errors():

@@ -25,6 +25,8 @@ class ParsedPlayer(BaseModel):
     assists: int
     yellow: int
     red: int
+    active: bool = True
+    photo_url: str | None = None
 
 
 class CalendarEntry(BaseModel):

@@ -847,6 +847,7 @@ export interface operations {
         parameters: {
             query?: {
                 active?: boolean | null;
+                tournament?: string | null;
             };
             header?: never;
             path?: never;

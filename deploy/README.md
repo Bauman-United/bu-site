@@ -47,7 +47,15 @@ Settings → Secrets and variables → Actions:
 ```bash
 curl -sI -A "Mozilla/5.0" https://lfl.ru/club14270 | head -1
 ```
-`200` — ЛФЛ можно парсить (отдельная задача). Иначе матчи ЛФЛ ведём руками в `content/matches/*.yaml` (формат — `worker/bu_worker/sources/content.py`, `MatchContent`).
+`200` — источник доступен. Воркер собирает состав, статистику игроков, календарь,
+результаты, таблицу и протоколы турниров из `BU_LFL_TOURNAMENT_IDS`. Для ручной проверки:
+
+```bash
+docker compose --env-file .env exec worker python -m bu_worker run lfl
+```
+
+У LFL минуты голов часто не указаны: такие события сохраняются с минутой `0`. Кубковые
+турниры могут не иметь турнирной таблицы — для них это штатная ситуация.
 
 ## 5. Алерты в Telegram
 
@@ -110,4 +118,5 @@ docker compose --env-file .env logs -f --tail=100 worker   # или web, api, ng
 docker compose --env-file .env exec postgres psql -U bu -d bu
 #   select source, status, counts, error, started_at from ingest_run order by id desc limit 10;
 docker compose --env-file .env exec worker python -m bu_worker run joinfootball   # ручной парсинг
+docker compose --env-file .env exec worker python -m bu_worker run lfl            # ручной парсинг LFL
 ```

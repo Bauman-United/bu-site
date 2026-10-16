@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     joinfootball_base: str = "https://bauman_league.join.football"
     joinfootball_team_id: str = "1089660"
     joinfootball_tournament_ids: list[str] = ["1066703"]
+    lfl_base: str = "https://lfl.ru"
+    lfl_club_id: str = "14270"
+    lfl_tournament_ids: list[str] = ["32573", "33238"]
     request_delay_s: float = 3.0
     content_dir: str = "content"
     snapshot_dir: str = "snapshots"

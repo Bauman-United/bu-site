@@ -1,0 +1,16 @@
+.group { display: flex; flex-wrap: wrap; gap: 6px; }
+.button {
+  min-height: var(--touch); padding: 10px 18px; border: 2px solid var(--c-ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--c-paper); color: var(--c-ink); text-decoration: none;
+  font-family: var(--f-display); font-size: 15px; font-weight: 500; line-height: 1.15;
+  text-align: center; text-transform: uppercase;
+}
+.button:hover { background: var(--c-muted-2); }
+.button[data-active] { background: var(--c-ink); color: var(--c-paper); font-weight: 600; }
+.button:focus-visible { outline-offset: 3px; }
+
+@media (max-width: 640px) {
+  .group { display: grid; grid-template-columns: 1fr; }
+  .button { width: 100%; padding-inline: 14px; }
+}

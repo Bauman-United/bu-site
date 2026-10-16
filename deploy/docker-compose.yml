@@ -12,6 +12,9 @@ x-python: &python
     BU_REVALIDATE_SECRET: ${BU_REVALIDATE_SECRET}
     BU_TELEGRAM_BOT_TOKEN: ${BU_TELEGRAM_BOT_TOKEN:-}
     BU_TELEGRAM_CHAT_ID: ${BU_TELEGRAM_CHAT_ID:-}
+    BU_LFL_BASE: ${BU_LFL_BASE:-https://lfl.ru}
+    BU_LFL_CLUB_ID: ${BU_LFL_CLUB_ID:-14270}
+    BU_LFL_TOURNAMENT_IDS: '${BU_LFL_TOURNAMENT_IDS:-["32573","33238"]}'
   restart: unless-stopped
 
 services:

@@ -1,4 +1,6 @@
-from bu_core.models import Player, PlayerSeasonStats, Season
+from collections.abc import Mapping
+
+from bu_core.models import Player, PlayerSeasonStats, PlayerTournamentStats, Season, Tournament
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -12,16 +14,23 @@ POSITION_ORDER = {"GK": 0, "DF": 1, "MF": 2, "FW": 3}
 STAT_KEYS = ("played", "goals", "assists", "yellow", "red", "mvp")
 
 
-def _stats(row: PlayerSeasonStats | None) -> PlayerStats:
+def _stats(row: PlayerSeasonStats | PlayerTournamentStats | None) -> PlayerStats:
     if row is None:
         return PlayerStats()
-    return PlayerStats(**{k: getattr(row, k) for k in STAT_KEYS})
+    return PlayerStats(**{k: getattr(row, k, 0) for k in STAT_KEYS})
 
 
 def _season_rows(session: Session, slug: str | None) -> dict[int, PlayerSeasonStats]:
     if not slug:
         return {}
     rows = session.scalars(select(PlayerSeasonStats).join(Season).where(Season.slug == slug))
+    return {r.player_id: r for r in rows}
+
+
+def _tournament_rows(session: Session, slug: str) -> dict[int, PlayerTournamentStats]:
+    rows = session.scalars(
+        select(PlayerTournamentStats).join(Tournament).where(Tournament.slug == slug)
+    )
     return {r.player_id: r for r in rows}
 
 
@@ -52,14 +61,23 @@ def _card(p: Player, stats: PlayerStats) -> dict:
 
 @router.get("/players")
 def list_players(
-    active: bool | None = None, session: Session = Depends(get_session)
+    active: bool | None = None,
+    tournament: str | None = None,
+    session: Session = Depends(get_session),
 ) -> list[PlayerCard]:
     query = select(Player)
+    stats: Mapping[int, PlayerSeasonStats | PlayerTournamentStats]
+    if tournament:
+        stats = _tournament_rows(session, tournament)
+        if not stats:
+            return []
+        query = query.where(Player.id.in_(stats))
+    else:
+        stats = _season_rows(session, current_season(session))
     if active is not None:
         query = query.where(Player.active.is_(active))
-    season_rows = _season_rows(session, current_season(session))
     return [
-        PlayerCard(**_card(p, _stats(season_rows.get(p.id))))
+        PlayerCard(**_card(p, _stats(stats.get(p.id))))
         for p in _sorted(list(session.scalars(query)))
     ]
 

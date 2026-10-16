@@ -47,3 +47,4 @@ __pycache__/
 node_modules/
 deploy/.env
 deploy/.env.bak
+.claude/launch.json

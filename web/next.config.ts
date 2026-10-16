@@ -9,7 +9,12 @@ const config: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
-    remotePatterns: [{ protocol: "https", hostname: "st.joinsport.io" }],
+    // Фото игроков и логотипы команд с источников: join.football (CDN joinsport) и ЛФЛ.
+    remotePatterns: [
+      { protocol: "https", hostname: "st.joinsport.io" },
+      { protocol: "https", hostname: "lfl.ru" },
+      { protocol: "https", hostname: "www.lfl.ru" },
+    ],
   },
 };
 

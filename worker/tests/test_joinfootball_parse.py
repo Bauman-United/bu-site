@@ -41,6 +41,8 @@ def test_application_players():
         "assists": 6,
         "yellow": 0,
         "red": 0,
+        "active": True,
+        "photo_url": "https://st.joinsport.io/player/2079261/photo/68beabf36ef3a.jpg",
     }
 
 
@@ -134,3 +136,17 @@ def test_calendar_unparseable_time_falls_back_to_midnight():
     )
     entries = parse_calendar(html, date(2026, 9, 5), date(2026, 11, 22))
     assert len(entries) == 45
+
+
+def test_application_player_photo_is_full_size():
+    players = {p.full_name: p for p in parse_application(read("application.html"))}
+    assert players["Королев Александр"].photo_url == (
+        "https://st.joinsport.io/player/2079261/photo/68beabf36ef3a.jpg"
+    )
+    assert all(p.photo_url and "_60x60" not in p.photo_url for p in players.values())
+
+
+def test_calendar_logos_are_full_size():
+    entries = parse_calendar(read("calendar.html"), date(2026, 9, 5), date(2026, 11, 22))
+    first = next(e for e in entries if e.external_id == "5848533")
+    assert first.away_logo == "https://st.joinsport.io/team/1256048/logo/65fabe0d6e0ea.jpg"

@@ -41,6 +41,14 @@ _TEAM_ID = re.compile(r"team_id=(\d+)")
 _LAST_ID = re.compile(r"/(\d+)(?:\?|$)")
 
 
+_SIZE_SUFFIX = re.compile(r"_\d+x\d+(?=\.\w+$)")
+
+
+def full_size(url: str | None) -> str | None:
+    """CDN joinsport отдаёт превью «…_60x60.jpg»; без суффикса — оригинал (его ужмёт next/image)."""
+    return _SIZE_SUFFIX.sub("", url) if url else None
+
+
 class ParseError(Exception):
     pass
 
@@ -112,6 +120,7 @@ def parse_application(html: str) -> list[ParsedPlayer]:
                 assists=stats[2],
                 yellow=stats[3],
                 red=stats[4],
+                photo_url=full_size(_attr(row.css_first("img.blk-tteams__player-img"), "src")),
             )
         )
     if not players:
@@ -123,7 +132,7 @@ def _team_side(item: Node, side: str) -> tuple[str, str, str | None]:
     team = item.css_first(f".blk-tcalendar__team--{side}")
     team_id_match = _TEAM_ID.search(_attr(team, "href") or "")
     name = _text(team.css_first(".blk-tcalendar__team-name")) if team is not None else ""
-    logo = _attr(team.css_first("img"), "src") if team is not None else None
+    logo = full_size(_attr(team.css_first("img"), "src")) if team is not None else None
     return (team_id_match[1] if team_id_match else ""), name, logo
 
 

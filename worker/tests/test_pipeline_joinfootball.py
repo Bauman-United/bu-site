@@ -189,3 +189,15 @@ def test_departed_players_become_inactive(db):
         select(PlayerSourceLink).where(PlayerSourceLink.external_id == gone.external_id)
     ).one()
     assert db.get(Player, link.player_id).active is False
+
+
+def test_player_photo_from_source_unless_manual(db):
+    ingest(db, bundle(), TEAM, NAMES)
+    korolev = db.scalars(select(Player).where(Player.slug == "aleksandr-korolev")).one()
+    assert korolev.photo == "https://st.joinsport.io/player/2079261/photo/68beabf36ef3a.jpg"
+    korolev.photo = "/media/players/korolev.webp"
+    korolev.manual_fields = ["photo"]
+    db.flush()
+    ingest(db, bundle(), TEAM, NAMES)
+    db.refresh(korolev)
+    assert korolev.photo == "/media/players/korolev.webp"

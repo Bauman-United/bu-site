@@ -15,6 +15,7 @@
   font-family: var(--f-display); font-size: 15px; text-transform: uppercase; text-decoration: none;
 }
 .anchor:hover { color: var(--c-muted-2); }
+.tournaments { width: 100%; padding-top: 8px; }
 .body { padding-top: 24px; padding-bottom: 80px; display: flex; flex-direction: column; gap: 48px; }
 .group { display: flex; flex-direction: column; gap: 20px; padding-top: 24px; scroll-margin-top: 16px; }
 .groupHead { display: flex; align-items: baseline; gap: 16px; border-bottom: 2px solid var(--c-paper); padding-bottom: 12px; }

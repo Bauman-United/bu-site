@@ -20,7 +20,15 @@ class PoliteClient:
     ):
         self._client = httpx.Client(
             base_url=base_url,
-            headers={"User-Agent": user_agent},
+            headers={
+                "User-Agent": user_agent,
+                # lfl.ru drops requests with httpx's minimal default Accept header.
+                "Accept": (
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,"
+                    "image/avif,image/webp,*/*;q=0.8"
+                ),
+                "Accept-Language": "ru-RU,ru;q=0.9,en;q=0.8",
+            },
             timeout=20.0,
             follow_redirects=True,
             transport=transport,
