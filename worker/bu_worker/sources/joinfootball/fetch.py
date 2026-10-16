@@ -3,6 +3,7 @@ from collections.abc import Callable
 from bu_worker.dto import JoinFootballBundle, MatchDetail
 from bu_worker.http import PoliteClient
 from bu_worker.sources.joinfootball.parse import (
+    ParseError,
     parse_application,
     parse_calendar,
     parse_match,
@@ -35,13 +36,24 @@ def fetch_bundle(
     players = parse_application(
         get("application", f"/tournament/{tournament_id}/teams/application?team_id={team_id}")
     )
-    standings = parse_standings(get("tables", f"/tournament/{tournament_id}/tables"))
+    tables_html = get("tables", f"/tournament/{tournament_id}/tables")
+    try:
+        standings = parse_standings(tables_html)
+    except ParseError:
+        if "кубок" not in info.name.lower():
+            raise
+        standings = []  # у кубка вместо таблицы сетка плей-офф
     details: dict[str, MatchDetail] = {}
     for entry in calendar:
         if entry.home_score is not None:
-            details[entry.external_id] = parse_match(
-                get(f"match_{entry.external_id}", f"/match/{entry.external_id}")
-            )
+            try:
+                details[entry.external_id] = parse_match(
+                    get(f"match_{entry.external_id}", f"/match/{entry.external_id}")
+                )
+            except ParseError:
+                # Протокол не заполнен (часто в кубках) — матч берём без событий,
+                # уже известные события ingest не затирает.
+                continue
     return JoinFootballBundle(
         tournament=info, players=players, calendar=calendar, details=details, standings=standings
     )

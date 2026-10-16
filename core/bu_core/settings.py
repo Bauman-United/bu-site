@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     our_team_names: list[str] = ["Bauman United", "Бауман Юнайтед"]
     joinfootball_base: str = "https://bauman_league.join.football"
     joinfootball_team_id: str = "1089660"
-    joinfootball_tournament_ids: list[str] = ["1066703"]
+    joinfootball_tournament_ids: list[str] = ["1066703", "1067299"]  # Лига Инженеров, Кубок
     lfl_base: str = "https://lfl.ru"
     lfl_club_id: str = "14270"
     lfl_tournament_ids: list[str] = ["32573", "33238"]

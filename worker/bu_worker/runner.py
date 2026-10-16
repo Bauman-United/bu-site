@@ -73,7 +73,12 @@ def run_joinfootball(
             bundle = fetch_bundle(
                 client, tid, settings.joinfootball_team_id, settings.joinfootball_base, snap
             )
-            jf_pipeline.sanity_check(session, source, bundle)
+            jf_pipeline.sanity_check(
+                session,
+                source,
+                bundle,
+                require_standings="кубок" not in bundle.tournament.name.lower(),
+            )
             result = jf_pipeline.ingest(
                 session, bundle, settings.joinfootball_team_id, settings.our_team_names
             )
