@@ -1,10 +1,11 @@
+import { telegramUrl } from "@/lib/telegram";
 import type { Club } from "@/lib/types";
 import { ButtonLink } from "@/components/ui/Button";
 import s from "./JoinCta.module.css";
 
 /** «Хочешь играть с нами?» — кнопка в Telegram капитана, без него — на страницу заявки. */
 export function JoinCta({ club }: { club: Club }) {
-  const telegram = club.contacts?.captain_telegram;
+  const telegram = telegramUrl(club.contacts?.captain_telegram);
   const training = [club.training?.days, club.training?.time].filter(Boolean).join(", ");
   const text = telegram
     ? "Пиши капитану в Telegram — позовём на тренировку."

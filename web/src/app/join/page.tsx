@@ -5,6 +5,7 @@ import { Stripes } from "@/components/ui/Stripes";
 import { getClub } from "@/lib/api";
 import { breadcrumbsLd } from "@/lib/jsonld";
 import { buildMetadata } from "@/lib/seo";
+import { telegramHandle, telegramUrl } from "@/lib/telegram";
 import type { Club } from "@/lib/types";
 import s from "./page.module.css";
 
@@ -17,12 +18,6 @@ export const metadata: Metadata = buildMetadata({
 
 interface Fact { term: string; value: string; note?: string; href?: string }
 
-/** «@handle» из ссылки вида https://t.me/handle. */
-function telegramHandle(url: string): string | null {
-  const m = /t\.me\/([A-Za-z0-9_]+)/.exec(url);
-  return m ? `@${m[1]}` : null;
-}
-
 /** Ячейки сетки «Тренировки / Матчи / Капитан / Почта» — только из заданных полей. */
 function facts(club: Club): Fact[] {
   const out: Fact[] = [];
@@ -30,9 +25,9 @@ function facts(club: Club): Fact[] {
   const when = [t.days, t.time].filter(Boolean).join(", ");
   if (when) out.push({ term: "Тренировки", value: when, note: t.place ?? undefined });
   else if (t.place) out.push({ term: "Тренировки", value: t.place });
-  if (club.format) out.push({ term: "Матчи", value: club.format.replace(/x/i, "×"), note: "ЛФЛ и Bauman League" });
+  if (club.format) out.push({ term: "Матчи", value: club.format.replace(/x/i, "×") });
   const { captain_name, captain_telegram, email } = club.contacts ?? {};
-  const handle = captain_telegram ? telegramHandle(captain_telegram) : null;
+  const handle = telegramHandle(captain_telegram);
   if (captain_name) out.push({ term: "Капитан", value: captain_name, note: handle ?? undefined });
   else if (handle) out.push({ term: "Капитан", value: handle });
   if (email) out.push({ term: "Почта", value: email, note: "для партнёров и СМИ", href: `mailto:${email}` });
@@ -41,7 +36,7 @@ function facts(club: Club): Fact[] {
 
 /** Куда ведёт «Написать капитану»: Telegram капитана → Telegram клуба → почта. */
 function captainContact(club: Club): { href: string; external: boolean } | null {
-  const tg = club.contacts?.captain_telegram || club.socials?.telegram;
+  const tg = telegramUrl(club.contacts?.captain_telegram) ?? telegramUrl(club.socials?.telegram);
   if (tg) return { href: tg, external: true };
   if (club.contacts?.email) return { href: `mailto:${club.contacts.email}`, external: false };
   return null;
@@ -62,8 +57,8 @@ export default async function JoinPage() {
           <div className={s.intro}>
             <h1 className={s.h1}>Хочешь{" "}<br />в команду?</h1>
             <p className={s.lead}>
-              Мы играем 8 на 8 в ЛФЛ и в Лиге Инженеров Bauman League. Берём студентов и выпускников Бауманки,
-              уровень — от любителя до КМС. Главное — приходить и не сливать игры.
+              Ищем игроков в команду МГТУ им. Н. Э. Баумана. Играем 8×8 в ЛФЛ и Bauman League,
+              тренируемся каждую неделю.
             </p>
           </div>
 
