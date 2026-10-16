@@ -13,6 +13,11 @@ describe("league pages", () => {
     expect(externalLinks(club).map((l) => l.label)).toEqual(["Telegram", "Страница в ЛФЛ", "Страница в БЛ"]);
   });
 
+  it("«Страница в IFL» goes after БЛ when set", () => {
+    const labels = externalLinks({ ...club, socials: { ...club.socials, ifl: "https://ifl-bmstu.ru/team/1003070" } }).map((l) => l.label);
+    expect(labels).toEqual(["Telegram", "Страница в ЛФЛ", "Страница в БЛ", "Страница в IFL"]);
+  });
+
   it("skips «Страница в БЛ» when joinfootball is not set", () => {
     const labels = externalLinks({ ...club, socials: { lfl: "https://lfl.ru/club1" } }).map((l) => l.label);
     expect(labels).toEqual(["Страница в ЛФЛ"]);

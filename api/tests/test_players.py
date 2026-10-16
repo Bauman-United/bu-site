@@ -183,3 +183,28 @@ def test_players_by_league_sum_current_season_tournaments(client, db):
 
 def test_players_by_league_rejects_unknown_league(client):
     assert client.get("/players", params={"league": "xyz"}).status_code == 422
+
+
+def test_players_by_league_ifl(client, db):
+    from bu_core.models import Player, PlayerTournamentStats, Tournament
+    from sqlalchemy import select
+
+    _add_league_tournaments(db)
+    # IFL в текущем сезоне нет — вкладки «IFL» на сайте не будет
+    assert client.get("/players", params={"roster": "true", "league": "ifl"}).json() == []
+    season = db.scalars(select(Tournament).where(Tournament.slug == "liga-inzhenerov")).one()
+    ifl = Tournament(
+        slug="chempionat-ifl",
+        name="Чемпионат IFL · Осень 2026",
+        short="Чемпионат IFL",
+        source="ifl",
+        external_id="1029602",
+        season_id=season.season_id,
+    )
+    db.add(ifl)
+    db.flush()
+    korolev = db.scalars(select(Player).where(Player.slug == "aleksandr-korolev")).one()
+    db.add(PlayerTournamentStats(player_id=korolev.id, tournament_id=ifl.id, played=2, goals=5))
+    db.flush()
+    rows = client.get("/players", params={"roster": "true", "league": "ifl"}).json()
+    assert [(p["slug"], p["season"]["goals"]) for p in rows] == [("aleksandr-korolev", 5)]

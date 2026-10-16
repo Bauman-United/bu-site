@@ -57,7 +57,7 @@ export interface Club {
   university?: string;
   format?: string;
   primary_tournament?: string | null;
-  socials?: Partial<Record<"telegram" | "vk" | "youtube" | "lfl" | "joinfootball", string | null>>;
+  socials?: Partial<Record<"telegram" | "vk" | "youtube" | "lfl" | "joinfootball" | "ifl", string | null>>;
   contacts?: { captain_name?: string | null; captain_telegram?: string | null; email?: string | null };
   training?: { days?: string | null; time?: string | null; place?: string | null; map_url?: string | null };
   looking_for?: string[];

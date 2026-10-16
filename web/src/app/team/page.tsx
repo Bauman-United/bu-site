@@ -44,7 +44,12 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 export default async function TeamPage({ searchParams }: { searchParams: SearchParams }) {
   const [sp, seasons] = await Promise.all([searchParams, getSeasons()]);
   const league = parseLeague(sp.league);
-  const players = await getPlayers({ league });
+  const [players, ifl] = await Promise.all([
+    getPlayers({ league }),
+    // вкладка «IFL» — только если в текущем сезоне есть игроки с турниров IFL
+    league === "ifl" ? null : getPlayers({ league: "ifl" }),
+  ]);
+  const withIfl = (ifl ?? players).length > 0;
   const groups = groupPlayers(players);
   const season = seasons[0]?.label;
 
@@ -67,7 +72,7 @@ export default async function TeamPage({ searchParams }: { searchParams: SearchP
             </nav>
           )}
           <div className={s.tournaments}>
-            <LeagueTabs pathname="/team" selected={league} />
+            <LeagueTabs pathname="/team" selected={league} withIfl={withIfl} />
           </div>
         </div>
       </section>

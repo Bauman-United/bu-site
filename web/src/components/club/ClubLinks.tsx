@@ -2,7 +2,7 @@ import { externalLinks } from "@/components/layout/socials";
 import type { Club } from "@/lib/types";
 import s from "./ClubLinks.module.css";
 
-/** Ряд ссылок на профили клуба: соцсети, «Страница в ЛФЛ», «Страница в БЛ». Пустой — не рендерится. */
+/** Ряд ссылок на профили клуба: соцсети, «Страница в ЛФЛ», «Страница в БЛ», «Страница в IFL». Пустой — не рендерится. */
 export function ClubLinks({ club, title }: { club: Club; title: string }) {
   const links = externalLinks(club);
   if (links.length === 0) return null;
