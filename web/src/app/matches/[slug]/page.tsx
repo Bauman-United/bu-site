@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     description: matchDescription(match),
     path: `/matches/${match.slug}`,
     type: "article",
+    ownOgImage: true,
   });
 }
 

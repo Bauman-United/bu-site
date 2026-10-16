@@ -4,6 +4,8 @@ export const SITE_NAME = "Бауман Юнайтед";
 const HOME_TITLE = "Бауман Юнайтед — футбольная команда МГТУ им. Н. Э. Баумана";
 const SUFFIX = "Бауман Юнайтед | футбольная команда МГТУ им. Баумана";
 
+const OG_DIMENSIONS = { width: 1200, height: 630 };
+
 export function siteUrl(): string {
   return (process.env.BU_SITE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
 }
@@ -21,12 +23,19 @@ export function buildMetadata(opts: {
   description: string;
   path: string;
   image?: string;
+  /** У сегмента страницы свой `opengraph-image.tsx`: images не задаём, иначе Next его не подставит. */
+  ownOgImage?: boolean;
   noindex?: boolean;
   type?: "website" | "article" | "profile";
 }): Metadata {
   const url = `${siteUrl()}${opts.path}`;
   const title = pageTitle(opts.title);
   const blocked = isNoindex();
+  // `openGraph` страницы целиком заменяет родительский, поэтому корневой app/opengraph-image сам
+  // до страниц не доходит — подставляем его явно как картинку по умолчанию.
+  const images = opts.ownOgImage
+    ? {}
+    : { images: [opts.image ? { url: opts.image, ...OG_DIMENSIONS } : { url: `${siteUrl()}/opengraph-image`, ...OG_DIMENSIONS, alt: SITE_NAME }] };
   return {
     title: { absolute: title },
     description: opts.description,
@@ -38,7 +47,7 @@ export function buildMetadata(opts: {
       url,
       title,
       description: opts.description,
-      ...(opts.image ? { images: [{ url: opts.image, width: 1200, height: 630 }] } : {}),
+      ...images,
     },
     twitter: { card: "summary_large_image", title, description: opts.description },
     robots: blocked

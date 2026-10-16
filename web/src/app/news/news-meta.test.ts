@@ -1,4 +1,4 @@
-import { newsDescription, newsHref, parseNewsQuery, sourceLinkLabel, stripMarkdown } from "./news-meta";
+import { isPageOutOfRange, newsDescription, newsHref, parseNewsQuery, sourceLinkLabel, stripMarkdown } from "./news-meta";
 
 describe("parseNewsQuery", () => {
   it("keeps known tag and valid page", () => {
@@ -45,5 +45,16 @@ describe("sourceLinkLabel", () => {
     expect(sourceLinkLabel("telegram")).toBe("Оригинал в Telegram ↗");
     expect(sourceLinkLabel("vk")).toBe("Оригинал в VK ↗");
     expect(sourceLinkLabel(null)).toBe("Оригинал ↗");
+  });
+});
+
+describe("isPageOutOfRange", () => {
+  it("is false within range and on the first page of an empty feed", () => {
+    expect(isPageOutOfRange(1, 0, 12)).toBe(false);
+    expect(isPageOutOfRange(2, 13, 12)).toBe(false);
+  });
+  it("is true beyond the last page", () => {
+    expect(isPageOutOfRange(2, 0, 12)).toBe(true);
+    expect(isPageOutOfRange(3, 13, 12)).toBe(true);
   });
 });

@@ -4,9 +4,17 @@ const tournaments = [{ slug: "lfl-2026-27", short: "ЛФЛ" }, { slug: "liga", s
 const seasons = [{ slug: "2026-27", label: "2026/27", final_place: null }] as never;
 
 describe("match filters", () => {
-  it("drops unknown values", () => {
+  it("drops unknown values but still counts them as filtered (noindex)", () => {
     expect(parseMatchFilters({ where: "xxx", t: "", season: "1999-00" }, tournaments, seasons))
-      .toEqual({ season: undefined, tournament: undefined, where: undefined, isFiltered: false });
+      .toEqual({ season: undefined, tournament: undefined, where: undefined, isFiltered: true });
+    for (const sp of [{ where: "xxx" }, { t: "zzz" }, { season: "zzz" }, { where: ["xxx"] }]) {
+      expect(parseMatchFilters(sp, tournaments, seasons).isFiltered).toBe(true);
+    }
+  });
+  it("empty or absent filter params are not filtered", () => {
+    expect(parseMatchFilters({}, tournaments, seasons).isFiltered).toBe(false);
+    expect(parseMatchFilters({ where: "", t: "", season: [""], utm_source: "tg" }, tournaments, seasons).isFiltered)
+      .toBe(false);
   });
   it("keeps known values", () => {
     expect(parseMatchFilters({ where: "home", t: "liga", season: "2026-27" }, tournaments, seasons))

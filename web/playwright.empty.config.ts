@@ -29,7 +29,8 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: "pnpm build && pnpm start --port 3200",
+      // Сборка с BU_NOINDEX=0, запуск с BU_NOINDEX=1: empty.spec проверяет, что robots.txt берёт рантайм.
+      command: "pnpm build && pnpm check:robots && BU_NOINDEX=1 pnpm start --port 3200",
       url: WEB,
       timeout: 240_000,
       env: {

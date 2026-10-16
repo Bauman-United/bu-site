@@ -10,18 +10,20 @@ import { formatDate } from "@/lib/format";
 import { breadcrumbsLd } from "@/lib/jsonld";
 import { buildMetadata } from "@/lib/seo";
 import type { NewsCard } from "@/lib/types";
-import { NEWS_FILTERS, newsHref, parseNewsQuery, stripMarkdown } from "./news-meta";
+import { isPageOutOfRange, NEWS_FILTERS, newsHref, parseNewsQuery, stripMarkdown } from "./news-meta";
 import s from "./page.module.css";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
   const { tag, page } = parseNewsQuery(await searchParams);
+  // Тот же запрос, что в странице, — fetch мемоизируется в рамках рендера.
+  const data = page > 1 ? await getNews({ tag, page }) : undefined;
   return buildMetadata({
     title: "Новости",
     description: "Новости Бауман Юнайтед — футбольной команды МГТУ им. Баумана: отчёты о матчах, жизнь клуба, трансферы.",
     path: newsHref({ page }),
-    noindex: Boolean(tag),
+    noindex: Boolean(tag) || (data !== undefined && isPageOutOfRange(page, data.total, data.per_page)),
   });
 }
 
@@ -103,7 +105,12 @@ export default async function NewsListPage({ searchParams }: { searchParams: Sea
       {featured && <Featured item={featured} />}
       <section aria-label="Лента новостей">
         <div className={`container ${s.feedInner}`}>
-          {data.items.length === 0 ? (
+          {data.items.length === 0 && isPageOutOfRange(page, data.total, data.per_page) ? (
+            <div className={s.outOfRange}>
+              <EmptyState text="На этой странице новостей нет" />
+              <a className={s.pageLink} href={newsHref({ tag })}>К свежим новостям</a>
+            </div>
+          ) : data.items.length === 0 ? (
             <EmptyState text="Новостей пока нет" />
           ) : (
             feed.length > 0 && (

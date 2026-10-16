@@ -44,6 +44,18 @@ test("unknown tag is ignored, out-of-range page shows empty state", async ({ pag
   expect(res?.status()).toBe(200);
   await expect(page.getByText("Итоги сентября")).toBeVisible();
   await page.goto("/news?page=99");
-  await expect(page.getByText("Новостей пока нет")).toBeVisible();
+  await expect(page.getByText("На этой странице новостей нет")).toBeVisible();
+  await expect(page.getByText("Новостей пока нет")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "К свежим новостям" })).toHaveAttribute("href", "/news");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, follow");
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://baumanunited.test/news?page=99");
+});
+
+test("news list has a default og:image", async ({ page, request }) => {
+  await page.goto("/news");
+  const og = await page.locator('meta[property="og:image"]').getAttribute("content");
+  expect(og).toMatch(/^https:\/\/baumanunited\.test\/opengraph-image/);
+  const img = await request.get(new URL(og!).pathname + new URL(og!).search);
+  expect(img.status()).toBe(200);
+  expect(img.headers()["content-type"]).toBe("image/png");
 });

@@ -5,12 +5,23 @@ import { join } from "node:path";
 
 const FONT_DIR = join(process.cwd(), "node_modules/@fontsource/oswald/files");
 
+let fonts: ReturnType<typeof loadFonts> | undefined;
+
 /**
  * Oswald 700 для `next/og`. Кириллический сабсет fontsource не содержит цифр и латиницы,
  * поэтому грузим и латинский отдельным семейством; в разметке — `fontFamily: OG_FONT` (цепочка фолбэка).
  * Файлы включены в standalone-сборку через `outputFileTracingIncludes` в next.config.
  */
-export async function ogFonts() {
+export function ogFonts() {
+  fonts ??= loadFonts().catch((e) => {
+    fonts = undefined; // не кэшируем ошибку чтения — следующий рендер попробует снова
+    throw e;
+  });
+  return fonts;
+}
+
+/** Читает файлы один раз на процесс; буферы переиспользуются всеми рендерами. */
+async function loadFonts() {
   const [cyrillic, latin] = await Promise.all(
     ["oswald-cyrillic-700-normal.woff", "oswald-latin-700-normal.woff"].map((f) => readFile(join(FONT_DIR, f))),
   );

@@ -16,6 +16,14 @@ describe("json-ld", () => {
     });
   });
 
+  it("SportsTeam sameAs keeps only http(s) URLs", () => {
+    const ld = sportsTeamLd({
+      name: "Бауман Юнайтед",
+      socials: { telegram: "@baumanunited", vk: "https://vk.com/x", lfl: "javascript:alert(1)", youtube: "http://y.tube/x", joinfootball: "" },
+    } as never);
+    expect(ld.sameAs).toEqual(["https://vk.com/x", "http://y.tube/x"]);
+  });
+
   it("SportsEvent for away match", () => {
     const ld = sportsEventLd({
       slug: "2026-10-24-messiya", kickoff: "2026-10-24T21:30:00+03:00", home: false,

@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     description: playerDescription(player),
     path: `/team/${player.slug}`,
     type: "profile",
+    ownOgImage: true,
   });
 }
 

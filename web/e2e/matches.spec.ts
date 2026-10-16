@@ -26,7 +26,17 @@ test("garbage query does not break the page", async ({ page }) => {
   const res = await page.goto("/matches?where=xxx&t=&season=zzz");
   expect(res?.status()).toBe(200);
   await expect(page.getByRole("img", { name: "Победа 3:1" })).toBeVisible();
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, follow");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://baumanunited.test/matches");
 });
+
+for (const query of ["where=xxx", "t=zzz", "season=zzz"]) {
+  test(`unrecognised filter ${query} is noindex`, async ({ request }) => {
+    const html = await (await request.get(`/matches?${query}`)).text();
+    expect(html).toMatch(/<meta name="robots" content="noindex, follow"\/?>/);
+    expect(html).toContain('<link rel="canonical" href="https://baumanunited.test/matches"');
+  });
+}
 
 test("results table scrolls inside its box, page does not", async ({ page, isMobile }) => {
   await page.goto("/matches");

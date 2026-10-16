@@ -5,7 +5,7 @@ const CTX = "https://schema.org";
 const UNIVERSITY = "МГТУ им. Н. Э. Баумана";
 
 export function sportsTeamLd(club: Club) {
-  const sameAs = Object.values(club.socials ?? {}).filter((v): v is string => Boolean(v));
+  const sameAs = Object.values(club.socials ?? {}).filter((v): v is string => typeof v === "string" && /^https?:\/\//i.test(v));
   return {
     "@context": CTX,
     "@type": "SportsTeam",

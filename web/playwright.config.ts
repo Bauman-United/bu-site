@@ -23,7 +23,7 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: "pnpm build && pnpm start --port 3100",
+      command: "pnpm build && pnpm check:robots && pnpm start --port 3100",
       url: WEB,
       timeout: 240_000,
       env: {

@@ -11,7 +11,8 @@ test("finished match page", async ({ page }) => {
   const ev = ld.find((d) => d["@type"] === "SportsEvent");
   expect(ev.eventStatus).toBe("https://schema.org/EventCompleted");
   expect(ev.homeTeam.name).toBe("Бауман Юнайтед");
-  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /opengraph-image/);
+  await expect(page.locator('meta[property="og:image"]'))
+    .toHaveAttribute("content", /\/matches\/2026-09-06-energiya\/opengraph-image/);
 });
 
 test("upcoming away match page", async ({ page }) => {

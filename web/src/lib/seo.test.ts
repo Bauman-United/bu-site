@@ -24,4 +24,14 @@ describe("seo", () => {
     expect(buildMetadata({ description: "x", path: "/" }).robots).toMatchObject({ index: true });
     expect(buildMetadata({ description: "x", path: "/m", noindex: true }).robots).toMatchObject({ index: false, follow: true });
   });
+
+  it("og:image: default club card, explicit image, or the page's own opengraph-image file", () => {
+    const images = (m: ReturnType<typeof buildMetadata>) => (m.openGraph as { images?: unknown }).images;
+    expect(images(buildMetadata({ description: "x", path: "/news" })))
+      .toEqual([{ url: "https://baumanunited.ru/opengraph-image", width: 1200, height: 630, alt: "Бауман Юнайтед" }]);
+    expect(images(buildMetadata({ description: "x", path: "/news/a", image: "https://cdn/x.jpg" })))
+      .toEqual([{ url: "https://cdn/x.jpg", width: 1200, height: 630 }]);
+    const own = buildMetadata({ description: "x", path: "/matches/a", ownOgImage: true });
+    expect(own.openGraph).not.toHaveProperty("images");
+  });
 });

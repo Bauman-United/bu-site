@@ -16,7 +16,7 @@ from bu_core.models import (
     Tournament,
 )
 from bu_core.recompute import recompute
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, make_url
 from sqlalchemy.orm import Session
 
 CLUB = {
@@ -254,8 +254,24 @@ def seed(session: Session, empty: bool = False) -> None:
     recompute(session)
 
 
+E2E_SUFFIXES = ("_e2e", "_e2e_empty")
+
+
+def ensure_e2e_database(url: str) -> None:
+    """Сид делает drop_all: разрешён только для БД с именем `*_e2e` / `*_e2e_empty`."""
+    database = make_url(url).database or ""
+    if not database.endswith(E2E_SUFFIXES):
+        print(
+            f"e2e_seed: отказ — БД {database!r} не похожа на e2e "
+            f"(имя должно оканчиваться на {' или '.join(E2E_SUFFIXES)}); drop_all не выполнен.",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
+
+
 def main() -> None:
     url = sys.argv[1]
+    ensure_e2e_database(url)
     engine = create_engine(url)
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)

@@ -23,6 +23,12 @@ test("player profile", async ({ page }) => {
   await expect(page.locator("body")).not.toContainText(/\d{2}\.\d{2}\.\d{4}/);
 });
 
+test("player page uses its own og:image", async ({ page }) => {
+  await page.goto("/team/aleksandr-korolev");
+  await expect(page.locator('meta[property="og:image"]'))
+    .toHaveAttribute("content", /\/team\/aleksandr-korolev\/opengraph-image/);
+});
+
 test("player og image", async ({ request }) => {
   const res = await request.get("/team/aleksandr-korolev/opengraph-image");
   expect(res.headers()["content-type"]).toContain("image/png");

@@ -50,3 +50,5 @@
   .feedInner { padding-bottom: 48px; gap: 40px; }
   .grid { grid-template-columns: 1fr; }
 }
+.outOfRange { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.outOfRange > p { align-self: stretch; }

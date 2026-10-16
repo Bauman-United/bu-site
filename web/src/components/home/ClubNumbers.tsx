@@ -2,13 +2,20 @@ import type { Home } from "@/lib/types";
 import { plural } from "@/lib/format";
 import s from "./ClubNumbers.module.css";
 
-/** «Цифры клуба» на полосе-текстуре: год основания, матчи, голы, трофеи. */
-export function ClubNumbers({ numbers }: { numbers: Home["numbers"] }) {
+/** Пункты «Цифр клуба»: нулевые и отсутствующие значения не показываем («0 трофеев» — не цифра клуба). */
+export function clubNumberItems(numbers: Home["numbers"]): [number, string][] {
   const items: [number, string][] = [];
-  if (numbers.founded) items.push([numbers.founded, "основан"]);
-  if (numbers.matches !== undefined) items.push([numbers.matches, plural(numbers.matches, ["матч сыгран", "матча сыграно", "матчей сыграно"])]);
-  if (numbers.goals !== undefined) items.push([numbers.goals, plural(numbers.goals, ["гол забит", "гола забито", "голов забито"])]);
-  if (numbers.trophies !== undefined) items.push([numbers.trophies, plural(numbers.trophies, ["трофей", "трофея", "трофеев"])]);
+  const { founded, matches, goals, trophies } = numbers;
+  if (founded) items.push([founded, "основан"]);
+  if (matches) items.push([matches, plural(matches, ["матч сыгран", "матча сыграно", "матчей сыграно"])]);
+  if (goals) items.push([goals, plural(goals, ["гол забит", "гола забито", "голов забито"])]);
+  if (trophies) items.push([trophies, plural(trophies, ["трофей", "трофея", "трофеев"])]);
+  return items;
+}
+
+/** «Цифры клуба» на полосе-текстуре: год основания, матчи, голы, трофеи; без единой цифры блока нет. */
+export function ClubNumbers({ numbers }: { numbers: Home["numbers"] }) {
+  const items = clubNumberItems(numbers);
   if (items.length === 0) return null;
   return (
     <section className={s.section} aria-label="Цифры клуба">

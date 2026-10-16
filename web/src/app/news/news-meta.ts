@@ -22,6 +22,11 @@ export function parseNewsQuery(sp: SP): { tag?: string; page: number } {
   return { tag, page };
 }
 
+/** Страница за последней (`?page=99`): пустая лента первой страницы сюда не относится. */
+export function isPageOutOfRange(page: number, total: number, perPage: number): boolean {
+  return page > Math.max(Math.ceil(total / perPage), 1);
+}
+
 /** Адрес ленты: первая страница — без `page`, «Все» — без `tag`. */
 export function newsHref({ tag, page = 1 }: { tag?: string; page?: number }): string {
   const params = new URLSearchParams();
