@@ -8,16 +8,12 @@ export function TournamentToggle({
   tournaments,
   selected,
   pathname,
-  includeAll = false,
 }: {
   tournaments: Option[];
   selected?: string;
   pathname: string;
-  includeAll?: boolean;
 }) {
-  const options: Array<Option | { slug: ""; short: string }> = includeAll
-    ? [{ slug: "", short: "Весь состав" }, ...tournaments]
-    : tournaments;
+  const options = tournaments;
 
   if (options.length < 2) return null;
 
@@ -28,7 +24,7 @@ export function TournamentToggle({
         const href = option.slug ? `${pathname}?t=${encodeURIComponent(option.slug)}` : pathname;
         return (
           <Link
-            key={option.slug || "all"}
+            key={option.slug}
             className={s.button}
             data-active={active || undefined}
             aria-current={active ? "page" : undefined}

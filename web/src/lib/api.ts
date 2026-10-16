@@ -48,11 +48,12 @@ export const getMatches = (q: MatchQuery = {}) =>
   apiGet<MatchSummary[]>("/matches", { tags: ["matches"], query: { ...q } });
 export const getMatch = (slug: string) =>
   apiGetOrNull<MatchDetail>(`/matches/${encodeURIComponent(slug)}`, { tags: ["matches", `match:${slug}`] });
-export const getPlayers = (tournament?: string) =>
+export const getPlayers = (q: { league?: "bl" | "lfl" } = {}) =>
   apiGet<PlayerCard[]>("/players", {
     tags: ["players"],
-    // Общий состав: текущая заявка + все, кто играл в сезоне (бывшие игроки ЛФЛ тоже).
-    query: { roster: "true", tournament },
+    // Общий состав: текущая заявка + все, кто играл в сезоне (бывшие игроки ЛФЛ тоже);
+    // league=bl|lfl — суммы по турнирам лиги текущего сезона вместе с кубками.
+    query: { roster: "true", league: q.league },
   });
 export const getPlayer = (slug: string) =>
   apiGetOrNull<PlayerDetail>(`/players/${encodeURIComponent(slug)}`, { tags: ["players", `player:${slug}`] });

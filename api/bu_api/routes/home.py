@@ -45,7 +45,9 @@ def _league(
         )
         tables = [t for slug in slugs for t in standings(tournament=slug, session=session)]
     # несколько турниров источника в сезоне — берём таблицу, обновлённую последней
-    table = max(tables, key=lambda t: t.updated_at or datetime.min.replace(tzinfo=UTC), default=None)
+    table = max(
+        tables, key=lambda t: t.updated_at or datetime.min.replace(tzinfo=UTC), default=None
+    )
     if last is None and table is None:
         return None
     return {

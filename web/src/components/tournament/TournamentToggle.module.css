@@ -14,3 +14,8 @@
   .group { display: grid; grid-template-columns: 1fr; }
   .button { width: 100%; padding-inline: 14px; }
 }
+
+/* Короткие вкладки (Общий / БЛ / ЛФЛ) и на mobile остаются в одну строку */
+@media (max-width: 640px) {
+  .row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

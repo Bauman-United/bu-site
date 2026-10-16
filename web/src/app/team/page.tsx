@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
-import { TournamentToggle } from "@/components/tournament/TournamentToggle";
+import { LeagueTabs, parseLeague } from "@/components/tournament/LeagueTabs";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PlayerCardTile } from "@/components/ui/PlayerCardTile";
 import { Stripes } from "@/components/ui/Stripes";
-import { getPlayers, getSeasons, getTournaments } from "@/lib/api";
+import { getPlayers, getSeasons } from "@/lib/api";
 import { positionGroup } from "@/lib/format";
 import { breadcrumbsLd } from "@/lib/jsonld";
 import { buildMetadata } from "@/lib/seo";
@@ -41,16 +41,10 @@ export const metadata: Metadata = buildMetadata({
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-function single(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 export default async function TeamPage({ searchParams }: { searchParams: SearchParams }) {
   const [sp, seasons] = await Promise.all([searchParams, getSeasons()]);
-  const tournaments = await getTournaments(seasons[0]?.slug);
-  const requested = single(sp.t);
-  const tournament = tournaments.some((item) => item.slug === requested) ? requested : undefined;
-  const players = await getPlayers(tournament);
+  const league = parseLeague(sp.league);
+  const players = await getPlayers({ league });
   const groups = groupPlayers(players);
   const season = seasons[0]?.label;
 
@@ -73,12 +67,7 @@ export default async function TeamPage({ searchParams }: { searchParams: SearchP
             </nav>
           )}
           <div className={s.tournaments}>
-            <TournamentToggle
-              tournaments={tournaments}
-              selected={tournament}
-              pathname="/team"
-              includeAll
-            />
+            <LeagueTabs pathname="/team" selected={league} />
           </div>
         </div>
       </section>

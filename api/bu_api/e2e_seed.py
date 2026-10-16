@@ -129,6 +129,12 @@ def seed(session: Session, empty: bool = False) -> None:
             )
         )
 
+    # ЛФЛ: в заявке двое (вкладка «ЛФЛ» на /team)
+    for slug, (pl, g) in {"aleksandr-korolev": (1, 1), "dmitriy-pisarev": (1, 1)}.items():
+        session.add(
+            PlayerTournamentStats(player_id=by[slug].id, tournament_id=lfl.id, played=pl, goals=g)
+        )
+
     def match(slug, day, home, opp, status, us=None, them=None, t=li, rnd=None):
         return Match(
             slug=slug,

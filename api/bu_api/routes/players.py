@@ -1,4 +1,6 @@
 from collections.abc import Mapping
+from types import SimpleNamespace
+from typing import Literal
 
 from bu_core.models import Player, PlayerSeasonStats, PlayerTournamentStats, Season, Tournament
 from bu_core.recompute import tournament_lines
@@ -19,9 +21,29 @@ from bu_api.schemas import (
 router = APIRouter()
 POSITION_ORDER = {"GK": 0, "DF": 1, "MF": 2, "FW": 3}
 STAT_KEYS = ("played", "goals", "assists", "yellow", "red", "mvp")
+# ?league= → Tournament.source: БЛ — Бауманская лига (join.football), ЛФЛ — lfl.ru
+LEAGUE_SOURCES = {"bl": "joinfootball", "lfl": "lfl"}
 
 
-def _stats(row: PlayerSeasonStats | PlayerTournamentStats | None) -> PlayerStats:
+def _league_rows(session: Session, league: str, season: str | None) -> dict[int, SimpleNamespace]:
+    """Суммы по всем турнирам лиги (вкл. кубки) текущего сезона, по игроку."""
+    if not season:
+        return {}
+    rows = session.scalars(
+        select(PlayerTournamentStats)
+        .join(Tournament)
+        .join(Season, Season.id == Tournament.season_id)
+        .where(Season.slug == season, Tournament.source == LEAGUE_SOURCES[league])
+    )
+    totals: dict[int, SimpleNamespace] = {}
+    for r in rows:
+        acc = totals.setdefault(r.player_id, SimpleNamespace(**dict.fromkeys(STAT_KEYS, 0)))
+        for k in STAT_KEYS:
+            setattr(acc, k, getattr(acc, k) + (getattr(r, k, 0) or 0))
+    return totals
+
+
+def _stats(row: PlayerSeasonStats | PlayerTournamentStats | SimpleNamespace | None) -> PlayerStats:
     if row is None:
         return PlayerStats()
     return PlayerStats(**{k: getattr(row, k, 0) for k in STAT_KEYS})
@@ -70,14 +92,22 @@ def _card(p: Player, stats: PlayerStats) -> dict:
 def list_players(
     active: bool | None = None,
     tournament: str | None = None,
+    league: Literal["bl", "lfl"] | None = None,
     roster: bool = False,
     session: Session = Depends(get_session),
 ) -> list[PlayerCard]:
-    """`roster=true` — общий состав: текущая заявка плюс все, кто играл в сезоне/турнире."""
+    """`roster=true` — общий состав: текущая заявка плюс все, кто играл в сезоне/турнире.
+
+    `league=bl|lfl` — суммы по всем турнирам лиги текущего сезона (вместе с кубками).
+    """
     query = select(Player)
-    stats: Mapping[int, PlayerSeasonStats | PlayerTournamentStats]
-    if tournament:
-        stats = _tournament_rows(session, tournament)
+    stats: Mapping[int, PlayerSeasonStats | PlayerTournamentStats | SimpleNamespace]
+    if tournament or league:
+        stats = (
+            _tournament_rows(session, tournament)
+            if tournament
+            else _league_rows(session, league or "", current_season(session))
+        )
         if not stats:
             return []
         query = query.where(Player.id.in_(stats))

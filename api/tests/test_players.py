@@ -90,3 +90,96 @@ def test_roster_includes_former_players_who_played_this_season(client, db):
     assert "maksim-gangelin" not in active
     by_t = client.get("/players", params={"roster": "true", "tournament": "liga-inzhenerov"}).json()
     assert "maksim-gangelin" in [p["slug"] for p in by_t]
+
+
+def _add_league_tournaments(db):
+    """БЛ-кубок и ЛФЛ текущего сезона + БЛ прошлого сезона (не должен попадать в суммы)."""
+    from bu_core.models import Player, PlayerTournamentStats, Season, Tournament
+    from bu_core.recompute import recompute
+    from sqlalchemy import select
+
+    season = db.scalars(select(Season).where(Season.slug == "2026-27")).one()
+    old_season = Season(slug="2025-26", label="2025/26")
+    cup = Tournament(
+        slug="kubok-spec",
+        name="Кубок Специалистов · Осень 2026",
+        short="Кубок",
+        source="joinfootball",
+        external_id="1067299",
+        season=season,
+    )
+    lfl = Tournament(
+        slug="lfl-8x8",
+        name="ЛФЛ 8×8 · 2026/27",
+        short="ЛФЛ",
+        source="lfl",
+        external_id="lfl-1",
+        season=season,
+    )
+    old_bl = Tournament(
+        slug="liga-2025",
+        name="Лига Инженеров · Весна 2026",
+        short="Лига Инженеров",
+        source="joinfootball",
+        external_id="1000",
+        season=old_season,
+    )
+
+    def player(slug, active=True):
+        return Player(
+            slug=slug,
+            first_name=slug,
+            last_name=slug,
+            position="MF",
+            active=active,
+            aliases=[],
+            manual_fields=[],
+            achievements=[],
+        )
+
+    gone, lfl_only = player("gone", active=False), player("lfl-only")
+    db.add_all([old_season, cup, lfl, old_bl, gone, lfl_only])
+    db.flush()
+    by = {p.slug: p for p in db.scalars(select(Player))}
+    db.add_all(
+        [
+            PlayerTournamentStats(
+                player_id=by["aleksandr-korolev"].id, tournament_id=cup.id, played=2, goals=1
+            ),
+            PlayerTournamentStats(player_id=gone.id, tournament_id=cup.id, played=1),
+            PlayerTournamentStats(
+                player_id=by["aleksandr-korolev"].id,
+                tournament_id=lfl.id,
+                played=3,
+                goals=4,
+                yellow=1,
+            ),
+            PlayerTournamentStats(player_id=by["old-boy"].id, tournament_id=lfl.id, played=0),
+            PlayerTournamentStats(player_id=lfl_only.id, tournament_id=lfl.id, played=0),
+            PlayerTournamentStats(
+                player_id=by["aleksandr-korolev"].id, tournament_id=old_bl.id, played=9, goals=9
+            ),
+        ]
+    )
+    db.flush()
+    recompute(db)
+
+
+def test_players_by_league_sum_current_season_tournaments(client, db):
+    _add_league_tournaments(db)
+    bl = client.get("/players", params={"roster": "true", "league": "bl"}).json()
+    assert [p["slug"] for p in bl] == ["egor-kucha", "aleksandr-korolev", "gone"]
+    korolev = bl[1]["season"]
+    assert (korolev["played"], korolev["goals"], korolev["assists"]) == (7, 3, 6)  # лига + кубок
+    assert bl[2]["season"]["played"] == 1
+
+    lfl = client.get("/players", params={"roster": "true", "league": "lfl"}).json()
+    # old-boy в заявке ЛФЛ, но отчислен и не играл → не в составе
+    assert [p["slug"] for p in lfl] == ["aleksandr-korolev", "lfl-only"]
+    assert lfl[0]["season"]["goals"] == 4
+    assert lfl[0]["season"]["yellow"] == 1
+    assert lfl[1]["season"]["played"] == 0
+
+
+def test_players_by_league_rejects_unknown_league(client):
+    assert client.get("/players", params={"league": "xyz"}).status_code == 422

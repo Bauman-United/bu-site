@@ -10,6 +10,23 @@ test("squad grouped by position", async ({ page }) => {
   await expect(page).toHaveURL("/team/aleksandr-korolev");
 });
 
+test("squad tabs: Общий / БЛ / ЛФЛ", async ({ page }) => {
+  await page.goto("/team");
+  const tabs = page.getByRole("navigation", { name: "Лига" });
+  await expect(tabs.getByRole("link")).toHaveText(["Общий", "БЛ", "ЛФЛ"]);
+  await expect(tabs.getByRole("link", { name: "Общий" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: /Егор Куча/ })).toBeVisible();
+
+  await tabs.getByRole("link", { name: "ЛФЛ" }).click();
+  await expect(page).toHaveURL(/\/team\?league=lfl$/);
+  await expect(tabs.getByRole("link", { name: "ЛФЛ" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: /Дмитрий Писарев/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Егор Куча/ })).toHaveCount(0);
+
+  await page.goto("/team?league=nope");
+  await expect(tabs.getByRole("link", { name: "Общий" })).toHaveAttribute("aria-current", "page");
+});
+
 test("player profile", async ({ page }) => {
   await page.goto("/team/aleksandr-korolev");
   await expect(page).toHaveTitle(/^Александр Королев — Полузащитник — /);
