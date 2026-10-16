@@ -111,6 +111,8 @@ def _resolve_player(
             )
             return None
         player = session.get(Player, player_id)
+        if player is None:
+            return None
     else:
         first, last = split_last_first(parsed.full_name)
         player = Player(

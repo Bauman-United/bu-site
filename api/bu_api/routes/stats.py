@@ -39,7 +39,7 @@ def stats(season: str | None = None, session: Session = Depends(get_session)) ->
             }
             for pid, v in sums.items()
         ),
-        key=lambda r: (-r["goals"], -r["assists"], r["name"]),
+        key=lambda r: (-int(r["goals"] or 0), -int(r["assists"] or 0), str(r["name"])),
     )
     seasons_out = []
     for s in session.scalars(select(Season).order_by(Season.slug)):

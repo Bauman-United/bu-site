@@ -12,7 +12,12 @@ permissions:
 
 jobs:
   deploy:
-    if: vars.DEPLOY_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    # workflow_run срабатывает и на CI из PR форков с веткой main — выкатываем только push в наш репозиторий.
+    if: >-
+      vars.DEPLOY_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || (
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_repository.full_name == github.repository))
     runs-on: ubuntu-latest
     env:
       PREFIX: ghcr.io/${{ github.repository_owner }}
@@ -41,9 +46,9 @@ jobs:
         env:
           SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
           HOST: ${{ secrets.VPS_HOST }}
-          USER: ${{ secrets.VPS_USER }}
+          VPS_USER: ${{ secrets.VPS_USER }}
         run: |
-          install -m 600 /dev/null ~/.ssh_key && printf '%s\n' "$SSH_KEY" > ~/.ssh_key
-          SSH="ssh -i ~/.ssh_key -o StrictHostKeyChecking=accept-new"
-          rsync -az -e "$SSH" --exclude .env deploy/ "$USER@$HOST:/opt/bu-site/deploy/"
-          $SSH "$USER@$HOST" "/opt/bu-site/deploy/deploy.sh $TAG"
+          install -m 600 /dev/null "$HOME/.ssh_key" && printf '%s\n' "$SSH_KEY" > "$HOME/.ssh_key"
+          SSH="ssh -i $HOME/.ssh_key -o StrictHostKeyChecking=accept-new"
+          rsync -az -e "$SSH" --exclude .env deploy/ "$VPS_USER@$HOST:/opt/bu-site/deploy/"
+          $SSH "$VPS_USER@$HOST" "/opt/bu-site/deploy/deploy.sh $TAG"

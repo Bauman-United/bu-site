@@ -16,6 +16,8 @@
 
 ## 2. Первый запуск (до покупки домена)
 
+Сначала выполните шаг 3 (секреты и `DEPLOY_ENABLED`) и один раз запустите Actions → Deploy → Run workflow: так в GHCR появятся образы. Без них `deploy.sh` не сможет их скачать. Workflow сам синхронизирует `deploy/` и вызовет `deploy.sh`, поэтому ниже остаётся только подготовить `.env` до первого запуска.
+
 С локальной машины скопировать конфиги:
 ```bash
 rsync -az --exclude .env deploy/ deploy@<IP>:/opt/bu-site/deploy/
@@ -59,13 +61,13 @@ curl -sI -A "Mozilla/5.0" https://lfl.ru/club14270 | head -1
 
 1. Создать бакет в Timeweb S3, задать правило жизненного цикла «удалять через 14 дней».
 2. Ключи и имя бакета — в `.env` (`S3_*`).
-3. Cron пользователя `deploy` (`crontab -e`):
+3. Бэкапы складываются в `/opt/bu-site/backups` (каталог создаётся сам). Cron пользователя `deploy` (`crontab -e`):
    ```
    15 4 * * * /opt/bu-site/deploy/backup.sh >> /home/deploy/bu-backup.log 2>&1
    ```
 4. Раз в месяц проверять восстановление в отдельную базу:
    ```bash
-   ./restore.sh /var/backups/bu-site/bu-<дата>.sql.gz bu_restore_check
+   ./restore.sh /opt/bu-site/backups/bu-<дата>.sql.gz bu_restore_check
    docker compose --env-file .env exec postgres psql -U bu -d postgres -c "DROP DATABASE bu_restore_check"
    ```
    Без второго аргумента `restore.sh` перезаписывает рабочую базу (спросит подтверждение).

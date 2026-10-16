@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 set -a; . ./.env; set +a
 KEEP_DAYS="${KEEP_DAYS:-14}"
-DIR="${BACKUP_DIR:-/var/backups/bu-site}"
+DIR="${BACKUP_DIR:-/opt/bu-site/backups}"
 mkdir -p "$DIR"
 FILE="$DIR/bu-$(date +%Y%m%d-%H%M).sql.gz"
 docker compose --env-file .env exec -T postgres pg_dump -U bu -d bu --no-owner | gzip > "$FILE"

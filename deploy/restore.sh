@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Восстановление: ./deploy/restore.sh /var/backups/bu-site/bu-YYYYMMDD-HHMM.sql.gz [db]
+# Восстановление: ./deploy/restore.sh /opt/bu-site/backups/bu-YYYYMMDD-HHMM.sql.gz [db]
 # По умолчанию восстанавливает в базу bu (ОСТОРОЖНО: перезаписывает данные). Для проверки — укажите другую базу.
 set -euo pipefail
 cd "$(dirname "$0")"

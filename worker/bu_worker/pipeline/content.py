@@ -101,7 +101,8 @@ def _sync_match(session: Session, slug: str, content: MatchContent, result: Inge
         session.add(match)
     if match.source == "manual":
         match.round = content.round
-        match.kickoff = content.kickoff
+        if content.kickoff is not None:
+            match.kickoff = content.kickoff
         match.home = bool(content.home)
         match.venue_name = content.venue.name if content.venue else None
         match.venue_address = content.venue.address if content.venue else None
@@ -174,8 +175,8 @@ def sync_content(session: Session, bundle: ContentBundle) -> IngestResult:
         result.tags.add(f"news:{n.slug}")
     session.flush()
 
-    for slug, content in bundle.matches.items():
-        _sync_match(session, slug, content, result)
+    for slug, match_content in bundle.matches.items():
+        _sync_match(session, slug, match_content, result)
 
     result.counts = {
         "players": len(bundle.players),

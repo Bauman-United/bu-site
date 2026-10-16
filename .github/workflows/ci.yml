@@ -25,6 +25,7 @@ jobs:
       - run: uv sync --frozen
       - run: createdb bu_test && createdb bu_dev
       - run: uv run ruff check . && uv run ruff format --check .
+      - run: uv run mypy core/bu_core worker/bu_worker api/bu_api
       - run: uv run alembic -c core/alembic.ini upgrade head && uv run alembic -c core/alembic.ini check
       - run: uv run pytest
 
@@ -34,6 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with: { package_json_file: web/package.json }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm, cache-dependency-path: web/pnpm-lock.yaml }
       - run: pnpm install --frozen-lockfile
@@ -61,6 +63,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - run: uv sync --frozen
       - uses: pnpm/action-setup@v4
+        with: { package_json_file: web/package.json }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm, cache-dependency-path: web/pnpm-lock.yaml }
       - run: pnpm install --frozen-lockfile

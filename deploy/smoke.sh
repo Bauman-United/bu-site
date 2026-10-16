@@ -5,6 +5,9 @@ BASE="${1:-http://localhost}"
 fail() { echo "FAIL: $*" >&2; exit 1; }
 code() { curl -s -o /dev/null -w "%{http_code}" "$1"; }
 
+# Дождаться, пока сайт поднимется (до 120 с) — после up -d web стартует не мгновенно.
+for _ in $(seq 1 60); do [ "$(code "$BASE/robots.txt")" = "200" ] && break; sleep 2; done
+
 for path in / /matches /standings /team /news /about /join /robots.txt /sitemap.xml; do
   c=$(code "$BASE$path"); [ "$c" = "200" ] || fail "$path → $c"
   echo "ok $path"

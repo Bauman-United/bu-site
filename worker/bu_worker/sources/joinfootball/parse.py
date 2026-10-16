@@ -199,8 +199,8 @@ def parse_match(html: str) -> MatchDetail:
         events.append(
             ParsedEvent(
                 minute=int(minute_text),
-                type=kind[0],
-                side=side,  # type: ignore[arg-type]
+                type=kind[0],  # type: ignore[arg-type]
+                side=side,
                 player_name=_attr(node, "data-player-first"),
                 assist_name=_attr(node, "data-player-second"),
                 note=kind[1],

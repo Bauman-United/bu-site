@@ -64,10 +64,11 @@ def _season_lines(session: Session) -> dict[tuple[int, int], dict[str, int]]:
         if ev.player_id and ev.type in ("yellow", "red"):
             lines[(ev.player_id, season_id)][ev.type] += 1
 
-    for player_id, season_id in session.execute(
+    for mvp_id, season_id in session.execute(
         select(Match.mvp_player_id, Match.season_id).where(Match.mvp_player_id.is_not(None))
     ):
-        lines[(player_id, season_id)]["mvp"] += 1
+        if mvp_id is not None:
+            lines[(mvp_id, season_id)]["mvp"] += 1
     return lines
 
 
