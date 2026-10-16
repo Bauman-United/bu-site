@@ -5,6 +5,7 @@ from bu_worker.http import PoliteClient
 from bu_worker.sources.lfl.parse import (
     ParseError,
     attach_photos,
+    fill_missing_photos,
     parse_calendar,
     parse_current_player_ids,
     parse_match,
@@ -50,6 +51,9 @@ def fetch_bundle(
     # Фото есть только на странице «Подробный список»; сопоставляем по фамилии и имени.
     players = attach_photos(
         players, parse_player_photos(get("players_list", f"/club{club_id}/players_list"))
+    )
+    players = fill_missing_photos(
+        players, lambda player_id: get(f"player_{player_id}", f"/player{player_id}")
     )
     details: dict[str, MatchDetail] = {}
     for entry in calendar:

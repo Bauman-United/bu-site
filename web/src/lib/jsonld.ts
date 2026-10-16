@@ -13,7 +13,7 @@ export function sportsTeamLd(club: Club) {
     alternateName: club.name_en ?? "Bauman United",
     sport: "Football",
     url: siteUrl(),
-    logo: `${siteUrl()}/icon.svg`,
+    logo: `${siteUrl()}/crest-black.png`,
     location: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: club.city ?? "Москва", addressCountry: "RU" } },
     memberOf: { "@type": "CollegeOrUniversity", name: club.university ?? UNIVERSITY },
     ...(club.founded ? { foundingDate: String(club.founded) } : {}),
@@ -70,7 +70,7 @@ export function newsArticleLd(n: NewsDetail) {
     url: `${siteUrl()}/news/${n.slug}`,
     ...(n.cover ? { image: [n.cover] } : {}),
     author: { "@type": "SportsTeam", name: SITE_NAME },
-    publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: `${siteUrl()}/icon.svg` } },
+    publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: `${siteUrl()}/crest-black.png` } },
     ...(n.lead ? { description: n.lead } : {}),
   };
 }

@@ -219,3 +219,36 @@ def test_attach_photos_matches_squad_names():
     )
     assert out[0].photo_url == "https://lfl.ru/photo/persons/source/217632.jpg"
     assert out[1].photo_url is None
+
+
+PERSON_PAGE = """
+<div class="player_logo"><a href="https://lfl.ru/photo/persons/source/218695.jpg">
+  <img src="https://lfl.ru/photo/persons/source/218695.jpg" height="280"></a></div>
+<div class="player_title"><p class="player_title_name">
+  <a href="/person218695">Гангелин Максим Юрьевич</a></p></div>
+"""
+
+
+def test_fill_missing_photos_from_player_pages():
+    from bu_worker.dto import ParsedPlayer
+    from bu_worker.sources.lfl.parse import fill_missing_photos
+
+    def player(ext: str, name: str, photo: str | None) -> ParsedPlayer:
+        return ParsedPlayer(external_id=ext, full_name=name, number=None, position="MF",
+                            played=1, goals=0, assists=0, yellow=0, red=0, photo_url=photo)
+
+    requested: list[str] = []
+
+    def fetch(player_id: str) -> str:
+        requested.append(player_id)
+        return PERSON_PAGE if player_id == "267515" else "<html>нет фото</html>"
+
+    out = fill_missing_photos(
+        [player("1", "Королёв Александр", "https://lfl.ru/photo/persons/source/217632.jpg"),
+         player("267515", "Гангелин Максим", None),
+         player("9", "Неизвестный Игрок", None)],
+        fetch,
+    )
+    assert requested == ["267515", "9"]  # у кого фото уже есть — страницу не запрашиваем
+    assert out[1].photo_url == "https://lfl.ru/photo/persons/source/218695.jpg"
+    assert out[2].photo_url is None

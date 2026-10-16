@@ -1,6 +1,1 @@
-.crest { --crest-bg: var(--c-ink); --crest-fg: var(--c-paper); display: block; flex: none; }
-.inverted { --crest-bg: var(--c-paper); --crest-fg: var(--c-ink); }
-.shield { fill: var(--crest-bg); stroke: var(--crest-fg); }
-.stripes { stroke: var(--crest-fg); }
-.plate { fill: var(--crest-bg); }
-.text { fill: var(--crest-fg); font-family: var(--f-display); }
+.crest { display: block; flex: none; object-fit: contain; }

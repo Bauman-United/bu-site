@@ -1,6 +1,7 @@
 """Чистые функции: HTML страниц lfl.ru -> общие DTO воркера."""
 
 import re
+from collections.abc import Callable
 from datetime import date, datetime, time
 from zoneinfo import ZoneInfo
 
@@ -340,3 +341,17 @@ def attach_photos(players: list[ParsedPlayer], photos: dict[str, str]) -> list[P
         p.model_copy(update={"photo_url": photos.get(_name_key(p.full_name) or "")})
         for p in players
     ]
+
+
+def fill_missing_photos(
+    players: list[ParsedPlayer], fetch_player_page: Callable[[str], str]
+) -> list[ParsedPlayer]:
+    """Бывших игроков нет в «Подробном списке» — берём фото с их личной страницы."""
+    out: list[ParsedPlayer] = []
+    for p in players:
+        if p.photo_url is None:
+            photos = parse_player_photos(fetch_player_page(p.external_id))
+            key = _name_key(p.full_name) or ""
+            p = p.model_copy(update={"photo_url": photos.get(key)})
+        out.append(p)
+    return out
