@@ -44,8 +44,8 @@
 
 /* 1024–1279: две кнопки не помещаются рядом с соцсетями — соцсети остаются в подвале и меню */
 @media (min-width: 1024px) and (max-width: 1279px) {
-  .inner { gap: 20px; }
-  .nav { gap: 4px 18px; flex-basis: auto; }
+  .inner { gap: 16px; }
+  .nav { gap: 4px 16px; flex-basis: auto; }
   .actions .socials { display: none; }
   .cta { padding-inline: 14px; }
   .partner { padding-inline: 13px; }

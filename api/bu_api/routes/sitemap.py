@@ -9,7 +9,17 @@ from sqlalchemy.orm import Session
 from bu_api.deps import get_session
 
 router = APIRouter()
-STATIC = ["/", "/matches", "/standings", "/team", "/news", "/about", "/join", "/partners"]
+STATIC = [
+    "/",
+    "/matches",
+    "/standings",
+    "/team",
+    "/history",
+    "/news",
+    "/about",
+    "/join",
+    "/partners",
+]
 
 
 @router.get("/sitemap")

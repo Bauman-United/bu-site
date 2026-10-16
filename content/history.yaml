@@ -1,3 +1,81 @@
-timeline: []
-trophies: []
+# История клуба. timeline — таймлайн (highlight: true — победа/золото, выделяется),
+# trophies — «Зал славы» (place: 1 — победа/золото, 2 — серебро/финал, 3 — бронза),
+# legends — легенды и выпускники (пока пусто).
+# Лиги: IFL — Izmaylovo Football League, BL — Bauman League, AFL — Amateur Football League.
+
+timeline:
+  - year: "2016"
+    tag: Основание
+    title: Основание команды
+    highlight: true
+  - year: Весна 2019
+    tag: IFL
+    title: Бронза второго дивизиона IFL
+    text: Izmaylovo Football League, второй дивизион — третье место.
+    highlight: false
+  - year: Осень 2019
+    tag: BL
+    title: Вступление в Bauman League и золото второго дивизиона
+    text: Первый же сезон в Бауманской лиге — победа во втором дивизионе.
+    highlight: true
+  - year: Осень 2019
+    tag: IFL
+    title: Победа в стыковых матчах и выход в первый дивизион IFL
+    highlight: true
+  - year: Весна 2020
+    tag: BL
+    title: Золото первого дивизиона BL
+    highlight: true
+  - year: Весна 2021
+    tag: BL
+    title: Серебро первого дивизиона BL
+    highlight: false
+  - year: Осень 2021
+    tag: IFL
+    title: Победа в Кубке IFL
+    highlight: true
+  - year: Весна 2022
+    tag: IFL
+    title: Победа в Суперкубке IFL
+    highlight: true
+  - year: Осень 2022
+    tag: IFL
+    title: Золото первого дивизиона IFL
+    highlight: true
+  - year: Осень 2022
+    tag: AFL
+    title: Финал Лиги Чемпионов Amateur Football League
+    text: Зона «Объединённый Мир».
+    highlight: false
+  - year: Весна 2023
+    tag: IFL
+    title: Бронза первого дивизиона IFL
+    highlight: false
+  - year: Весна 2023
+    tag: IFL
+    title: Финал Кубка IFL
+    highlight: false
+  - year: Осень 2023
+    tag: BL
+    title: Победа в Кубке BL
+    highlight: true
+  - year: Осень 2024
+    tag: BL
+    title: Победа в Кубке BL
+    highlight: true
+
+trophies:
+  - { place: 1, title: "Bauman League, второй дивизион", season: Осень 2019 }
+  - { place: 1, title: "Bauman League, первый дивизион", season: Весна 2020 }
+  - { place: 1, title: Кубок IFL, season: Осень 2021 }
+  - { place: 1, title: Суперкубок IFL, season: Весна 2022 }
+  - { place: 1, title: "IFL, первый дивизион", season: Осень 2022 }
+  - { place: 1, title: Кубок BL, season: Осень 2023 }
+  - { place: 1, title: Кубок BL, season: Осень 2024 }
+  - { place: 2, title: "Bauman League, первый дивизион", season: Весна 2021 }
+  - { place: 2, title: "Лига Чемпионов AFL (зона «Объединённый Мир»), финал", season: Осень 2022 }
+  - { place: 2, title: "Кубок IFL, финал", season: Весна 2023 }
+  - { place: 3, title: "IFL, второй дивизион", season: Весна 2019 }
+  - { place: 3, title: "IFL, первый дивизион", season: Весна 2023 }
+
 legends: []

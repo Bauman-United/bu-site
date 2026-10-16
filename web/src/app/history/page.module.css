@@ -1,0 +1,98 @@
+/* Hero: мотив полос едва заметный, только справа — как на /about */
+.top { position: relative; overflow: hidden; border-bottom: 1px solid var(--c-line); }
+.texture { position: absolute; top: 0; right: 0; bottom: 0; width: 40%; opacity: 0.05; }
+.topInner { position: relative; padding-top: 72px; padding-bottom: 56px; display: flex; flex-direction: column; gap: 16px; }
+.eyebrow {
+  font-family: var(--f-display); font-size: 16px; letter-spacing: var(--ls-eyebrow); text-transform: uppercase; color: var(--c-muted);
+}
+.h1 { font-size: var(--fs-h1-l); line-height: 0.95; max-width: 8ch; }
+.intro { margin: 0; max-width: 620px; font-size: var(--fs-body-l); line-height: 1.6; color: var(--c-muted-2); }
+.anchors { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.anchor {
+  display: inline-flex; align-items: center; min-height: var(--touch); padding: 0 18px;
+  border: 1px solid var(--c-border-strong); text-decoration: none;
+  font-family: var(--f-display); font-size: 15px; letter-spacing: var(--ls-caps); text-transform: uppercase;
+}
+.anchor:hover { border-color: var(--c-paper); }
+.anchorPrimary { background: var(--c-paper); color: var(--c-ink); border-color: var(--c-paper); font-weight: 600; }
+.anchorPrimary:hover { background: var(--c-muted-2); color: var(--c-ink); }
+
+/* Таймлайн */
+.timelineSection { scroll-margin-top: 16px; }
+.timelineWrap { max-width: 1080px; padding-block: var(--section-y); }
+.timeline { list-style: none; margin: 0; padding: 0 0 0 11px; }
+.event {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  padding: 0 0 48px 40px; border-left: 2px solid var(--c-paper);
+}
+.event:last-child { padding-bottom: 8px; }
+.dot {
+  position: absolute; left: -11px; top: 10px; width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--c-paper); background: var(--c-ink);
+}
+.year { font-family: var(--f-display); font-weight: 700; font-size: 44px; line-height: 1; color: var(--c-muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag, .win {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border: 1px solid var(--c-paper);
+  font-family: var(--f-display); font-size: var(--fs-caption); letter-spacing: var(--ls-label); text-transform: uppercase;
+}
+.title { font-size: var(--fs-h3); font-weight: 500; line-height: 1.2; max-width: 720px; color: var(--c-muted-2); }
+.text { margin: 0; max-width: 640px; font-size: var(--fs-body); line-height: 1.6; color: var(--c-muted); }
+
+/* Ключевые события и победы: крупная закрашенная точка, белый год, жирный крупный заголовок */
+.highlight .dot {
+  left: -15px; top: 4px; width: 28px; height: 28px; background: var(--c-paper);
+  box-shadow: 0 0 0 5px var(--c-ink);
+}
+.highlight .year { font-size: var(--fs-stat); color: var(--c-paper); }
+.highlight .title { font-size: clamp(26px, 3vw, 34px); font-weight: 700; line-height: 1.1; color: var(--c-paper); }
+.highlight .text { color: var(--c-muted-2); }
+/* «Победа» — инвертированная плашка */
+.win { background: var(--c-paper); color: var(--c-ink); font-weight: 700; font-size: var(--fs-label); }
+
+/* Зал славы */
+.fame { display: flex; flex-direction: column; gap: 32px; }
+.fameHead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 16px; }
+.fameTitle { font-size: var(--fs-stat); }
+.fameSummary { font-family: var(--f-display); font-size: 20px; color: var(--c-muted-on-paper); }
+.trophies {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;
+}
+.trophy {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+  padding: 32px 20px 28px; border: 2px solid var(--c-ink); color: var(--c-ink);
+}
+.gold { background: var(--c-ink); color: var(--c-paper); }
+.place { margin-top: 4px; font-family: var(--f-display); font-weight: 700; font-size: 32px; line-height: 1; text-transform: uppercase; }
+.placeNote {
+  font-family: var(--f-display); font-size: var(--fs-caption); letter-spacing: var(--ls-label); text-transform: uppercase;
+  color: var(--c-muted-on-paper);
+}
+.gold .placeNote { color: var(--c-muted); }
+.trophyTitle { margin-top: 4px; font-size: 20px; line-height: 1.2; }
+.season { font-size: 14px; color: var(--c-muted-on-paper); }
+.gold .season { color: #BDBDBD; }
+
+/* Легенды */
+.legendsTitle { font-size: var(--fs-h2); }
+.legends {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px;
+}
+.legend { border: 1px solid var(--c-border); padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.legendName { font-family: var(--f-display); font-weight: 600; font-size: 20px; text-transform: uppercase; }
+.legendMeta { font-size: 14px; color: var(--c-muted); }
+.legendNote { margin: 4px 0 0; font-size: 14px; line-height: 1.5; color: var(--c-muted-2); }
+
+@media (max-width: 640px) {
+  .topInner { padding-top: 32px; padding-bottom: 32px; }
+  .intro { font-size: 16px; }
+  .event { padding: 0 0 36px 28px; }
+  .year { font-size: 30px; }
+  .highlight .year { font-size: 38px; }
+  .title { font-size: 20px; }
+  .highlight .title { font-size: 24px; }
+  .fameTitle { font-size: 40px; }
+  .fameSummary { font-size: 16px; }
+}

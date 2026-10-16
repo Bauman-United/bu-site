@@ -2,6 +2,7 @@
 
 import sys
 from datetime import UTC, date, datetime
+from typing import Any
 
 from bu_core.models import (
     Base,
@@ -64,11 +65,32 @@ def _player(slug, first, last, number, position, **extra):
     )
 
 
+# В пустой БД — только «трофей» без названия: цифры клуба на главной его считают, /history прячет.
+EMPTY_HISTORY: dict[str, Any] = {"timeline": [], "trophies": [{"place": 1}], "legends": []}
+HISTORY: dict[str, Any] = {
+    "timeline": [
+        {"year": "2019", "tag": "Основание", "title": "Основание команды", "highlight": True},
+        {"year": "Весна 2021", "tag": "BL", "title": "Серебро первого дивизиона BL"},
+        {
+            "year": "Осень 2023",
+            "tag": "BL",
+            "title": "Победа в Кубке BL",
+            "text": "Финал на стадионе МГТУ.",
+            "highlight": True,
+        },
+    ],
+    "trophies": [
+        {"place": 2, "title": "Bauman League, первый дивизион", "season": "Весна 2021"},
+        {"place": 1, "title": "Кубок BL", "season": "Осень 2023"},
+        {"place": 3, "title": "IFL, второй дивизион", "season": "Весна 2019"},
+    ],
+    "legends": [],
+}
+
+
 def seed(session: Session, empty: bool = False) -> None:
     session.add(ContentDoc(key="club", data=CLUB))
-    session.add(
-        ContentDoc(key="history", data={"timeline": [], "trophies": [{"place": 1}], "legends": []})
-    )
+    session.add(ContentDoc(key="history", data=EMPTY_HISTORY if empty else HISTORY))
     if empty:
         session.flush()
         recompute(session)
