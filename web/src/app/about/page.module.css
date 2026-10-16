@@ -1,0 +1,22 @@
+.top { position: relative; overflow: hidden; border-bottom: 1px solid var(--c-line); }
+.texture { position: absolute; top: 0; right: 0; bottom: 0; width: 40%; opacity: 0.08; }
+.topInner { position: relative; padding-top: 56px; padding-bottom: 40px; display: flex; flex-direction: column; gap: 8px; }
+.eyebrow {
+  font-family: var(--f-display); font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-muted);
+}
+.h1 { font-size: var(--fs-h1-l); line-height: 0.92; }
+.body { padding-block: 56px; border-bottom: 1px solid var(--c-line); }
+.text { max-width: 760px; color: var(--c-muted-2); }
+.text strong { color: var(--c-paper); }
+.cta { display: flex; flex-wrap: wrap; gap: 24px 32px; align-items: center; justify-content: space-between; }
+.ctaText { display: flex; flex-direction: column; gap: 12px; max-width: 640px; }
+.ctaTitle { font-size: var(--fs-h2); }
+.ctaLead { margin: 0; font-size: var(--fs-body-l); line-height: 1.55; color: var(--c-text-2-on-paper); }
+.cta > a { padding: 18px 32px; font-size: 18px; }
+@media (max-width: 640px) {
+  .topInner { padding-top: 32px; padding-bottom: 24px; }
+  .body { padding-block: 32px; }
+  .cta { flex-direction: column; align-items: stretch; }
+  .ctaLead { font-size: 15px; }
+  .cta > a { width: 100%; padding: 16px; font-size: 16px; }
+}

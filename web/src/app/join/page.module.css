@@ -1,0 +1,68 @@
+.main {
+  padding-top: 64px; padding-bottom: 72px;
+  display: flex; flex-wrap: wrap; gap: 56px;
+}
+.info { flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 36px; }
+.intro { display: flex; flex-direction: column; gap: 16px; }
+.h1 { font-size: clamp(52px, 7vw, 88px); line-height: 0.92; }
+.lead { margin: 0; font-size: var(--fs-body-l); line-height: 1.6; color: var(--c-muted-2); }
+
+.looking { display: flex; flex-direction: column; gap: 12px; }
+.label { font-weight: 600; font-size: 16px; letter-spacing: 0.12em; color: var(--c-muted); }
+.badges { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.badge {
+  background: var(--c-paper); color: var(--c-ink); padding: 10px 16px;
+  font-family: var(--f-display); font-weight: 600; font-size: 18px; text-transform: uppercase;
+}
+
+.facts {
+  margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px;
+  background: var(--c-border); border: 2px solid var(--c-border);
+}
+.fact { background: var(--c-ink); padding: 20px; min-width: 0; }
+.fact:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.term { font-size: var(--fs-caption); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--c-muted); }
+.value { margin: 6px 0 0; font-family: var(--f-display); font-weight: 600; font-size: var(--fs-h3); overflow-wrap: anywhere; }
+.value a { text-decoration: none; }
+.value a:hover { color: var(--c-muted-2); }
+.note { margin: 4px 0 0; font-size: 14px; color: var(--c-muted-2); }
+
+.map {
+  height: 240px; position: relative; display: flex; align-items: center; justify-content: center;
+  background: var(--ph-dark);
+}
+.mapLink {
+  position: absolute; right: 16px; bottom: 16px;
+  min-height: var(--touch); display: flex; align-items: center; padding: 0 14px;
+  background: var(--c-paper); color: var(--c-ink); text-decoration: none;
+  font-family: var(--f-display); font-weight: 600; font-size: 14px; text-transform: uppercase;
+}
+.mapLink:hover { background: var(--c-muted-2); color: var(--c-ink); }
+
+.card {
+  flex: 1 1 420px; align-self: flex-start; min-width: 0;
+  background: var(--c-paper); color: var(--c-ink); padding: 36px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.cardTitle { font-size: 36px; }
+.cardText { margin: 0; font-size: var(--fs-body-l); line-height: 1.55; color: var(--c-text-2-on-paper); }
+.cardButton {
+  min-height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--c-ink); color: var(--c-paper); text-decoration: none;
+  font-family: var(--f-display); font-weight: 600; font-size: 18px; letter-spacing: var(--ls-caps); text-transform: uppercase;
+  transition: background-color .15s;
+}
+.cardButton:hover { background: var(--c-text-2-on-paper); color: var(--c-paper); }
+
+@media (max-width: 640px) {
+  .main { padding-top: 32px; padding-bottom: 40px; gap: 32px; }
+  .info { flex-basis: 100%; gap: 28px; }
+  .lead { font-size: 16px; }
+  .badge { font-size: 16px; padding: 8px 14px; }
+  .fact { padding: 16px; }
+  .value { font-size: 16px; }
+  .map { height: 180px; }
+  .card { flex-basis: 100%; padding: 24px; }
+  .cardTitle { font-size: 28px; }
+  .cardText { font-size: 16px; }
+}
