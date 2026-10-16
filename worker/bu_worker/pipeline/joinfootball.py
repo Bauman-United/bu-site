@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 
 from bu_core.matching import AmbiguousMatchError, PlayerIndex, PlayerName
 from bu_core.models import (
@@ -27,6 +27,7 @@ from bu_worker.pipeline.common import (
 
 SOURCE = "joinfootball"
 MIN_RATIO = 0.5
+ARCHIVE_AFTER = timedelta(days=14)
 
 
 # Приоритет фото: БЛ (CDN join.football) важнее ЛФЛ; ручное фото защищено manual_fields.
@@ -76,6 +77,23 @@ def sanity_check(
             raise SanityError(f"{key}: dropped from {before} to {value}")
 
 
+def is_archived(session: Session, source: str, external_id: str, today: date) -> bool:
+    """Турнир закончился больше 14 дней назад и уже был успешно загружен — не перекачиваем."""
+    period_end = session.scalars(
+        select(Tournament.period_end).where(
+            Tournament.source == source, Tournament.external_id == external_id
+        )
+    ).one_or_none()
+    if period_end is None or period_end >= today - ARCHIVE_AFTER:
+        return False
+    ok_run = session.scalars(
+        select(IngestRun.id)
+        .where(IngestRun.source == f"{source}:{external_id}", IngestRun.status == "ok")
+        .limit(1)
+    ).first()
+    return ok_run is not None
+
+
 def _upsert_tournament(
     session: Session, bundle: JoinFootballBundle, source: str = SOURCE
 ) -> Tournament:
@@ -97,6 +115,7 @@ def _upsert_tournament(
         session.add(tournament)
     tournament.name = info.name
     tournament.url = info.url
+    tournament.period_end = info.period_end
     tournament.season_id = season.id
     session.flush()
     return tournament
@@ -108,6 +127,7 @@ def _resolve_player(
     parsed: ParsedPlayer,
     warnings: list[str],
     source: str = SOURCE,
+    historical: bool = False,
 ) -> Player | None:
     link = session.scalars(
         select(PlayerSourceLink).where(
@@ -146,6 +166,7 @@ def _resolve_player(
             aliases=[],
             manual_fields=[],
             achievements=[],
+            active=not historical,  # игрок только из прошлых сезонов — не в текущем составе
         )
         session.add(player)
         session.flush()
@@ -167,15 +188,22 @@ def _ingest_players(
     tournament: Tournament,
     result: IngestResult,
     source: str = SOURCE,
+    historical: bool = False,
 ) -> PlayerIndex:
     index = player_index(session)
     present: set[int] = set()
     for parsed in bundle.players:
-        player = _resolve_player(session, index, parsed, result.warnings, source)
+        player = _resolve_player(session, index, parsed, result.warnings, source, historical)
         if player is None:
             continue
         present.add(player.id)
-        manual = set(player.manual_fields or [])
+        if historical:
+            # прошлый турнир не меняет номер, амплуа и статус текущего игрока
+            manual = {"number", "position", "active"} | set(player.manual_fields or [])
+            if player.photo:
+                manual.add("photo")
+        else:
+            manual = set(player.manual_fields or [])
         if "number" not in manual and parsed.number is not None:
             player.number = parsed.number
         if "position" not in manual and parsed.position:
@@ -193,6 +221,8 @@ def _ingest_players(
         stats.yellow, stats.red = parsed.yellow, parsed.red
         result.tags.add(f"player:{player.slug}")
     session.flush()
+    if historical:
+        return index
     departed = session.scalars(
         select(Player)
         .join(PlayerTournamentStats, PlayerTournamentStats.player_id == Player.id)
@@ -329,10 +359,13 @@ def ingest(
     *,
     source: str = SOURCE,
     match_url: Callable[[str], str] | None = None,
+    today: date | None = None,
 ) -> IngestResult:
+    """`today` задан и турнир закончился раньше — турнир прошлого сезона (история)."""
     result = IngestResult(counts=_counts(bundle))
+    historical = today is not None and bundle.tournament.period_end < today
     tournament = _upsert_tournament(session, bundle, source)
-    index = _ingest_players(session, bundle, tournament, result, source)
+    index = _ingest_players(session, bundle, tournament, result, source, historical)
     for entry in bundle.calendar:
         _ingest_match(
             session,

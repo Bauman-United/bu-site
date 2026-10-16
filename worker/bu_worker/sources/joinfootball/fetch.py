@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from datetime import date
 
 from bu_worker.dto import JoinFootballBundle, MatchDetail
 from bu_worker.http import PoliteClient
@@ -18,7 +19,10 @@ def fetch_bundle(
     team_id: str,
     base_url: str,
     snapshot: Callable[[str, str], None],
+    today: date | None = None,
 ) -> JoinFootballBundle:
+    """`today` задан и турнир уже закончился — берём и отзаявленных игроков (история)."""
+
     def get(name: str, path: str) -> str:
         html = client.get(path)
         snapshot(name, html)
@@ -34,7 +38,8 @@ def fetch_bundle(
         if team_id in (e.home_team_id, e.away_team_id)
     ]
     players = parse_application(
-        get("application", f"/tournament/{tournament_id}/teams/application?team_id={team_id}")
+        get("application", f"/tournament/{tournament_id}/teams/application?team_id={team_id}"),
+        departed=today is not None and info.period_end < today,
     )
     tables_html = get("tables", f"/tournament/{tournament_id}/tables")
     try:

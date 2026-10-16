@@ -2,7 +2,7 @@ import functools
 import logging
 import threading
 from collections.abc import Callable
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -14,7 +14,14 @@ from sqlalchemy import select
 from bu_worker import snapshots
 from bu_worker.http import PoliteClient
 from bu_worker.notify import Notifier
-from bu_worker.runner import run_joinfootball, run_lfl, run_telegram
+from bu_worker.runner import (
+    HISTORY_SOURCES,
+    make_client,
+    run_history,
+    run_joinfootball,
+    run_lfl,
+    run_telegram,
+)
 
 log = logging.getLogger(__name__)
 
@@ -40,21 +47,21 @@ def start(settings: Settings) -> None:
     sessions = make_sessionmaker(make_engine())
     notifier = Notifier(settings.telegram_bot_token, settings.telegram_chat_id)
 
+    history_day: list[date] = []  # день последнего обхода прошлых сезонов
+
     @single_flight
     def scrape() -> None:
-        joinfootball_client = PoliteClient(
-            settings.joinfootball_base,
-            f"BaumanUnitedBot/1.0 (+{settings.site_url})",
-            settings.request_delay_s,
-        )
-        lfl_client = PoliteClient(
-            settings.lfl_base,
-            f"BaumanUnitedBot/1.0 (+{settings.site_url})",
-            settings.request_delay_s,
-        )
+        # Один клиент на хост на весь запуск: пауза ≥ request_delay_s и между текущими
+        # турнирами, и между прошлыми сезонами того же сайта.
+        clients = {name: make_client(settings, name) for name in HISTORY_SOURCES}
         with sessions() as session:
-            run_joinfootball(session, settings, joinfootball_client, notifier)
-            run_lfl(session, settings, lfl_client, notifier)
+            run_joinfootball(session, settings, clients["joinfootball"], notifier)
+            run_lfl(session, settings, clients["lfl"], notifier)
+            today = datetime.now(UTC).date()
+            if history_day[-1:] != [today]:
+                # раз в день: поиск турниров всех сезонов; архивные не перекачиваются
+                run_history(session, settings, clients, notifier)
+                history_day[:] = [today]
 
     @single_flight
     def channel_news() -> None:

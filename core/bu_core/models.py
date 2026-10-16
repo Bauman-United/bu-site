@@ -39,6 +39,8 @@ class Tournament(Base):
     source: Mapped[str] = mapped_column(String(32))  # joinfootball | lfl | manual
     external_id: Mapped[str | None] = mapped_column(String(64))
     url: Mapped[str | None] = mapped_column(String(500))
+    # последний день турнира по сайту лиги: закончившийся турнир не перекачиваем
+    period_end: Mapped[date | None] = mapped_column(Date)
     season_id: Mapped[int] = mapped_column(ForeignKey("season.id"))
     season: Mapped[Season] = relationship()
 

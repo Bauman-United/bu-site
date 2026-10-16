@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     lfl_base: str = "https://lfl.ru"
     lfl_club_id: str = "14270"
     lfl_tournament_ids: list[str] = ["32573", "33238"]
+    # IFL (ifl-bmstu.ru) — та же платформа joinsport, что и Bauman League
+    ifl_base: str = "https://ifl-bmstu.ru"
+    ifl_team_id: str = "1003070"
+    ifl_tournament_ids: list[str] = []  # текущие турниры IFL (сейчас команда там не играет)
+    history_refresh: bool = False  # перекачать и архивные (закончившиеся) турниры
     tg_base: str = "https://t.me"
     tg_channel: str = "baumanunited"
     tg_since: date = date(2026, 7, 1)

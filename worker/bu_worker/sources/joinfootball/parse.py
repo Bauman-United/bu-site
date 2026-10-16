@@ -63,6 +63,12 @@ def _int(value: str) -> int:
     return int(value) if value.isdigit() else 0
 
 
+def _lead_int(value: str) -> int:
+    """«17 (1)» — голы (из них с пенальти) → 17; «-» → 0."""
+    m = re.match(r"\s*(\d+)", value)
+    return int(m[1]) if m else 0
+
+
 def _attr(node: Node | None, name: str) -> str | None:
     if node is None:
         return None
@@ -93,22 +99,30 @@ def parse_tournament_info(html: str, external_id: str, url: str) -> TournamentIn
     )
 
 
-def parse_application(html: str) -> list[ParsedPlayer]:
+def parse_application(html: str, departed: bool = False) -> list[ParsedPlayer]:
+    """Первая таблица — текущая заявка. `departed` — ещё и «Отзаявленные игроки» (active=False):
+    для прошлых турниров их голы и игры тоже часть истории.
+    """
     tree = HTMLParser(html)
-    table = tree.css_first("table.blk-tteams__table")  # первая таблица — текущая заявка
-    rows = table.css("tr.blk-tteams__row") if table is not None else []
+    tables = tree.css("table.blk-tteams__table")
+    rows = tables[0].css("tr.blk-tteams__row") if tables else []
     if not rows:
         raise ParseError("application table not found")
+    tagged = [(row, True) for row in rows]
+    if departed and len(tables) > 1:
+        tagged += [(row, False) for row in tables[1].css("tr.blk-tteams__row")]
     players: list[ParsedPlayer] = []
-    for row in rows:
+    seen: set[str] = set()
+    for row, active in tagged:
         link = row.css_first("a.blk-tteams__player")
         href = _attr(link, "href") or ""
         id_match = _LAST_ID.search(href)
         name = _text(row.css_first(".blk-tteams__player-name"))
-        if not id_match or not name:
+        if not id_match or not name or id_match[1] in seen:
             continue
+        seen.add(id_match[1])
         number_text = _text(row.css_first(".blk-tteams__cell--number"))
-        stats = [_int(_text(cell)) for cell in row.css(".blk-tteams__cell--var")]
+        stats = [_lead_int(_text(cell)) for cell in row.css(".blk-tteams__cell--var")]
         stats += [0] * (5 - len(stats))
         players.append(
             ParsedPlayer(
@@ -122,6 +136,7 @@ def parse_application(html: str) -> list[ParsedPlayer]:
                 yellow=stats[3],
                 red=stats[4],
                 photo_url=full_size(_attr(row.css_first("img.blk-tteams__player-img"), "src")),
+                active=active,
             )
         )
     if not players:

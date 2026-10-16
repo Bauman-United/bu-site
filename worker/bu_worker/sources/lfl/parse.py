@@ -355,3 +355,21 @@ def fill_missing_photos(
             p = p.model_copy(update={"photo_url": photos.get(key)})
         out.append(p)
     return out
+
+
+_CLUB_TOURNAMENT = re.compile(r"^#tournament_(\d+)$")
+
+
+def parse_club_tournament_ids(html: str) -> list[str]:
+    """Турниры клуба из селектора на странице /club<id> («#tournament_32573»).
+
+    Нечисловые («#tournament_d1037» — Летний кубок), «Все» и служебный «Тест» пропускаем.
+    """
+    ids: list[str] = []
+    for link in HTMLParser(html).css("a.tournament_selector_item"):
+        m = _CLUB_TOURNAMENT.match(link.attributes.get("href") or "")
+        title = (link.attributes.get("title") or link.text(strip=True)).strip().lower()
+        # «#tournament_0» — вкладка «Все»
+        if m and m[1] != "0" and title != "тест" and m[1] not in ids:
+            ids.append(m[1])
+    return ids
