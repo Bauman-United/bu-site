@@ -1,0 +1,101 @@
+name: bu-site
+
+x-python: &python
+  image: ${IMAGE_PREFIX:-ghcr.io/bauman-united}/bu-python:${TAG:-latest}
+  build:
+    context: ..
+    dockerfile: deploy/python.Dockerfile
+  environment: &python-env
+    BU_DATABASE_URL: postgresql+psycopg://bu:${POSTGRES_PASSWORD}@postgres/bu
+    BU_SITE_URL: ${BU_SITE_URL}
+    BU_REVALIDATE_URL: http://web:3000/api/revalidate
+    BU_REVALIDATE_SECRET: ${BU_REVALIDATE_SECRET}
+    BU_TELEGRAM_BOT_TOKEN: ${BU_TELEGRAM_BOT_TOKEN:-}
+    BU_TELEGRAM_CHAT_ID: ${BU_TELEGRAM_CHAT_ID:-}
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bu
+      POSTGRES_USER: bu
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bu -d bu"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  migrate:
+    <<: *python
+    command: ["alembic", "-c", "core/alembic.ini", "upgrade", "head"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  api:
+    <<: *python
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  worker:
+    <<: *python
+    command: ["sh", "-c", "python -m bu_worker run content && exec python -m bu_worker schedule"]
+    volumes:
+      - snapshots:/data/snapshots
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      web: { condition: service_started }
+
+  web:
+    image: ${IMAGE_PREFIX:-ghcr.io/bauman-united}/bu-web:${TAG:-latest}
+    build:
+      context: ..
+      dockerfile: deploy/web.Dockerfile
+    environment:
+      BU_API_URL: http://api:8000
+      BU_SITE_URL: ${BU_SITE_URL}
+      BU_NOINDEX: ${BU_NOINDEX:-1}
+      BU_REVALIDATE_SECRET: ${BU_REVALIDATE_SECRET}
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-example.ru}
+    volumes:
+      - ./nginx/${NGINX_MODE:-http}:/etc/nginx/templates:ro
+      - ./nginx/common:/etc/nginx/common:ro
+      - certbot-www:/var/www/certbot:ro
+      - letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - web
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot:v3.0.1
+    volumes:
+      - certbot-www:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+    entrypoint: ["sh", "-c", "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done"]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  snapshots:
+  certbot-www:
+  letsencrypt:

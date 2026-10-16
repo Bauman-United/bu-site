@@ -45,3 +45,5 @@ __pycache__/
 .mypy_cache/
 /snapshots/
 node_modules/
+deploy/.env
+deploy/.env.bak
