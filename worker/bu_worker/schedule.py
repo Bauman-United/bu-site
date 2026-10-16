@@ -15,7 +15,7 @@ from bu_worker import snapshots
 from bu_worker.http import PoliteClient
 from bu_worker.notify import Notifier
 from bu_worker.runner import (
-    HISTORY_SOURCES,
+    history_sources,
     make_client,
     run_history,
     run_joinfootball,
@@ -53,7 +53,7 @@ def start(settings: Settings) -> None:
     def scrape() -> None:
         # Один клиент на хост на весь запуск: пауза ≥ request_delay_s и между текущими
         # турнирами, и между прошлыми сезонами того же сайта.
-        clients = {name: make_client(settings, name) for name in HISTORY_SOURCES}
+        clients = {name: make_client(settings, name) for name in history_sources(settings)}
         with sessions() as session:
             run_joinfootball(session, settings, clients["joinfootball"], notifier)
             run_lfl(session, settings, clients["lfl"], notifier)

@@ -22,8 +22,8 @@ router = APIRouter()
 POSITION_ORDER = {"GK": 0, "DF": 1, "MF": 2, "FW": 3}
 STAT_KEYS = ("played", "goals", "assists", "yellow", "red", "mvp")
 # ?league= → Tournament.source: БЛ — Бауманская лига (join.football), ЛФЛ — lfl.ru,
-# IFL — ifl-bmstu.ru
-LEAGUE_SOURCES = {"bl": "joinfootball", "lfl": "lfl", "ifl": "ifl"}
+# IFL — ifl-bmstu.ru, Urban Cup — urban-cup.ru
+LEAGUE_SOURCES = {"bl": "joinfootball", "lfl": "lfl", "ifl": "ifl", "urban": "urban"}
 
 
 def _league_rows(session: Session, league: str, season: str | None) -> dict[int, SimpleNamespace]:
@@ -93,13 +93,13 @@ def _card(p: Player, stats: PlayerStats) -> dict:
 def list_players(
     active: bool | None = None,
     tournament: str | None = None,
-    league: Literal["bl", "lfl", "ifl"] | None = None,
+    league: Literal["bl", "lfl", "ifl", "urban"] | None = None,
     roster: bool = False,
     session: Session = Depends(get_session),
 ) -> list[PlayerCard]:
     """`roster=true` — общий состав: текущая заявка плюс все, кто играл в сезоне/турнире.
 
-    `league=bl|lfl|ifl` — суммы по всем турнирам лиги текущего сезона (вместе с кубками).
+    `league=bl|lfl|ifl|urban` — суммы по всем турнирам лиги текущего сезона (вместе с кубками).
     """
     query = select(Player)
     stats: Mapping[int, PlayerSeasonStats | PlayerTournamentStats | SimpleNamespace]

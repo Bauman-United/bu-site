@@ -208,3 +208,28 @@ def test_players_by_league_ifl(client, db):
     db.flush()
     rows = client.get("/players", params={"roster": "true", "league": "ifl"}).json()
     assert [(p["slug"], p["season"]["goals"]) for p in rows] == [("aleksandr-korolev", 5)]
+
+
+def test_players_by_league_urban(client, db):
+    from bu_core.models import Player, PlayerTournamentStats, Tournament
+    from sqlalchemy import select
+
+    _add_league_tournaments(db)
+    # Urban Cup в текущем сезоне нет — вкладки «Urban Cup» на сайте не будет
+    assert client.get("/players", params={"roster": "true", "league": "urban"}).json() == []
+    season = db.scalars(select(Tournament).where(Tournament.slug == "liga-inzhenerov")).one()
+    urban = Tournament(
+        slug="liga-chempionov-urban",
+        name="Лига Чемпионов 26/27",
+        short="Лига Чемпионов",
+        source="urban",
+        external_id="1067686",
+        season_id=season.season_id,
+    )
+    db.add(urban)
+    db.flush()
+    korolev = db.scalars(select(Player).where(Player.slug == "aleksandr-korolev")).one()
+    db.add(PlayerTournamentStats(player_id=korolev.id, tournament_id=urban.id, played=1, goals=2))
+    db.flush()
+    rows = client.get("/players", params={"roster": "true", "league": "urban"}).json()
+    assert [(p["slug"], p["season"]["goals"]) for p in rows] == [("aleksandr-korolev", 2)]

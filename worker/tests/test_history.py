@@ -5,7 +5,7 @@ from pathlib import Path
 
 import httpx
 from bu_core.models import IngestRun, Match, Player, PlayerTournamentStats, Tournament
-from bu_core.settings import Settings
+from bu_core.settings import JoinsportSource, Settings
 from bu_worker.dto import JoinFootballBundle
 from bu_worker.http import PoliteClient
 from bu_worker.notify import Notifier
@@ -172,12 +172,14 @@ def test_archived_needs_old_period_and_ok_run(db):
     assert not is_archived(db, "ifl", "1066703", FUTURE)  # другой источник
 
 
-def settings(tmp_path, **kw) -> Settings:
+def settings(tmp_path, ifl_team_id: str = "1003070", **kw) -> Settings:
     return Settings(
         _env_file=None,
         snapshot_dir=str(tmp_path / "snap"),
         joinfootball_base="https://jf.test",
-        ifl_base="https://jf.test",
+        joinsport_leagues=[
+            JoinsportSource(key="ifl", title="IFL", base="https://jf.test", team_id=ifl_team_id)
+        ],
         **kw,
     )
 

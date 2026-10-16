@@ -7,6 +7,7 @@ describe("LeagueTabs", () => {
     expect(parseLeague("lfl")).toBe("lfl");
     expect(parseLeague(["lfl", "bl"])).toBe("lfl");
     expect(parseLeague("ifl")).toBe("ifl");
+    expect(parseLeague("urban")).toBe("urban");
     expect(parseLeague("xyz")).toBeUndefined();
     expect(parseLeague(undefined)).toBeUndefined();
   });
@@ -29,5 +30,18 @@ describe("LeagueTabs", () => {
     expect(links.map((l) => l.textContent)).toEqual(["Общий", "БЛ", "ЛФЛ", "IFL"]);
     expect(screen.getByRole("link", { name: "IFL" })).toHaveAttribute("href", "/team?league=ifl");
     expect(screen.getByRole("link", { name: "IFL" })).toHaveAttribute("aria-current", "page");
+  });
+
+  it("adds «Urban Cup» only when the team plays Urban Cup this season", () => {
+    render(<LeagueTabs pathname="/team" withIfl withUrban />);
+    const links = screen.getAllByRole("link");
+    expect(links.map((l) => l.textContent)).toEqual(["Общий", "БЛ", "ЛФЛ", "IFL", "Urban Cup"]);
+    expect(screen.getByRole("link", { name: "Urban Cup" })).toHaveAttribute("href", "/team?league=urban");
+  });
+
+  it("«Urban Cup» without IFL", () => {
+    render(<LeagueTabs pathname="/team" selected="urban" withUrban />);
+    expect(screen.getAllByRole("link").map((l) => l.textContent)).toEqual(["Общий", "БЛ", "ЛФЛ", "Urban Cup"]);
+    expect(screen.getByRole("link", { name: "Urban Cup" })).toHaveAttribute("aria-current", "page");
   });
 });

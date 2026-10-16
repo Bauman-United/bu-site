@@ -79,3 +79,5 @@ class JoinFootballBundle(BaseModel):
     calendar: list[CalendarEntry]  # только матчи нашей команды
     details: dict[str, MatchDetail]  # external_id матча -> события
     standings: list[ParsedStanding]
+    # матчи взяты из календаря команды (многоэтапный турнир): таблицы может не быть
+    multi_stage: bool = False

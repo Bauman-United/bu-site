@@ -75,8 +75,24 @@ def _attr(node: Node | None, name: str) -> str | None:
     return node.attributes.get(name)
 
 
-def _date_in_period(day: int, month_name: str, start: date, end: date) -> date:
-    month = MONTHS[month_name]
+def _month(name: str) -> int | None:
+    """«ноября» → 11; сокращения из расписаний: «нояб.», «мар.», «мая» → номер; «тур» → None."""
+    name = name.rstrip(".")
+    if len(name) < 3:
+        return None
+    return next((n for full, n in MONTHS.items() if full.startswith(name)), None)
+
+
+def _day_in(text: str, start: date, end: date) -> date | None:
+    """Первая дата вида «26 нояб.» / «12 сентября» в тексте, с годом из периода турнира."""
+    for m in _DAY.finditer(text):
+        month = _month(m[2])
+        if month is not None:
+            return _date_in_period(int(m[1]), month, start, end)
+    return None
+
+
+def _date_in_period(day: int, month: int, start: date, end: date) -> date:
     for year in range(start.year, end.year + 1):
         candidate = date(year, month, day)
         if start <= candidate <= end:
@@ -157,20 +173,19 @@ def parse_calendar(html: str, period_start: date, period_end: date) -> list[Cale
     entries: dict[str, CalendarEntry] = {}
     for unit in tree.css(".blk-tcalendar__unit"):
         head = _text(unit.css_first(".blk-tcalendar__head-text"))
-        day_match = _DAY.search(head)
-        day: date | None
-        if day_match:
-            day = _date_in_period(int(day_match[1]), day_match[2], period_start, period_end)
-        elif head.lower() == _UNDATED:
-            day = None  # «Не задано»: матч назначен, дата ещё не известна
-        else:
-            continue
+        head_day = _day_in(head, period_start, period_end)
+        by_tours = head_day is None and head.lower() != _UNDATED  # «1 тур»: дата у матча
         for item in unit.css("li.blk-tcalendar__item"):
             score_link = item.css_first("a.blk-tcalendar__score")
             match_id = _LAST_ID.search(_attr(score_link, "href") or "")
             if not match_id:
                 continue
-            clock = _CLOCK.search(_text(item.css_first(".blk-tcalendar__time")))
+            time_text = _text(item.css_first(".blk-tcalendar__time"))
+            # «Не задано»: матч назначен, дата ещё не известна
+            day = _day_in(time_text, period_start, period_end) if by_tours else head_day
+            if by_tours and day is None:
+                continue
+            clock = _CLOCK.search(time_text)
             hh, mm = (clock[1], clock[2]) if clock else ("0", "0")  # «Перенесён», «--:--»
             place = item.css_first(".blk-tcalendar__place")
             score = _SCORE.search(_text(item.css_first(".blk-tcalendar__score-main")))
@@ -196,6 +211,64 @@ def parse_calendar(html: str, period_start: date, period_end: date) -> list[Cale
     if not entries:
         raise ParseError("calendar is empty")
     return list(entries.values())
+
+
+def is_multi_stage(calendar_html: str) -> bool:
+    """В календаре турнира есть выбор этапа (группы, отборочные, плей-офф)."""
+    return HTMLParser(calendar_html).css_first(".blk-tcalendar__rounds") is not None
+
+
+def _schedule_side(item: Node, side: str) -> tuple[str, str, str | None]:
+    team = item.css_first(f".blk-lschedule__team--{side}")
+    team_id_match = _TEAM_ID.search(_attr(team, "href") or "")
+    name = _text(team.css_first(".blk-lschedule__team-name")) if team is not None else ""
+    logo = full_size(_attr(team.css_first("img"), "src")) if team is not None else None
+    return (team_id_match[1] if team_id_match else ""), name, logo
+
+
+def parse_team_calendar(
+    html: str, tournament_id: str, period_start: date, period_end: date
+) -> list[CalendarEntry]:
+    """Матчи одного турнира из календаря команды за сезон (/team/<id>/calendar?season_id=…).
+
+    Нужен для многоэтапных турниров (Urban Cup): календарь турнира показывает один этап.
+    """
+    tree = HTMLParser(html)
+    prefix = f"/tournament/{tournament_id}/"
+    entries: list[CalendarEntry] = []
+    for item in tree.css(".blk-lschedule__item"):
+        team_link = _attr(item.css_first("a.blk-lschedule__team"), "href") or ""
+        match_id = _LAST_ID.search(_attr(item.css_first("a.blk-lschedule__score"), "href") or "")
+        if not team_link.startswith(prefix) or not match_id:
+            continue
+        time_text = _text(item.css_first(".blk-lschedule__time"))
+        day = _day_in(time_text, period_start, period_end)
+        clock = _CLOCK.search(time_text)
+        hh, mm = (clock[1], clock[2]) if clock else ("0", "0")
+        place = item.css_first(".blk-lschedule__place")
+        score = _SCORE.search(_text(item.css_first(".blk-lschedule__score-main")))
+        home_id, home_name, home_logo = _schedule_side(item, "left")
+        away_id, away_name, away_logo = _schedule_side(item, "right")
+        entries.append(
+            CalendarEntry(
+                external_id=match_id[1],
+                kickoff=datetime.combine(day, time(int(hh), int(mm)), tzinfo=MSK)
+                if day is not None
+                else None,
+                round=None,
+                venue_name=_text(item.css_first(".blk-lschedule__place-name")) or None,
+                venue_address=_attr(place, "title"),
+                home_team_id=home_id,
+                away_team_id=away_id,
+                home_name=home_name,
+                away_name=away_name,
+                home_logo=home_logo,
+                away_logo=away_logo,
+                home_score=int(score[1]) if score else None,
+                away_score=int(score[2]) if score else None,
+            )
+        )
+    return entries
 
 
 def _event_type(classes: list[str]) -> tuple[str, str | None] | None:

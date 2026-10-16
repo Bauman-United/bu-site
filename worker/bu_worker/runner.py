@@ -20,7 +20,7 @@ from bu_worker.pipeline import joinfootball as jf_pipeline
 from bu_worker.pipeline import telegram as telegram_pipeline
 from bu_worker.pipeline.common import IngestResult
 from bu_worker.sources.content import load_content
-from bu_worker.sources.joinfootball.discover import discover_tournaments
+from bu_worker.sources.joinfootball.discover import discover_tournament_seasons
 from bu_worker.sources.joinfootball.fetch import fetch_bundle
 from bu_worker.sources.lfl.fetch import fetch_bundle as fetch_lfl_bundle
 from bu_worker.sources.lfl.parse import parse_club_tournament_ids
@@ -64,7 +64,7 @@ def _record(
 
 @dataclass(frozen=True)
 class SourceSpec:
-    """Источник турниров: joinfootball (Bauman League), ifl (тот же joinsport), lfl."""
+    """Источник турниров: лига на joinsport (БЛ — «joinfootball», IFL, Urban Cup…) или lfl."""
 
     name: str
     base: str
@@ -72,23 +72,18 @@ class SourceSpec:
     current_ids: list[str]
 
 
-HISTORY_SOURCES = ("joinfootball", "ifl", "lfl")
+def history_sources(settings: Settings) -> tuple[str, ...]:
+    """Все источники для `run history`: лиги joinsport из настроек и ЛФЛ."""
+    return (*(j.key for j in settings.joinsport_sources), "lfl")
 
 
 def source_spec(settings: Settings, name: str) -> SourceSpec:
-    if name == "joinfootball":
-        return SourceSpec(
-            name,
-            settings.joinfootball_base,
-            settings.joinfootball_team_id,
-            settings.joinfootball_tournament_ids,
-        )
-    if name == "ifl":
-        s = settings
-        return SourceSpec(name, s.ifl_base, s.ifl_team_id, s.ifl_tournament_ids)
     if name == "lfl":
         s = settings
         return SourceSpec(name, s.lfl_base, s.lfl_club_id, s.lfl_tournament_ids)
+    for j in settings.joinsport_sources:
+        if j.key == name:
+            return SourceSpec(name, j.base, j.team_id, j.tournament_ids)
     raise ValueError(name)
 
 
@@ -112,6 +107,7 @@ def _ingest_tournament(
     tid: str,
     started: datetime,
     today: date,
+    season_id: str | None = None,
 ) -> IngestResult:
     root = Path(settings.snapshot_dir)
 
@@ -123,12 +119,15 @@ def _ingest_tournament(
         bundle = fetch_lfl_bundle(client, tid, spec.team_id, spec.base, snap)
         match_url = lambda match_id: f"{spec.base}/match{match_id}"  # noqa: E731
     else:
-        bundle = fetch_bundle(client, tid, spec.team_id, spec.base, snap, today)
+        team_calendar = (
+            f"/team/{spec.team_id}/calendar?season_id={season_id}" if season_id else None
+        )
+        bundle = fetch_bundle(client, tid, spec.team_id, spec.base, snap, today, team_calendar)
     jf_pipeline.sanity_check(
         session,
         f"{spec.name}:{tid}",
         bundle,
-        require_standings="кубок" not in bundle.tournament.name.lower(),
+        require_standings="кубок" not in bundle.tournament.name.lower() and not bundle.multi_stage,
     )
     return jf_pipeline.ingest(
         session,
@@ -152,6 +151,7 @@ def _run_tournaments(
     today: date,
     refresh: bool,
     limit: int | None = None,
+    seasons: Mapping[str, str] | None = None,
 ) -> tuple[str, set[str]]:
     """Качает турниры по одному; закончившиеся и уже загруженные (архив) пропускает."""
     overall = "ok"
@@ -167,7 +167,9 @@ def _run_tournaments(
         source = f"{spec.name}:{tid}"
         started = datetime.now(UTC)
         try:
-            result = _ingest_tournament(session, settings, client, spec, tid, started, today)
+            result = _ingest_tournament(
+                session, settings, client, spec, tid, started, today, (seasons or {}).get(tid)
+            )
             recompute(session)
             session.commit()
         except jf_pipeline.SanityError as exc:
@@ -238,11 +240,12 @@ def run_lfl(
     return _run_current("lfl", session, settings, client, notifier, today, refresh)
 
 
-def discover(spec: SourceSpec, client: PoliteClient) -> list[str]:
-    """Все турниры нашей команды в источнике, от старых к новым."""
+def discover(spec: SourceSpec, client: PoliteClient) -> dict[str, str | None]:
+    """Все турниры нашей команды в источнике, от старых к новым → сезон на joinsport."""
     if spec.name == "lfl":
-        return list(reversed(parse_club_tournament_ids(client.get(f"/club{spec.team_id}"))))
-    return discover_tournaments(client, spec.team_id)
+        ids = reversed(parse_club_tournament_ids(client.get(f"/club{spec.team_id}")))
+        return dict.fromkeys(ids)
+    return dict(discover_tournament_seasons(client, spec.team_id))
 
 
 def run_history(
@@ -251,7 +254,7 @@ def run_history(
     clients: Mapping[str, PoliteClient],
     notifier: Notifier,
     *,
-    sources: Sequence[str] = HISTORY_SOURCES,
+    sources: Sequence[str] | None = None,
     limit: int | None = None,
     today: date | None = None,
     refresh: bool | None = None,
@@ -263,7 +266,7 @@ def run_history(
     """
     overall = "ok"
     all_tags: set[str] = set()
-    for name in sources:
+    for name in sources if sources is not None else history_sources(settings):
         spec = source_spec(settings, name)
         client = clients[name]
         try:
@@ -285,6 +288,7 @@ def run_history(
             today=today or _today(),
             refresh=settings.history_refresh if refresh is None else refresh,
             limit=limit,
+            seasons={t: season for t, season in found.items() if season},
         )
         if status != "ok":
             overall = status

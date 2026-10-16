@@ -8,7 +8,7 @@ from bu_core.settings import get_settings
 from bu_worker.http import PoliteClient
 from bu_worker.notify import Notifier
 from bu_worker.runner import (
-    HISTORY_SOURCES,
+    history_sources,
     make_client,
     run_content,
     run_history,
@@ -19,19 +19,22 @@ from bu_worker.runner import (
 
 
 def main() -> int:
+    settings = get_settings()
+    # лиги joinsport без текущих турниров (IFL, Urban Cup): `run <key>` — их прошлые турниры
+    leagues = [j.key for j in settings.joinsport_leagues]
     parser = argparse.ArgumentParser(prog="bu_worker")
     sub = parser.add_subparsers(dest="cmd", required=True)
     run = sub.add_parser("run")
     run.add_argument(
         "source",
-        choices=["joinfootball", "lfl", "ifl", "history", "telegram", "content", "all"],
-        help="history — все прошлые сезоны БЛ, IFL и ЛФЛ; ifl — прошлые турниры IFL",
+        choices=["joinfootball", "lfl", *leagues, "history", "telegram", "content", "all"],
+        help="history — все прошлые сезоны всех лиг; ifl, urban — прошлые турниры лиги",
     )
     run.add_argument(
         "--limit-tournaments",
         type=int,
         default=None,
-        help="history/ifl: не больше N турниров на источник (проверка на живом сайте)",
+        help="history/ifl/urban: не больше N турниров на источник (проверка на живом сайте)",
     )
     run.add_argument(
         "--refresh",
@@ -44,7 +47,6 @@ def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)  # URL Telegram содержит токен
 
-    settings = get_settings()
     if args.cmd == "schedule":
         from bu_worker.schedule import start
 
@@ -65,8 +67,8 @@ def main() -> int:
             lfl_status = run_lfl(session, settings, client, notifier, refresh=args.refresh)
             if lfl_status != "ok":
                 status = lfl_status
-        if args.source in ("history", "ifl"):
-            sources = HISTORY_SOURCES if args.source == "history" else ("ifl",)
+        if args.source == "history" or args.source in leagues:
+            sources = history_sources(settings) if args.source == "history" else (args.source,)
             status = run_history(
                 session,
                 settings,

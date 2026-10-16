@@ -1,7 +1,18 @@
 from datetime import date
 from functools import lru_cache
 
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class JoinsportSource(BaseModel):
+    """Лига на платформе joinsport (вёрстка и robots как у Bauman League)."""
+
+    key: str  # Tournament.source / Match.source и префикс IngestRun.source
+    title: str
+    base: str
+    team_id: str  # наша команда в этой лиге
+    tournament_ids: list[str] = []  # текущие турниры; прошлые находит `run history`
 
 
 class Settings(BaseSettings):
@@ -16,10 +27,14 @@ class Settings(BaseSettings):
     lfl_base: str = "https://lfl.ru"
     lfl_club_id: str = "14270"
     lfl_tournament_ids: list[str] = ["32573", "33238"]
-    # IFL (ifl-bmstu.ru) — та же платформа joinsport, что и Bauman League
-    ifl_base: str = "https://ifl-bmstu.ru"
-    ifl_team_id: str = "1003070"
-    ifl_tournament_ids: list[str] = []  # текущие турниры IFL (сейчас команда там не играет)
+    # Прочие лиги на платформе joinsport (Bauman League — поля joinfootball_* выше).
+    # Сейчас команда в них не играет: текущих турниров нет, только история.
+    joinsport_leagues: list[JoinsportSource] = [
+        JoinsportSource(key="ifl", title="IFL", base="https://ifl-bmstu.ru", team_id="1003070"),
+        JoinsportSource(
+            key="urban", title="Urban Cup", base="https://urban-cup.ru", team_id="1321682"
+        ),
+    ]
     history_refresh: bool = False  # перекачать и архивные (закончившиеся) турниры
     tg_base: str = "https://t.me"
     tg_channel: str = "baumanunited"
@@ -37,6 +52,18 @@ class Settings(BaseSettings):
     telegram_api_base: str = "https://api.telegram.org"
     join_chat_id: str | None = None  # личка владельца для заявок «Хочу в команду»
     join_dry_run: bool = False  # e2e: логировать заявку вместо отправки
+
+    @property
+    def joinsport_sources(self) -> list[JoinsportSource]:
+        """Все лиги на joinsport: Bauman League (source «joinfootball») и `joinsport_leagues`."""
+        bl = JoinsportSource(
+            key="joinfootball",
+            title="Bauman League",
+            base=self.joinfootball_base,
+            team_id=self.joinfootball_team_id,
+            tournament_ids=self.joinfootball_tournament_ids,
+        )
+        return [bl, *self.joinsport_leagues]
 
 
 @lru_cache

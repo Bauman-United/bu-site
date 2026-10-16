@@ -1,4 +1,4 @@
-"""Поиск всех турниров команды на платформе joinsport (Bauman League, IFL) по сезонам."""
+"""Поиск всех турниров команды на платформе joinsport (Bauman League, IFL, Urban Cup) по сезонам."""
 
 import re
 
@@ -34,11 +34,17 @@ def parse_season_tournament_ids(html: str) -> list[str]:
     return ids
 
 
-def discover_tournaments(client: PoliteClient, team_id: str) -> list[str]:
-    """Все турниры, где играла команда, от старых сезонов к новым."""
+def discover_tournament_seasons(client: PoliteClient, team_id: str) -> dict[str, str]:
+    """Все турниры, где играла команда, → сезон (season_id), от старых сезонов к новым."""
     seasons = parse_season_ids(client.get(f"/team/{team_id}/calendar"), team_id)
-    found: list[str] = []
+    found: dict[str, str] = {}
     for season_id in reversed(seasons):
         html = client.get(f"/team/{team_id}/calendar?season_id={season_id}")
-        found += [t for t in parse_season_tournament_ids(html) if t not in found]
+        for tid in parse_season_tournament_ids(html):
+            found.setdefault(tid, season_id)
     return found
+
+
+def discover_tournaments(client: PoliteClient, team_id: str) -> list[str]:
+    """Все турниры, где играла команда, от старых сезонов к новым."""
+    return list(discover_tournament_seasons(client, team_id))

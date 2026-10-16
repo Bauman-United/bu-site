@@ -333,7 +333,7 @@
     "/players": {
       "get": {
         "summary": "List Players",
-        "description": "`roster=true` — общий состав: текущая заявка плюс все, кто играл в сезоне/турнире.\n\n`league=bl|lfl|ifl` — суммы по всем турнирам лиги текущего сезона (вместе с кубками).",
+        "description": "`roster=true` — общий состав: текущая заявка плюс все, кто играл в сезоне/турнире.\n\n`league=bl|lfl|ifl|urban` — суммы по всем турнирам лиги текущего сезона (вместе с кубками).",
         "operationId": "list_players_players_get",
         "parameters": [
           {
@@ -378,7 +378,8 @@
                   "enum": [
                     "bl",
                     "lfl",
-                    "ifl"
+                    "ifl",
+                    "urban"
                   ],
                   "type": "string"
                 },

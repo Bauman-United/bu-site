@@ -4,6 +4,7 @@ import type {
   Club, Home, MatchDetail, MatchSummary, NewsDetail, NewsPage, PlayerCard, PlayerDetail,
   Season, SitemapItem, Standings, Tournament,
 } from "./types";
+import type { League } from "@/components/tournament/LeagueTabs";
 import type { History } from "./history";
 
 export const REVALIDATE_SECONDS = 300;
@@ -49,11 +50,11 @@ export const getMatches = (q: MatchQuery = {}) =>
   apiGet<MatchSummary[]>("/matches", { tags: ["matches"], query: { ...q } });
 export const getMatch = (slug: string) =>
   apiGetOrNull<MatchDetail>(`/matches/${encodeURIComponent(slug)}`, { tags: ["matches", `match:${slug}`] });
-export const getPlayers = (q: { league?: "bl" | "lfl" | "ifl" } = {}) =>
+export const getPlayers = (q: { league?: League } = {}) =>
   apiGet<PlayerCard[]>("/players", {
     tags: ["players"],
     // Общий состав: текущая заявка + все, кто играл в сезоне (бывшие игроки ЛФЛ тоже);
-    // league=bl|lfl|ifl — суммы по турнирам лиги текущего сезона вместе с кубками.
+    // league=bl|lfl|ifl|urban — суммы по турнирам лиги текущего сезона вместе с кубками.
     query: { roster: "true", league: q.league },
   });
 export const getPlayer = (slug: string) =>
