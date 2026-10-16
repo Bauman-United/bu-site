@@ -34,7 +34,7 @@
 **Files:**
 - Create: `deploy/python.Dockerfile`, `deploy/web.Dockerfile`, `.dockerignore`, `web/.dockerignore`
 
-- [ ] **Step 1: `.dockerignore` (корень)**
+- [x] **Step 1: `.dockerignore` (корень)**
 
 ```
 .git
@@ -62,7 +62,7 @@ tsconfig.tsbuildinfo
 e2e
 ```
 
-- [ ] **Step 2: `deploy/python.Dockerfile`**
+- [x] **Step 2: `deploy/python.Dockerfile`**
 
 ```dockerfile
 FROM python:3.12-slim AS build
@@ -94,7 +94,7 @@ CMD ["uvicorn", "bu_api.app:build", "--factory", "--host", "0.0.0.0", "--port", 
 
 (Если тег `uv:0.8.22` недоступен — ближайший существующий 0.8.x, Ruling.)
 
-- [ ] **Step 3: `deploy/web.Dockerfile`**
+- [x] **Step 3: `deploy/web.Dockerfile`**
 
 ```dockerfile
 FROM node:22-alpine AS build
@@ -130,7 +130,7 @@ docker run --rm -e BU_API_URL=http://127.0.0.1:9 -p 3999:3000 -d --name bu-web-s
 ```
 Expected: обе сборки успешны; `ok`; история миграций показывает `0002`; `robots.txt` → `200` (страницы с данными дадут 500 без API — это ожидаемо).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add .dockerignore web/.dockerignore deploy/*.Dockerfile && git commit -m "build: docker images for python services and web"
@@ -144,7 +144,7 @@ git add .dockerignore web/.dockerignore deploy/*.Dockerfile && git commit -m "bu
 - Create: `deploy/docker-compose.yml`, `deploy/.env.example`, `deploy/nginx/http/default.conf.template`, `deploy/nginx/common/proxy.conf`, `deploy/smoke.sh`
 - Modify: `.gitignore` (`deploy/.env`)
 
-- [ ] **Step 1: `deploy/.env.example`**
+- [x] **Step 1: `deploy/.env.example`**
 
 ```bash
 # Скопировать в deploy/.env и заполнить. Файл .env в git не попадает.
@@ -170,7 +170,7 @@ S3_ACCESS_KEY=
 S3_SECRET_KEY=
 ```
 
-- [ ] **Step 2: `deploy/docker-compose.yml`**
+- [x] **Step 2: `deploy/docker-compose.yml`**
 
 ```yaml
 name: bu-site
@@ -278,7 +278,7 @@ volumes:
 
 Примечание: `worker` ждёт `web`, чтобы первый revalidate после синка дошёл; если web ещё не готов — `revalidate` логирует ошибку и не роняет воркер (так сделано в плане 1).
 
-- [ ] **Step 3: nginx**
+- [x] **Step 3: nginx**
 
 `deploy/nginx/common/proxy.conf`:
 ```nginx
@@ -316,7 +316,7 @@ server {
 }
 ```
 
-- [ ] **Step 4: Смоук-скрипт**
+- [x] **Step 4: Смоук-скрипт**
 
 `deploy/smoke.sh`:
 ```bash
@@ -368,7 +368,7 @@ Expected: число матчей то же (>0), новостей стольк�
 
 Оставить стек запущенным для Task 3–4.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add deploy .gitignore && git commit -m "deploy: docker compose stack with nginx http mode and smoke check"
@@ -381,7 +381,7 @@ git add deploy .gitignore && git commit -m "deploy: docker compose stack with ng
 **Files:**
 - Create: `deploy/nginx/https/default.conf.template`, `deploy/issue-cert.sh`
 
-- [ ] **Step 1: Шаблон https**
+- [x] **Step 1: Шаблон https**
 
 `deploy/nginx/https/default.conf.template`:
 ```nginx
@@ -429,7 +429,7 @@ server {
 }
 ```
 
-- [ ] **Step 2: Скрипт выпуска сертификата**
+- [x] **Step 2: Скрипт выпуска сертификата**
 
 `deploy/issue-cert.sh`:
 ```bash
@@ -465,7 +465,7 @@ docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d nginx
 docker run --rm -v bu-site_letsencrypt:/etc/letsencrypt alpine rm -rf /etc/letsencrypt/live/bu.test
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add deploy && git commit -m "deploy: https nginx mode and certificate issuing script"
@@ -478,7 +478,7 @@ git add deploy && git commit -m "deploy: https nginx mode and certificate issuin
 **Files:**
 - Create: `deploy/backup.sh`, `deploy/restore.sh`
 
-- [ ] **Step 1: `deploy/backup.sh`**
+- [x] **Step 1: `deploy/backup.sh`**
 
 ```bash
 #!/usr/bin/env bash
@@ -503,7 +503,7 @@ echo "backup ok: $FILE"
 
 Хранение в S3 14 дней — правилом жизненного цикла бакета в панели Timeweb (в README).
 
-- [ ] **Step 2: `deploy/restore.sh`**
+- [x] **Step 2: `deploy/restore.sh`**
 
 ```bash
 #!/usr/bin/env bash
@@ -534,7 +534,7 @@ docker compose -f deploy/docker-compose.yml --env-file deploy/.env exec -T postg
 ```
 Expected: `backup ok`; восстановленная база содержит те же числа матчей и игроков, что рабочая.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add deploy && git commit -m "deploy: database backup to S3 and restore scripts"
@@ -548,7 +548,7 @@ git add deploy && git commit -m "deploy: database backup to S3 and restore scrip
 - Create: `.github/workflows/ci.yml`, `.github/workflows/canary.yml`, `worker/tests/test_canary.py`
 - Modify: `pyproject.toml` (pytest marker `canary`, по умолчанию исключён)
 
-- [ ] **Step 1: Canary-тест**
+- [x] **Step 1: Canary-тест**
 
 `worker/tests/test_canary.py`:
 ```python
@@ -585,7 +585,7 @@ markers = ["canary: live network checks against sources"]
 
 Run: `uv run pytest worker/tests/test_canary.py` → `1 skipped`; `CANARY=1 uv run pytest -m canary` → `1 passed`.
 
-- [ ] **Step 2: `.github/workflows/ci.yml`**
+- [x] **Step 2: `.github/workflows/ci.yml`**
 
 ```yaml
 name: CI
@@ -668,7 +668,7 @@ jobs:
 
 (`pnpm/action-setup@v4` берёт версию pnpm из поля `packageManager` в `web/package.json`; если поля нет — добавить `"packageManager": "pnpm@<текущая версия pnpm -v>"`. Подключение e2e к Postgres CI идёт через `PGHOST/PGUSER/PGPASSWORD` — libpq подхватывает их и в `createdb`, и в psycopg-URL без логина.)
 
-- [ ] **Step 3: `.github/workflows/canary.yml`**
+- [x] **Step 3: `.github/workflows/canary.yml`**
 
 ```yaml
 name: Canary (join.football markup)
@@ -685,7 +685,7 @@ jobs:
       - run: CANARY=1 uv run pytest -m canary -v
 ```
 
-- [ ] **Step 4: Проверка синтаксиса workflow**
+- [x] **Step 4: Проверка синтаксиса workflow**
 
 Run: `uv run --with pyyaml python -c "import yaml,sys; [yaml.safe_load(open(f)) for f in sys.argv[1:]]; print('yaml ok')" .github/workflows/*.yml`
 и, если доступно, `docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.7 -color`
@@ -693,7 +693,7 @@ Expected: `yaml ok`; actionlint без ошибок.
 
 Локально прогнать то, что CI запускает: `uv run ruff check . && uv run pytest && (cd web && pnpm test && pnpm typecheck && pnpm lint)` → PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add .github pyproject.toml worker/tests/test_canary.py web/package.json && git commit -m "ci: python, web and e2e workflows; daily join.football canary"
@@ -706,7 +706,7 @@ git add .github pyproject.toml worker/tests/test_canary.py web/package.json && g
 **Files:**
 - Create: `.github/workflows/deploy.yml`, `deploy/README.md`, `deploy/deploy.sh`
 
-- [ ] **Step 1: `deploy/deploy.sh`** (выполняется на сервере)
+- [x] **Step 1: `deploy/deploy.sh`** (выполняется на сервере)
 
 ```bash
 #!/usr/bin/env bash
@@ -721,7 +721,7 @@ docker image prune -f >/dev/null
 ./smoke.sh http://localhost || { echo "smoke failed after deploy $TAG" >&2; exit 1; }
 ```
 
-- [ ] **Step 2: `.github/workflows/deploy.yml`**
+- [x] **Step 2: `.github/workflows/deploy.yml`**
 
 ```yaml
 name: Deploy
@@ -775,7 +775,7 @@ jobs:
           $SSH "$USER@$HOST" "/opt/bu-site/deploy/deploy.sh $TAG"
 ```
 
-- [ ] **Step 3: `deploy/README.md` — runbook** (по-русски, пошагово):
+- [x] **Step 3: `deploy/README.md` — runbook** (по-русски, пошагово):
   1. **Сервер Timeweb Cloud:** Ubuntu 24.04, 2 vCPU / 2–4 ГБ RAM / 30+ ГБ; SSH-ключ; `apt install docker.io docker-compose-v2 rsync`; пользователь `deploy` в группе `docker`; `mkdir -p /opt/bu-site/deploy && chown deploy /opt/bu-site -R`; firewall: открыть 22, 80, 443.
   2. **Первый запуск:** скопировать `deploy/` на сервер (`rsync`), `cp .env.example .env`, сгенерировать пароли (`openssl rand -hex 24`), заполнить `BU_SITE_URL=http://<IP>`, `BU_NOINDEX=1`; `docker login ghcr.io` (PAT с `read:packages`, если пакеты приватные); `./deploy.sh latest`.
   3. **GitHub:** Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`; Variable `DEPLOY_ENABLED=true` — с этого момента каждый зелёный CI на `main` выкатывается.
@@ -792,7 +792,7 @@ jobs:
 Run: `bash -n deploy/*.sh && uv run --with pyyaml python -c "import yaml; yaml.safe_load(open('.github/workflows/deploy.yml')); print('ok')"` и actionlint (как в Task 5).
 Локально прогнать `deploy.sh` против локального стека нельзя без registry — вместо этого: `IMAGE_PREFIX=local TAG=latest docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --remove-orphans && ./deploy/smoke.sh` → smoke ok.
 
-- [ ] **Step 5: Commit и остановка локального стека**
+- [x] **Step 5: Commit и остановка локального стека**
 
 ```bash
 git add .github deploy && git commit -m "deploy: GitHub Actions rollout to VPS and runbook"
