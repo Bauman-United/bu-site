@@ -1,0 +1,28 @@
+.top { position: relative; overflow: hidden; border-bottom: 1px solid var(--c-line); }
+.texture { position: absolute; top: 0; right: 0; bottom: 0; width: 40%; opacity: 0.08; }
+.topInner {
+  position: relative; padding-top: 56px; padding-bottom: 40px;
+  display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; align-items: flex-end;
+}
+.titles { display: flex; flex-direction: column; gap: 8px; }
+.season {
+  font-family: var(--f-display); font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-muted);
+}
+.h1 { font-size: var(--fs-h1); }
+.anchors { display: flex; flex-wrap: wrap; gap: 6px; }
+.anchor {
+  display: flex; align-items: center; height: var(--touch); padding: 0 16px; border: 1px solid var(--c-border-strong);
+  font-family: var(--f-display); font-size: 15px; text-transform: uppercase; text-decoration: none;
+}
+.anchor:hover { color: var(--c-muted-2); }
+.body { padding-top: 24px; padding-bottom: 80px; display: flex; flex-direction: column; gap: 48px; }
+.group { display: flex; flex-direction: column; gap: 20px; padding-top: 24px; scroll-margin-top: 16px; }
+.groupHead { display: flex; align-items: baseline; gap: 16px; border-bottom: 2px solid var(--c-paper); padding-bottom: 12px; }
+.h2 { font-size: 36px; }
+.count { font-family: var(--f-display); font-size: 20px; color: #737373; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+@media (max-width: 640px) {
+  .topInner { padding-top: 32px; padding-bottom: 24px; }
+  .body { padding-bottom: 48px; gap: 32px; }
+  .h2 { font-size: 28px; }
+}

@@ -1,0 +1,12 @@
+.head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; }
+.group { display: flex; border: 2px solid var(--c-ink); }
+.button {
+  height: var(--touch); padding: 0 20px; border: 0; border-radius: 0; cursor: pointer;
+  background: var(--c-paper); color: var(--c-ink);
+  font-family: var(--f-display); font-weight: 500; font-size: 15px; text-transform: uppercase;
+}
+.button[aria-pressed="true"] { background: var(--c-ink); color: var(--c-paper); font-weight: 600; }
+.button:focus-visible { outline-offset: -5px; }
+@media (max-width: 640px) {
+  .button { padding: 0 14px; }
+}

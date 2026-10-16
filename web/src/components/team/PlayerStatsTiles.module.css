@@ -1,0 +1,15 @@
+.tiles {
+  margin: 0; padding: 0; list-style: none;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2px;
+  background: var(--c-ink); border: 2px solid var(--c-ink);
+}
+.tile { background: var(--c-paper); color: var(--c-ink); padding: 24px; display: flex; flex-direction: column; gap: 4px; }
+.value { font-family: var(--f-display); font-weight: 700; font-size: var(--fs-score-l); line-height: 1; }
+.label { font-size: 14px; color: var(--c-text-2-on-paper); }
+.top { background: var(--c-ink); color: var(--c-paper); }
+.top .label { color: var(--c-muted-2); }
+@media (max-width: 640px) {
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile { padding: 16px; }
+  .value { font-size: 48px; }
+}
