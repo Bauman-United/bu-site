@@ -33,7 +33,7 @@ export default defineConfig({
     },
     {
       // Сборка с BU_NOINDEX=0, запуск с BU_NOINDEX=1: empty.spec проверяет, что robots.txt берёт рантайм.
-      command: "pnpm build && pnpm check:robots && BU_NOINDEX=1 pnpm start --port 3200",
+      command: "rm -rf .next/cache/fetch-cache && pnpm build && pnpm check:robots && BU_NOINDEX=1 pnpm start --port 3200",
       url: WEB,
       timeout: 240_000,
       env: {

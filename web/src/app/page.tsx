@@ -34,7 +34,7 @@ export default async function HomePage() {
       {home.next_match && <JsonLd data={sportsEventLd(home.next_match)} />}
       <Hero live={home.live} />
       {home.next_match && <NextMatch match={home.next_match} />}
-      <ResultFormTable last={home.last_match} form={home.form} totals={home.totals} standings={home.standings} />
+      <ResultFormTable last={home.last_match} form={home.form} totals={home.totals} standings={home.standings} byLeague={home.by_league} />
       <HomeNews news={home.news} />
       <Leaders leaders={home.leaders} />
       <ClubNumbers numbers={home.numbers} />

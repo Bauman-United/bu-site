@@ -160,3 +160,54 @@ def seed(db: Session) -> dict:
     db.flush()
     recompute(db)
     return {"season": season, "tournament": t, "korolev": korolev}
+
+
+def seed_lfl(db: Session, ctx: dict) -> Tournament:
+    """Второй турнир сезона — ЛФЛ: сыгранный матч и таблица из 7 команд (мы — 5-е)."""
+    lfl = Tournament(
+        slug="lfl-8x8-2026-27",
+        name="ЛФЛ 8×8 · 2026/27",
+        short="ЛФЛ",
+        source="lfl",
+        external_id="lfl-1",
+        season=ctx["season"],
+        url="https://lfl.ru/tournament1",
+    )
+    db.add(lfl)
+    db.flush()
+    db.add(
+        Match(
+            slug="2026-08-30-politekh",
+            tournament_id=lfl.id,
+            season_id=ctx["season"].id,
+            round="1 тур",
+            kickoff=datetime(2026, 8, 30, 12, 0, tzinfo=UTC),
+            home=True,
+            opponent_name="Политех",
+            status="finished",
+            score_us=4,
+            score_them=4,
+            source="lfl",
+            external_id="lfl-m1",
+        )
+    )
+    for pos in range(1, 8):
+        db.add(
+            StandingRow(
+                tournament_id=lfl.id,
+                pos=pos,
+                team_name="Bauman United" if pos == 5 else f"Команда {pos}",
+                played=1,
+                won=0,
+                drawn=1,
+                lost=0,
+                gf=4,
+                ga=4,
+                pts=8 - pos,
+                is_us=pos == 5,
+                updated_at=datetime(2026, 9, 1, tzinfo=UTC),
+            )
+        )
+    db.flush()
+    recompute(db)
+    return lfl

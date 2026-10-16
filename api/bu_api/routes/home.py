@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from bu_core.models import Computed, ContentDoc, Match, News, Player
+from bu_core.models import Computed, ContentDoc, Match, News, Player, Season, Tournament
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -13,6 +13,8 @@ from bu_api.routes.matches import match_detail
 
 router = APIRouter()
 LIVE_WINDOW = timedelta(hours=2)
+# (ключ блока, Tournament.source, подпись) — порядок блоков на главной
+LEAGUES = (("bl", "joinfootball", "Бауманская лига"), ("lfl", "lfl", "ЛФЛ"))
 
 
 def _around_us(table: Any, size: int = 5) -> Any:
@@ -21,6 +23,37 @@ def _around_us(table: Any, size: int = 5) -> Any:
     start = max(0, min(us - size // 2, len(rows) - size))
     table.rows = rows[start : start + size]
     return table
+
+
+def _league(
+    session: Session, key: str, source: str, title: str, season: str | None
+) -> dict[str, Any] | None:
+    """Последний сыгранный матч и мини-таблица (5 строк вокруг нас) турниров одного источника."""
+    last = session.scalars(
+        select(Match)
+        .join(Tournament, Match.tournament_id == Tournament.id)
+        .where(Match.status == "finished", Tournament.source == source)
+        .order_by(Match.kickoff.desc().nulls_last(), Match.id.desc())
+    ).first()
+    tables = []
+    if season:
+        slugs = session.scalars(
+            select(Tournament.slug)
+            .join(Season)
+            .where(Season.slug == season, Tournament.source == source)
+            .order_by(Tournament.name)
+        )
+        tables = [t for slug in slugs for t in standings(tournament=slug, session=session)]
+    # несколько турниров источника в сезоне — берём таблицу, обновлённую последней
+    table = max(tables, key=lambda t: t.updated_at or datetime.min.replace(tzinfo=UTC), default=None)
+    if last is None and table is None:
+        return None
+    return {
+        "league": key,
+        "title": title,
+        "last_match": match_detail(last.slug, session) if last else None,
+        "standings": _around_us(table) if table else None,
+    }
 
 
 @router.get("/home")
@@ -68,6 +101,7 @@ def home(session: Session = Depends(get_session)) -> dict[str, Any]:
         p = session.scalars(select(Player).where(Player.slug == pom["player"])).one_or_none()
         pom = {**pom, "slug": p.slug, "name": full_name(p), "photo": p.photo} if p else None
 
+    by_league = [_league(session, *league, season) for league in LEAGUES]
     news = session.scalars(select(News).order_by(News.date.desc(), News.slug).limit(4))
     return {
         "next_match": match_summary(upcoming) if upcoming else None,
@@ -83,4 +117,5 @@ def home(session: Session = Depends(get_session)) -> dict[str, Any]:
         },
         "numbers": computed_club.data["numbers"] if computed_club else {},
         "live": live,
+        "by_league": [b for b in by_league if b],
     }

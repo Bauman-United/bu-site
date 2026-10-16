@@ -25,6 +25,13 @@ export interface Totals {
 export interface Leader { slug: string; name: string; value: number; played: number }
 export interface PlayerOfMonth { player: string; month?: string; stat?: string; slug: string; name: string; photo?: string | null }
 
+export interface LeagueBlock {
+  league: "bl" | "lfl";
+  title: string;
+  last_match: MatchDetail | null;
+  standings: Standings | null;
+}
+
 export interface Home {
   next_match: MatchSummary | null;
   last_match: MatchDetail | null;
@@ -35,6 +42,8 @@ export interface Home {
   leaders: { goals: Leader | null; assists: Leader | null; player_of_month: PlayerOfMonth | null };
   numbers: { founded?: number | null; matches?: number; goals?: number; trophies?: number };
   live: MatchSummary | null;
+  /** Последний результат и мини-таблица по каждой лиге (БЛ, ЛФЛ); лиги без данных не приходят. */
+  by_league?: LeagueBlock[];
 }
 
 export interface Club {

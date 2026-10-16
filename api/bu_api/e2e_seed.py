@@ -84,7 +84,13 @@ def seed(session: Session, empty: bool = False) -> None:
         url="https://bauman_league.join.football/tournament/1066703",
     )
     lfl = Tournament(
-        slug="lfl-2026-27", name="ЛФЛ 8×8 · 2026/27", short="ЛФЛ", source="manual", season=season
+        slug="lfl-2026-27",
+        name="ЛФЛ 8×8 · 2026/27",
+        short="ЛФЛ",
+        source="lfl",
+        external_id="e2e-lfl",
+        season=season,
+        url="https://lfl.ru/tournament-e2e",
     )
     players = [
         _player("egor-kucha", "Егор", "Куча", 1, "GK"),
@@ -138,7 +144,7 @@ def seed(session: Session, empty: bool = False) -> None:
             score_us=us,
             score_them=them,
             source=t.source,
-            external_id=slug if t.source != "manual" else None,
+            external_id=slug[:64],  # Match.external_id — String(64)
         )
 
     m1 = match(
@@ -204,6 +210,24 @@ def seed(session: Session, empty: bool = False) -> None:
                 gf=10 - pos,
                 ga=pos,
                 pts=max(0, 9 - pos),
+                is_us=team == "Bauman United",
+                updated_at=datetime(2026, 10, 12, 9, 0, tzinfo=UTC),
+            )
+        )
+    lfl_teams = ["Политех", "Bauman United", "Долгопрудненский политех", "Сокол", "Вымпел", "Титан"]
+    for pos, team in enumerate(lfl_teams, start=1):
+        session.add(
+            StandingRow(
+                tournament_id=lfl.id,
+                pos=pos,
+                team_name=team,
+                played=1,
+                won=1 if pos == 1 else 0,
+                drawn=1 if pos in (2, 3) else 0,
+                lost=0 if pos <= 3 else 1,
+                gf=3,
+                ga=2,
+                pts=max(0, 7 - pos),
                 is_us=team == "Bauman United",
                 updated_at=datetime(2026, 10, 12, 9, 0, tzinfo=UTC),
             )

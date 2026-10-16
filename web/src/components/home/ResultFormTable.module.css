@@ -1,6 +1,21 @@
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 24px; }
 .card { border: 1px solid var(--c-border); padding: 28px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 .table { gap: 16px; }
+/* Блоки лиг: две колонки от 900px, на узких экранах — друг под другом */
+.stack { display: flex; flex-direction: column; gap: 24px; }
+.leagues { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 24px; align-items: start; }
+.league { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.leagueTitle {
+  font-family: var(--f-display); font-weight: 700; font-size: 28px; line-height: 1.05;
+  text-transform: uppercase; letter-spacing: var(--ls-caps);
+}
+/* Общая форма во всю ширину: бейджи слева, итоги справа */
+@media (min-width: 900px) {
+  .wide { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 40px; }
+  .wide > .label { flex-basis: 100%; }
+  .wide > .form { flex: 1 1 auto; }
+  .wide > .totals { flex: 0 1 520px; margin: 0; }
+}
 .label {
   font-family: var(--f-display); font-weight: 400; font-size: 14px; line-height: 1.4;
   letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--c-muted);
@@ -28,6 +43,9 @@
   .scorers { font-size: 14px; }
   .more { font-size: 14px; }
   .form { gap: 8px; }
+  .stack, .league { gap: 16px; }
+  .leagues { gap: 32px; }
+  .leagueTitle { font-size: 22px; }
   /* Таблица встраивается в карточку формы: общая рамка, без своего заголовка */
   .withTable { border-bottom: 0; padding-bottom: 0; }
   .withTable + .table { border-top: 0; margin-top: -16px; padding-top: 14px; }

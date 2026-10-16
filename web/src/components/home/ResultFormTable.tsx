@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { FormItem, MatchDetail, Standings, Totals } from "@/lib/types";
+import type { FormItem, LeagueBlock, MatchDetail, Standings, Totals } from "@/lib/types";
 import { outcomeLabel, plural } from "@/lib/format";
 import { FormBadge } from "@/components/ui/FormBadge";
 import { StandingsTable } from "@/components/ui/StandingsTable";
@@ -7,14 +7,15 @@ import s from "./ResultFormTable.module.css";
 
 const US = "Бауман Юнайтед";
 
-function LastResult({ match }: { match: MatchDetail }) {
+function LastResult({ match, sub = false }: { match: MatchDetail; sub?: boolean }) {
   const head = [match.tournament.short, match.round].filter(Boolean).join(", ");
+  const Label = sub ? "h3" : "h2";
   const hasScore = match.score_us !== null && match.score_them !== null;
   const [left, right] = match.home ? [US, match.opponent_name] : [match.opponent_name, US];
   const [l, r] = match.home ? [match.score_us, match.score_them] : [match.score_them, match.score_us];
   return (
     <article className={s.card}>
-      <h2 className={s.label}>Последний результат{head && ` · ${head}`}</h2>
+      <Label className={s.label}>Последний результат{head && ` · ${head}`}</Label>
       <div className={s.teams}>
         <span className={s.team}>{left}</span>
         <span className={s.score}>
@@ -40,7 +41,9 @@ function LastResult({ match }: { match: MatchDetail }) {
   );
 }
 
-function Form({ form, totals, mergeTable }: { form: FormItem[]; totals: Totals; mergeTable: boolean }) {
+function Form({ form, totals, mergeTable, wide = false }: {
+  form: FormItem[]; totals: Totals; mergeTable: boolean; wide?: boolean;
+}) {
   const stats: [number, string][] = totals.played
     ? [
         [totals.gf ?? 0, plural(totals.gf ?? 0, ["гол забит", "гола забито", "голов забито"])],
@@ -49,7 +52,7 @@ function Form({ form, totals, mergeTable }: { form: FormItem[]; totals: Totals; 
       ]
     : [];
   return (
-    <article className={`${s.card} ${mergeTable ? s.withTable : ""}`}>
+    <article className={`${s.card} ${mergeTable ? s.withTable : ""} ${wide ? s.wide : ""}`}>
       <h2 className={s.label}>
         Форма{form.length > 0 && ` · ${form.length} ${plural(form.length, ["матч", "матча", "матчей"])}`}
       </h2>
@@ -72,24 +75,58 @@ function Form({ form, totals, mergeTable }: { form: FormItem[]; totals: Totals; 
   );
 }
 
-/** Три карточки: последний результат, форма, таблица. На mobile таблица (3 строки) примыкает к карточке формы. */
-export function ResultFormTable({ last, form, totals, standings }: {
-  last: MatchDetail | null; form: FormItem[]; totals: Totals; standings: Standings | null;
+function MiniTable({ standings, sub = false }: { standings: Standings; sub?: boolean }) {
+  const Label = sub ? "h3" : "h2";
+  return (
+    <article className={`${s.card} ${s.table}`}>
+      <Label className={s.label}>Таблица · {standings.tournament.short}</Label>
+      <StandingsTable standings={standings} compact mobileRows={3} meta={false} />
+      <Link className={s.more} href={`/standings?t=${encodeURIComponent(standings.tournament.slug)}`}>
+        Полная таблица →
+      </Link>
+    </article>
+  );
+}
+
+/** Блок лиги: заголовок, последний результат и мини-таблица (5 строк вокруг нас). */
+function League({ block }: { block: LeagueBlock }) {
+  const id = `league-${block.league}`;
+  return (
+    <section className={s.league} aria-labelledby={id}>
+      <h2 id={id} className={s.leagueTitle}>{block.title}</h2>
+      {block.last_match && <LastResult match={block.last_match} sub />}
+      {block.standings && <MiniTable standings={block.standings} sub />}
+    </section>
+  );
+}
+
+/**
+ * Результаты по лигам (БЛ и ЛФЛ — рядом на desktop, друг под другом на mobile) и одна общая карточка формы.
+ * Без by_league (старый API) — прежние три карточки: последний результат, форма, таблица.
+ */
+export function ResultFormTable({ last, form, totals, standings, byLeague = [] }: {
+  last: MatchDetail | null; form: FormItem[]; totals: Totals; standings: Standings | null; byLeague?: LeagueBlock[];
 }) {
   const hasForm = form.length > 0 || Boolean(totals.played);
+  if (byLeague.length > 0) {
+    return (
+      <section className="section" aria-label="Результаты и таблицы">
+        <div className={`container ${s.stack}`}>
+          <div className={s.leagues}>
+            {byLeague.map((block) => <League key={block.league} block={block} />)}
+          </div>
+          {hasForm && <Form form={form} totals={totals} mergeTable={false} wide />}
+        </div>
+      </section>
+    );
+  }
   if (!last && !hasForm && !standings) return null;
   return (
     <section className="section" aria-label="Результаты и таблица">
       <div className={`container ${s.grid}`}>
         {last && <LastResult match={last} />}
         {hasForm && <Form form={form} totals={totals} mergeTable={Boolean(standings)} />}
-        {standings && (
-          <article className={`${s.card} ${s.table}`}>
-            <h2 className={s.label}>Таблица · {standings.tournament.short}</h2>
-            <StandingsTable standings={standings} compact mobileRows={3} meta={false} />
-            <Link className={s.more} href="/standings">Полная таблица →</Link>
-          </article>
-        )}
+        {standings && <MiniTable standings={standings} />}
       </div>
     </section>
   );

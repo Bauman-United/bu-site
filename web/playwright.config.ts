@@ -26,7 +26,7 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: "pnpm build && pnpm check:robots && pnpm start --port 3100",
+      command: "rm -rf .next/cache/fetch-cache && pnpm build && pnpm check:robots && pnpm start --port 3100",
       url: WEB,
       timeout: 240_000,
       env: {
