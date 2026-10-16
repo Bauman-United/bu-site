@@ -147,7 +147,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List Players */
+        /**
+         * List Players
+         * @description `roster=true` — общий состав: текущая заявка плюс все, кто играл в сезоне/турнире.
+         */
         get: operations["list_players_players_get"];
         put?: never;
         post?: never;
@@ -857,6 +860,7 @@ export interface operations {
             query?: {
                 active?: boolean | null;
                 tournament?: string | null;
+                roster?: boolean;
             };
             header?: never;
             path?: never;

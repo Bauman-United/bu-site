@@ -58,7 +58,6 @@ export default async function TeamPage({ searchParams }: { searchParams: SearchP
     <>
       <JsonLd data={breadcrumbsLd([{ name: "Состав", path: "/team" }])} />
       <section className={s.top}>
-        <div className={`stripes ${s.texture}`} aria-hidden="true" />
         <div className={`container ${s.topInner}`}>
           <div className={s.titles}>
             {season && <span className={s.season}>Сезон {season}</span>}

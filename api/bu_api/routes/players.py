@@ -3,7 +3,7 @@ from collections.abc import Mapping
 from bu_core.models import Player, PlayerSeasonStats, PlayerTournamentStats, Season, Tournament
 from bu_core.recompute import tournament_lines
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from bu_api.deps import get_session
@@ -70,8 +70,10 @@ def _card(p: Player, stats: PlayerStats) -> dict:
 def list_players(
     active: bool | None = None,
     tournament: str | None = None,
+    roster: bool = False,
     session: Session = Depends(get_session),
 ) -> list[PlayerCard]:
+    """`roster=true` — общий состав: текущая заявка плюс все, кто играл в сезоне/турнире."""
     query = select(Player)
     stats: Mapping[int, PlayerSeasonStats | PlayerTournamentStats]
     if tournament:
@@ -81,7 +83,10 @@ def list_players(
         query = query.where(Player.id.in_(stats))
     else:
         stats = _season_rows(session, current_season(session))
-    if active is not None:
+    if roster:
+        played = [pid for pid, row in stats.items() if row.played > 0]
+        query = query.where(or_(Player.active.is_(True), Player.id.in_(played)))
+    elif active is not None:
         query = query.where(Player.active.is_(active))
     return [
         PlayerCard(**_card(p, _stats(stats.get(p.id))))

@@ -58,3 +58,27 @@ def test_player_detail_splits_stats_by_tournament(client, db):
     assert rows["2-y-divizion-a"]["goals"] == 12 and rows["2-y-divizion-a"]["red"] == 1
     assert p["season"]["goals"] == 14  # общая статистика сезона = сумма турниров
     assert p["tournaments"][0]["season"] == "2026-27"
+
+
+def test_roster_includes_former_players_who_played_this_season(client, db):
+    from bu_core.models import Player, PlayerTournamentStats, Tournament
+    from bu_core.recompute import recompute
+    from sqlalchemy import select
+
+    t = db.scalars(select(Tournament).where(Tournament.slug == "liga-inzhenerov")).one()
+    gone = Player(slug="maksim-gangelin", first_name="Максим", last_name="Гангелин",
+                  position="MF", active=False, aliases=[], manual_fields=[], achievements=[])
+    db.add(gone)
+    db.flush()
+    db.add(PlayerTournamentStats(player_id=gone.id, tournament_id=t.id, played=10, goals=1))
+    db.flush()
+    recompute(db)
+
+    roster = [p["slug"] for p in client.get("/players", params={"roster": "true"}).json()]
+    assert "maksim-gangelin" in roster
+    assert "aleksandr-korolev" in roster
+    assert "old-boy" not in roster  # отчислен и в этом сезоне не играл
+    active = [p["slug"] for p in client.get("/players", params={"active": "true"}).json()]
+    assert "maksim-gangelin" not in active
+    by_t = client.get("/players", params={"roster": "true", "tournament": "liga-inzhenerov"}).json()
+    assert "maksim-gangelin" in [p["slug"] for p in by_t]

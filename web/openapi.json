@@ -333,6 +333,7 @@
     "/players": {
       "get": {
         "summary": "List Players",
+        "description": "`roster=true` — общий состав: текущая заявка плюс все, кто играл в сезоне/турнире.",
         "operationId": "list_players_players_get",
         "parameters": [
           {
@@ -365,6 +366,16 @@
                 }
               ],
               "title": "Tournament"
+            }
+          },
+          {
+            "name": "roster",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Roster"
             }
           }
         ],

@@ -51,7 +51,8 @@ export const getMatch = (slug: string) =>
 export const getPlayers = (tournament?: string) =>
   apiGet<PlayerCard[]>("/players", {
     tags: ["players"],
-    query: tournament ? { tournament } : { active: "true" },
+    // Общий состав: текущая заявка + все, кто играл в сезоне (бывшие игроки ЛФЛ тоже).
+    query: { roster: "true", tournament },
   });
 export const getPlayer = (slug: string) =>
   apiGetOrNull<PlayerDetail>(`/players/${encodeURIComponent(slug)}`, { tags: ["players", `player:${slug}`] });
