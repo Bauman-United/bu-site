@@ -6,7 +6,7 @@
 }
 .live { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .stream { display: inline-flex; align-items: center; min-height: var(--touch); font-size: 15px; font-weight: 600; }
-.title { font-size: var(--fs-hero); line-height: 0.9; letter-spacing: -0.01em; }
+.title { font-size: var(--fs-hero); line-height: 1.05; letter-spacing: -0.01em; }
 .lead { margin: 0; max-width: 560px; font-size: 19px; line-height: 1.5; color: var(--c-muted-2); }
 @media (max-width: 640px) {
   .hero { min-height: 480px; }

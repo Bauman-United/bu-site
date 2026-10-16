@@ -4,7 +4,7 @@
 .eyebrow {
   font-family: var(--f-display); font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-muted);
 }
-.h1 { font-size: var(--fs-h1-l); line-height: 0.92; }
+.h1 { font-size: var(--fs-h1-l); line-height: 1.05; }
 .body { padding-block: 56px; border-bottom: 1px solid var(--c-line); }
 .text { max-width: 760px; color: var(--c-muted-2); }
 .text strong { color: var(--c-paper); }
