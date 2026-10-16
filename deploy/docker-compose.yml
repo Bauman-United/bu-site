@@ -42,6 +42,11 @@ services:
 
   api:
     <<: *python
+    environment:
+      <<: *python-env
+      # Заявки «Хочу в команду» (/join) → личка владельца от бота клуба
+      BU_TELEGRAM_BOT_TOKEN: ${BU_TELEGRAM_BOT_TOKEN:-}
+      BU_JOIN_CHAT_ID: ${BU_JOIN_CHAT_ID:-}
     depends_on:
       migrate: { condition: service_completed_successfully }
     healthcheck:

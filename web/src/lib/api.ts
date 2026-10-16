@@ -15,7 +15,7 @@ export class ApiError extends Error {
 
 type Query = Record<string, string | undefined>;
 
-function url(path: string, query?: Query): string {
+export function apiUrl(path: string, query?: Query): string {
   const base = process.env.BU_API_URL ?? "http://localhost:8000";
   const params = new URLSearchParams();
   for (const [k, v] of Object.entries(query ?? {})) if (v) params.set(k, v);
@@ -27,7 +27,7 @@ export async function apiGet<T>(path: string, opts: { tags?: string[]; query?: Q
   const cacheOptions: RequestInit = process.env.NODE_ENV === "development"
     ? { cache: "no-store" }
     : { next: { revalidate: REVALIDATE_SECONDS, tags: opts.tags ?? [] } } as RequestInit;
-  const res = await fetch(url(path, opts.query), cacheOptions);
+  const res = await fetch(apiUrl(path, opts.query), cacheOptions);
   if (!res.ok) throw new ApiError(res.status, path);
   return (await res.json()) as T;
 }

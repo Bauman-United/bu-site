@@ -25,7 +25,10 @@ export default defineConfig({
       command: "node web/e2e/global-setup.ts && uv run uvicorn bu_api.app:build --factory --port 8002",
       cwd: "..",
       url: `${API}/health`,
-      env: { BU_DATABASE_URL: `postgresql+psycopg://localhost/${DB}`, E2E_DB: DB, E2E_EMPTY: "1" },
+      env: {
+        BU_DATABASE_URL: `postgresql+psycopg://localhost/${DB}`, E2E_DB: DB, E2E_EMPTY: "1",
+        BU_JOIN_DRY_RUN: "1",
+      },
       reuseExistingServer: !process.env.CI,
     },
     {

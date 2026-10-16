@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     revalidate_secret: str | None = None
     telegram_bot_token: str | None = None
     telegram_chat_id: str | None = None
+    telegram_api_base: str = "https://api.telegram.org"
+    join_chat_id: str | None = None  # личка владельца для заявок «Хочу в команду»
+    join_dry_run: bool = False  # e2e: логировать заявку вместо отправки
 
 
 @lru_cache

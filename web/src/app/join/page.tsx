@@ -7,6 +7,7 @@ import { breadcrumbsLd } from "@/lib/jsonld";
 import { buildMetadata } from "@/lib/seo";
 import { telegramHandle, telegramUrl } from "@/lib/telegram";
 import type { Club } from "@/lib/types";
+import { JoinForm } from "./JoinForm";
 import s from "./page.module.css";
 
 export const metadata: Metadata = buildMetadata({
@@ -95,27 +96,7 @@ export default async function JoinPage() {
           )}
         </div>
 
-        {contact && (
-          <aside className={s.card} aria-labelledby="join-card">
-            <h2 id="join-card" className={s.cardTitle}>Заявка</h2>
-            <p className={s.cardText}>
-              {contact.external ? "Напиши капитану в Telegram" : "Напиши капитану на почту"} — расскажи, на какой позиции
-              играешь, с какого ты факультета и где играл раньше.
-            </p>
-            <a
-              className={s.cardButton}
-              href={contact.href}
-              {...(contact.external ? { target: "_blank", rel: "noopener" } : {})}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                strokeLinejoin="round" aria-hidden="true" focusable="false">
-                <path d="M22 3 2 11l7 2 2 7 4-5 5 4z" />
-                <path d="m9 13 8-6" />
-              </svg>
-              Написать капитану
-            </a>
-          </aside>
-        )}
+        <JoinForm contact={contact} />
       </section>
       <ClubLinks club={club} title="Следи за командой" />
       <Stripes height={8} />

@@ -644,6 +644,53 @@
           }
         }
       }
+    },
+    "/join": {
+      "post": {
+        "summary": "Join",
+        "operationId": "join_join_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JoinResult"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests"
+          },
+          "502": {
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "description": "Service Unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -743,6 +790,83 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "JoinRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "position": {
+            "type": "string",
+            "enum": [
+              "Вратарь",
+              "Защитник",
+              "Полузащитник",
+              "Нападающий",
+              "Пока не знаю"
+            ],
+            "title": "Position"
+          },
+          "experience": {
+            "type": "string",
+            "maxLength": 1500,
+            "minLength": 10,
+            "title": "Experience"
+          },
+          "bauman": {
+            "type": "string",
+            "enum": [
+              "Да, учусь",
+              "Выпускник",
+              "Нет"
+            ],
+            "title": "Bauman"
+          },
+          "age": {
+            "type": "integer",
+            "maximum": 70.0,
+            "minimum": 14.0,
+            "title": "Age"
+          },
+          "contact": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 3,
+            "title": "Contact"
+          },
+          "website": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Website",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "position",
+          "experience",
+          "bauman",
+          "age",
+          "contact"
+        ],
+        "title": "JoinRequest"
+      },
+      "JoinResult": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok"
+        ],
+        "title": "JoinResult"
       },
       "MatchDetail": {
         "properties": {

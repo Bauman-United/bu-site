@@ -3,19 +3,20 @@ from collections.abc import Callable
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
 
-from bu_api.routes import catalog, home, matches, news, players, sitemap, stats
+from bu_api.routes import catalog, home, join, matches, news, players, sitemap, stats
 
 
 def create_app(session_factory: Callable[[], Session], close_sessions: bool = False) -> FastAPI:
     app = FastAPI(title="Bauman United API", version="1.0.0")
     app.state.session_factory = session_factory
     app.state.close_sessions = close_sessions
+    app.state.telegram_transport = None  # тесты подменяют на httpx.MockTransport
 
     @app.get("/health")
     def health() -> dict[str, bool]:
         return {"ok": True}
 
-    for module in (catalog, matches, players, news, home, stats, sitemap):
+    for module in (catalog, matches, players, news, home, stats, sitemap, join):
         app.include_router(module.router)
     return app
 
