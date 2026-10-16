@@ -22,7 +22,10 @@ export interface Totals {
   played?: number; won?: number; drawn?: number; lost?: number;
   gf?: number; ga?: number; clean_sheets?: number;
 }
-export interface Leader { slug: string; name: string; value: number; played: number }
+export interface Leader {
+  slug: string; name: string; value: number; played: number;
+  photo?: string | null; number?: number | null;
+}
 export interface PlayerOfMonth { player: string; month?: string; stat?: string; slug: string; name: string; photo?: string | null }
 
 export interface LeagueBlock {

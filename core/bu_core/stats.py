@@ -26,6 +26,8 @@ class StatLine:
     yellow: int
     red: int
     mvp: int
+    photo: str | None = None
+    number: int | None = None
 
 
 def outcome(us: int, them: int) -> Outcome:
@@ -64,7 +66,14 @@ def leaders(lines: list[StatLine], key: str, n: int = 5) -> list[dict[str, Any]]
         key=lambda line: (-getattr(line, key), line.played, line.name),
     )
     return [
-        {"slug": line.slug, "name": line.name, "value": getattr(line, key), "played": line.played}
+        {
+            "slug": line.slug,
+            "name": line.name,
+            "value": getattr(line, key),
+            "played": line.played,
+            "photo": line.photo,
+            "number": line.number,
+        }
         for line in ranked[:n]
     ]
 

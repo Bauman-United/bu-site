@@ -32,7 +32,32 @@ def test_leaders_tiebreak_and_zero_filter():
     ]
     top = leaders(lines, "goals")
     assert [x["slug"] for x in top] == ["b", "a"]
-    assert top[0] == {"slug": "b", "name": "Борис", "value": 3, "played": 3}
+    assert top[0] == {
+        "slug": "b",
+        "name": "Борис",
+        "value": 3,
+        "played": 3,
+        "photo": None,
+        "number": None,
+    }
+
+
+def test_leaders_carry_photo_and_number():
+    line = StatLine(
+        1,
+        "a",
+        "Анна",
+        played=5,
+        goals=3,
+        assists=0,
+        yellow=0,
+        red=0,
+        mvp=0,
+        photo="https://lfl.ru/a.jpg",
+        number=9,
+    )
+    (top,) = leaders([line], "goals")
+    assert (top["photo"], top["number"]) == ("https://lfl.ru/a.jpg", 9)
 
 
 def test_records():

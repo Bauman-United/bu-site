@@ -27,7 +27,14 @@ def test_recompute_mixes_sources(db):
     )
     manual = Tournament(slug="lfl", name="ЛФЛ", short="ЛФЛ", source="manual", season=season)
     p = Player(
-        slug="a-k", first_name="А", last_name="К", aliases=[], manual_fields=[], achievements=[]
+        slug="a-k",
+        first_name="А",
+        last_name="К",
+        number=7,
+        photo="https://lfl.ru/a-k.jpg",
+        aliases=[],
+        manual_fields=[],
+        achievements=[],
     )
     db.add_all([season, jf, manual, p])
     db.flush()
@@ -79,6 +86,8 @@ def test_recompute_mixes_sources(db):
     season_doc = db.get(Computed, "season:2026-27").data
     assert [f["outcome"] for f in season_doc["form"]] == ["W", "D"]
     assert season_doc["leaders"]["goals"][0]["slug"] == "a-k"
+    assert season_doc["leaders"]["goals"][0]["photo"] == "https://lfl.ru/a-k.jpg"
+    assert season_doc["leaders"]["goals"][0]["number"] == 7
     club = db.get(Computed, "club").data
     assert club["numbers"] == {"founded": 2019, "matches": 2, "goals": 3, "trophies": 1}
     assert club["records"]["fastest_goal"] == {"slug": "m2", "minute": 4}

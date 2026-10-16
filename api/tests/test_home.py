@@ -81,3 +81,34 @@ def test_home_falls_back_to_undated_upcoming(client, db):
     db.flush()
     nxt = client.get("/home").json()["next_match"]
     assert nxt["slug"] == "kvazar-5877228" and nxt["kickoff"] is None
+
+
+def test_home_leaders_have_photo_and_number(client, db):
+    from bu_core.models import Player
+    from bu_core.recompute import recompute
+
+    korolev = db.scalars(select(Player).where(Player.slug == "aleksandr-korolev")).one()
+    korolev.photo = "https://lfl.ru/korolev.jpg"
+    db.flush()
+    recompute(db)
+    goals = client.get("/home").json()["leaders"]["goals"]
+    assert (goals["photo"], goals["number"]) == ("https://lfl.ru/korolev.jpg", 10)
+
+
+def test_home_leaders_photo_is_current_even_if_computed_doc_is_stale(client, db):
+    """Computed-документ, посчитанный до появления photo в лидерах, — фото берётся из Player."""
+    from bu_core.models import Computed, Player
+
+    korolev = db.scalars(select(Player).where(Player.slug == "aleksandr-korolev")).one()
+    korolev.photo = "https://lfl.ru/new.jpg"
+    for doc in db.scalars(select(Computed).where(Computed.key.like("season:%"))):
+        doc.data = {
+            **doc.data,
+            "leaders": {
+                k: [{kk: vv for kk, vv in x.items() if kk not in ("photo", "number")} for x in v]
+                for k, v in doc.data["leaders"].items()
+            },
+        }
+    db.flush()
+    goals = client.get("/home").json()["leaders"]["goals"]
+    assert (goals["photo"], goals["number"]) == ("https://lfl.ru/new.jpg", 10)

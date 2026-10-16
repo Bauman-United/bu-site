@@ -132,6 +132,8 @@ def recompute(session: Session) -> None:
                 players[pid].slug,
                 f"{players[pid].first_name} {players[pid].last_name}".strip(),
                 **values,
+                photo=players[pid].photo,
+                number=players[pid].number,
             )
             for (pid, sid), values in lines.items()
             if sid == season.id

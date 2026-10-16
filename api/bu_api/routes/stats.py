@@ -26,7 +26,15 @@ def stats(season: str | None = None, session: Session = Depends(get_session)) ->
             sums[row.player_id][k] += getattr(row, k)
     players = {p.id: p for p in session.scalars(select(Player).where(Player.id.in_(sums)))}
     lines = [
-        StatLine(pid, players[pid].slug, full_name(players[pid]), **v) for pid, v in sums.items()
+        StatLine(
+            pid,
+            players[pid].slug,
+            full_name(players[pid]),
+            **v,
+            photo=players[pid].photo,
+            number=players[pid].number,
+        )
+        for pid, v in sums.items()
     ]
     table = sorted(
         (

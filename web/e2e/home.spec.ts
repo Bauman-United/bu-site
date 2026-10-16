@@ -36,3 +36,13 @@ test("home has SportsTeam JSON-LD and canonical", async ({ page }) => {
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://baumanunited.test/");
   await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /бауманка/);
 });
+
+test("season leaders show player photos", async ({ page }) => {
+  await page.goto("/");
+  const section = page.getByRole("region", { name: "Лидеры сезона" });
+  for (const role of ["Бомбардир", "Ассистент"]) {
+    const img = section.locator("article", { hasText: role }).locator("img");
+    await expect(img).toHaveCount(1);
+    await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+  }
+});

@@ -98,6 +98,20 @@ def home(session: Session = Depends(get_session)) -> dict[str, Any]:
 
     tables = standings(tournament=club.get("primary_tournament"), session=session)
     leaders = season_data.get("leaders", {})
+    top = {k: (leaders.get(k) or [None])[0] for k in ("goals", "assists")}
+    # фото и номер — текущие из Player (Computed-документ мог быть посчитан раньше)
+    by_slug = {
+        p.slug: p
+        for p in session.scalars(
+            select(Player).where(Player.slug.in_([x["slug"] for x in top.values() if x]))
+        )
+    }
+    top = {
+        k: {**x, "photo": by_slug[x["slug"]].photo, "number": by_slug[x["slug"]].number}
+        if x and x["slug"] in by_slug
+        else x
+        for k, x in top.items()
+    }
     pom = club.get("player_of_month")
     if pom and pom.get("player"):
         p = session.scalars(select(Player).where(Player.slug == pom["player"])).one_or_none()
@@ -113,8 +127,8 @@ def home(session: Session = Depends(get_session)) -> dict[str, Any]:
         "standings": _around_us(tables[0]) if tables else None,
         "news": [news_card(n) for n in news],
         "leaders": {
-            "goals": (leaders.get("goals") or [None])[0],
-            "assists": (leaders.get("assists") or [None])[0],
+            "goals": top["goals"],
+            "assists": top["assists"],
             "player_of_month": pom,
         },
         "numbers": computed_club.data["numbers"] if computed_club else {},

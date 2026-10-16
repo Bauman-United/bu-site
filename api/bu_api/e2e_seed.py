@@ -103,6 +103,7 @@ def seed(session: Session, empty: bool = False) -> None:
             10,
             "MF",
             nickname="Король",
+            photo="/crest-white.png",  # лидеры сезона на главной — с фото
             is_captain=True,
             fact="Отдал 6 передач за пять туров.",
             faculty="ИУ7",
@@ -110,7 +111,7 @@ def seed(session: Session, empty: bool = False) -> None:
             joined=2019,
         ),
         _player("konstantin-konstantinopolskiy", "Константин", "Константинопольский", 8, "MF"),
-        _player("dmitriy-pisarev", "Дмитрий", "Писарев", 11, "FW"),
+        _player("dmitriy-pisarev", "Дмитрий", "Писарев", 11, "FW", photo="/crest-white.png"),
     ]
     session.add_all([season, li, lfl, *players])
     session.flush()

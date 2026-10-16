@@ -25,10 +25,10 @@ function cards(leaders: Home["leaders"]): LeaderCard[] {
   const out: LeaderCard[] = [];
   const { goals, assists, player_of_month: pom } = leaders;
   if (goals) {
-    out.push({ key: "goals", role: "Бомбардир", name: goals.name, slug: goals.slug, value: String(goals.value), caption: plural(goals.value, ["гол", "гола", "голов"]) });
+    out.push({ key: "goals", role: "Бомбардир", name: goals.name, slug: goals.slug, value: String(goals.value), caption: plural(goals.value, ["гол", "гола", "голов"]), photo: goals.photo });
   }
   if (assists) {
-    out.push({ key: "assists", role: "Ассистент", name: assists.name, slug: assists.slug, value: String(assists.value), caption: plural(assists.value, ["передача", "передачи", "передач"]) });
+    out.push({ key: "assists", role: "Ассистент", name: assists.name, slug: assists.slug, value: String(assists.value), caption: plural(assists.value, ["передача", "передачи", "передач"]), photo: assists.photo });
   }
   if (pom) {
     const [value, caption] = splitStat(pom.stat);
