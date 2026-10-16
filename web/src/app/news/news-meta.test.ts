@@ -22,12 +22,15 @@ describe("newsHref", () => {
 });
 
 describe("newsDescription", () => {
-  it("prefers lead", () => {
-    expect(newsDescription({ lead: "3:1 в **первом** туре.", body_md: "x" })).toBe("3:1 в первом туре.");
+  it("prefers lead, short text gets club context", () => {
+    expect(newsDescription({ lead: "3:1 в **первом** туре.", body_md: "x" }))
+      .toBe("3:1 в первом туре. Новости Бауман Юнайтед — футбольной команды МГТУ им. Баумана.");
+    const lead = "Длинный лид новости, которого достаточно для сниппета в поисковой выдаче.";
+    expect(newsDescription({ lead, body_md: "x" })).toBe(lead);
   });
   it("falls back to stripped body, max 160 chars", () => {
     expect(newsDescription({ lead: null, body_md: "## Как это было\n\nСчёт на **12-й** [минуте](/x)." }))
-      .toBe("Как это было Счёт на 12-й минуте.");
+      .toBe("Как это было Счёт на 12-й минуте. Новости Бауман Юнайтед — футбольной команды МГТУ им. Баумана.");
     const long = newsDescription({ lead: null, body_md: "а".repeat(300) });
     expect(long.length).toBe(160);
     expect(long.endsWith("…")).toBe(true);

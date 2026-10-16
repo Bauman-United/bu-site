@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "playwright test",
+    "e2e:empty": "playwright test -c playwright.empty.config.ts",
     "gen:api": "openapi-typescript openapi.json -o src/lib/api-types.ts"
   },
   "dependencies": {

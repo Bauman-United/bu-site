@@ -5,6 +5,7 @@ const WEB = "http://localhost:3100";
 
 export default defineConfig({
   testDir: "./e2e",
+  testIgnore: "empty.spec.ts",
   globalSetup: "./e2e/global-setup.ts",
   fullyParallel: true,
   reporter: [["list"]],
@@ -15,10 +16,10 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: "uv run uvicorn bu_api.app:build --factory --port 8001",
+      command: "node web/e2e/global-setup.ts && uv run uvicorn bu_api.app:build --factory --port 8001",
       cwd: "..",
       url: `${API}/health`,
-      env: { BU_DATABASE_URL: "postgresql+psycopg://localhost/bu_e2e" },
+      env: { BU_DATABASE_URL: "postgresql+psycopg://localhost/bu_e2e", E2E_DB: "bu_e2e", E2E_EMPTY: "0" },
       reuseExistingServer: !process.env.CI,
     },
     {

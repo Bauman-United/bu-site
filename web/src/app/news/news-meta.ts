@@ -43,11 +43,15 @@ export function stripMarkdown(md: string): string {
     .trim();
 }
 
-/** `lead`, иначе первые 160 символов текста без разметки. */
+const NEWS_CONTEXT = "Новости Бауман Юнайтед — футбольной команды МГТУ им. Баумана.";
+/** Короче — слабый сниппет: дополняем контекстом клуба. */
+const MIN_DESCRIPTION = 70;
+
+/** `lead`, иначе первые 160 символов текста без разметки; короткий текст дополняется контекстом клуба. */
 export function newsDescription(n: Pick<NewsDetail, "lead" | "body_md">): string {
-  if (n.lead) return stripMarkdown(n.lead);
-  const text = stripMarkdown(n.body_md);
-  return text.length > 160 ? `${text.slice(0, 159).trimEnd()}…` : text;
+  const raw = stripMarkdown(n.lead || n.body_md);
+  const text = raw.length > 160 ? `${raw.slice(0, 159).trimEnd()}…` : raw;
+  return text.length < MIN_DESCRIPTION ? `${text} ${NEWS_CONTEXT}`.trim() : text;
 }
 
 const SOURCE: Record<string, string> = { telegram: "Telegram", vk: "VK", youtube: "YouTube" };
