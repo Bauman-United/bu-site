@@ -130,3 +130,22 @@ class PlayerDetail(PlayerCard):
     team_best: list[str]
     prev_slug: str | None
     next_slug: str | None
+
+
+class RecordRow(BaseModel):
+    rank: int
+    slug: str
+    name: str
+    photo: str | None
+    position: str | None
+    value: int
+    played: int
+    active: bool
+
+
+class AllTimeRecords(BaseModel):
+    """Рекордсмены клуба за всё время: топ по голам, передачам и сыгранным матчам."""
+
+    goals: list[RecordRow]
+    assists: list[RecordRow]
+    played: list[RecordRow]

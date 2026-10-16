@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-for (const path of ["/", "/matches", "/standings", "/team", "/history", "/news", "/about", "/join", "/partners"]) {
+for (const path of ["/", "/matches", "/standings", "/team", "/hall-of-fame", "/news", "/about", "/join", "/partners"]) {
   test(`empty db renders ${path}`, async ({ page }) => {
     const res = await page.goto(path);
     expect(res?.status()).toBe(200);
@@ -15,12 +15,17 @@ test("empty home hides data blocks", async ({ page }) => {
   await expect(page.locator("table")).toHaveCount(0);
 });
 
-test("empty history hides timeline and hall of fame", async ({ page }) => {
-  await page.goto("/history");
+test("empty about hides the timeline", async ({ page }) => {
+  await page.goto("/about");
+  await expect(page.getByRole("region", { name: "История по сезонам" })).toHaveCount(0);
+});
+
+test("empty hall of fame: intro, no trophies or records", async ({ page }) => {
+  await page.goto("/hall-of-fame");
   await expect(page.getByText("С 2019 года — футбольная команда МГТУ им. Н. Э. Баумана.")).toBeVisible();
-  await expect(page.locator("#timeline")).toHaveCount(0);
-  await expect(page.locator("#fame")).toHaveCount(0);
-  await expect(page.getByRole("navigation", { name: "Разделы истории" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Трофеи" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Рекордсмены клуба" })).toHaveCount(0);
+  await expect(page.getByText("Трофеи и рекорды появятся")).toBeVisible();
 });
 
 // В пустой БД есть только контент клуба (основан 2019, один трофей в истории): матчей и голов 0 —

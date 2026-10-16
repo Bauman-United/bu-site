@@ -2,7 +2,7 @@ export const NAV = [
   { href: "/matches", label: "Матчи" },
   { href: "/standings", label: "Таблицы" },
   { href: "/team", label: "Команда" },
-  { href: "/history", label: "История" },
+  { href: "/hall-of-fame", label: "Зал славы" },
   { href: "/news", label: "Новости" },
   { href: "/about", label: "О клубе" },
 ] as const;

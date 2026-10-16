@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const PAGES = ["/", "/matches", "/standings", "/team", "/team/aleksandr-korolev", "/news",
-  "/news/pobeda-nad-energiey", "/matches/2026-09-06-energiya", "/about", "/join", "/history"];
+  "/news/pobeda-nad-energiey", "/matches/2026-09-06-energiya", "/about", "/join", "/hall-of-fame"];
 
 for (const path of PAGES) {
   test(`seo basics ${path}`, async ({ page }) => {

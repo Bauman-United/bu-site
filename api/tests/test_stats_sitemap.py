@@ -16,7 +16,7 @@ def test_sitemap(client):
         "/",
         "/matches",
         "/team",
-        "/history",
+        "/hall-of-fame",
         "/news",
         "/standings",
         "/about",
@@ -24,6 +24,7 @@ def test_sitemap(client):
         "/partners",
     }
     assert static <= paths
+    assert "/history" not in paths  # постоянный редирект на /hall-of-fame
     assert "/matches/2026-09-06-bauman-junior" in paths
     assert "/team/aleksandr-korolev" in paths
     assert "/news/start" in paths

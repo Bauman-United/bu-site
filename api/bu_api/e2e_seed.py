@@ -135,9 +135,26 @@ def seed(session: Session, empty: bool = False) -> None:
         _player("konstantin-konstantinopolskiy", "Константин", "Константинопольский", 8, "MF"),
         _player("dmitriy-pisarev", "Дмитрий", "Писарев", 11, "FW", photo="/crest-white.png"),
     ]
-    session.add_all([season, li, lfl, *players])
+    # Прошлый сезон и бывший игрок: «Рекордсмены клуба» на /hall-of-fame считают всё время
+    past = Season(slug="2019-20", label="2019/20")
+    past_bl = Tournament(
+        slug="liga-inzhenerov-vesna-2020",
+        name="Лига Инженеров · Весна 2020",
+        short="Лига Инженеров",
+        source="joinfootball",
+        external_id="e2e-past",
+        season=past,
+    )
+    veteran = _player("staryy-veteran", "Старый", "Ветеран", None, "FW", active=False)
+    session.add_all([season, li, lfl, *players, past, past_bl, veteran])
     session.flush()
     by = {p.slug: p for p in players}
+    for player, (pl, g, a) in {veteran: (40, 25, 3), by["dmitriy-pisarev"]: (12, 4, 9)}.items():
+        session.add(
+            PlayerTournamentStats(
+                player_id=player.id, tournament_id=past_bl.id, played=pl, goals=g, assists=a
+            )
+        )
     for slug, (pl, g, a) in {
         "egor-kucha": (3, 0, 0),
         "fedor-meshkov": (3, 1, 1),

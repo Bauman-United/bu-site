@@ -14,6 +14,8 @@ export type Tournament = S["TournamentOut"];
 export type Standings = S["StandingsOut"];
 export type StandingRow = S["StandingRowOut"];
 export type Season = S["SeasonOut"];
+export type AllTimeRecords = S["AllTimeRecords"];
+export type RecordRow = S["RecordRow"];
 
 export type Outcome = "W" | "D" | "L";
 

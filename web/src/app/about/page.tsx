@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { ClubLinks } from "@/components/club/ClubLinks";
+import { Timeline } from "@/components/history/Timeline";
 import { ClubNumbers } from "@/components/home/ClubNumbers";
 import { JsonLd } from "@/components/JsonLd";
 import { Markdown } from "@/components/Markdown";
 import { ButtonLink } from "@/components/ui/Button";
-import { getClub, getHome } from "@/lib/api";
+import { getClub, getHistory, getHome } from "@/lib/api";
 import { breadcrumbsLd, sportsTeamLd } from "@/lib/jsonld";
 import { buildMetadata } from "@/lib/seo";
 import s from "./page.module.css";
@@ -12,12 +13,12 @@ import s from "./page.module.css";
 export const metadata: Metadata = buildMetadata({
   title: "О клубе",
   description:
-    "Бауман Юнайтед — любительская футбольная команда МГТУ им. Н. Э. Баумана (бауманка): история, формат 8×8, ЛФЛ и Лига Инженеров Bauman League.",
+    "Бауман Юнайтед — любительская футбольная команда МГТУ им. Н. Э. Баумана (бауманка): история по сезонам, формат 8×8, ЛФЛ и Лига Инженеров Bauman League.",
   path: "/about",
 });
 
 export default async function AboutPage() {
-  const [club, home] = await Promise.all([getClub(), getHome()]);
+  const [club, home, history] = await Promise.all([getClub(), getHome(), getHistory()]);
   const about = club.about?.trim();
 
   return (
@@ -38,6 +39,7 @@ export default async function AboutPage() {
           </div>
         </section>
       )}
+      <Timeline items={history.timeline ?? []} trophies={history.trophies ?? []} />
       <ClubNumbers numbers={home.numbers} />
       <ClubLinks club={club} title="Команда в сети" />
       <section className="section section--paper" aria-labelledby="about-cta">

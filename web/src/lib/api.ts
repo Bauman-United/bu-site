@@ -1,7 +1,7 @@
 import "server-only";
 
 import type {
-  Club, Home, MatchDetail, MatchSummary, NewsDetail, NewsPage, PlayerCard, PlayerDetail,
+  AllTimeRecords, Club, Home, MatchDetail, MatchSummary, NewsDetail, NewsPage, PlayerCard, PlayerDetail,
   Season, SitemapItem, Standings, Tournament,
 } from "./types";
 import type { League } from "@/components/tournament/LeagueTabs";
@@ -67,6 +67,9 @@ export const getStandings = (tournament?: string) =>
   apiGet<Standings[]>("/standings", { tags: ["standings"], query: { tournament } });
 export const getClub = () => apiGet<Club>("/club", { tags: ["club"] });
 export const getHistory = () => apiGet<History>("/history", { tags: ["history"] });
+/** Рекордсмены клуба за всё время (все сезоны и турниры, бывшие игроки тоже). */
+export const getAllTimeRecords = () =>
+  apiGet<AllTimeRecords>("/records/all-time", { tags: ["players", "matches"], query: { limit: "10" } });
 export const getSeasons = () => apiGet<Season[]>("/seasons", { tags: ["matches"] });
 export const getTournaments = (season?: string) =>
   apiGet<Tournament[]>("/tournaments", { tags: ["matches"], query: { season } });

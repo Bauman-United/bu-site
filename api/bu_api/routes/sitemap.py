@@ -14,7 +14,7 @@ STATIC = [
     "/matches",
     "/standings",
     "/team",
-    "/history",
+    "/hall-of-fame",
     "/news",
     "/about",
     "/join",

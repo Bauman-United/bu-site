@@ -13,3 +13,5 @@
   .value { font-size: 44px; }
   .label { font-size: var(--fs-caption); }
 }
+.link { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.link:hover { color: var(--c-paper); }

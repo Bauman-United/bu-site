@@ -1,6 +1,9 @@
+import Link from "next/link";
 import type { Home } from "@/lib/types";
 import { plural } from "@/lib/format";
 import s from "./ClubNumbers.module.css";
+
+const trophiesLabel = (n: number) => plural(n, ["трофей", "трофея", "трофеев"]);
 
 /** Пункты «Цифр клуба»: нулевые и отсутствующие значения не показываем («0 трофеев» — не цифра клуба). */
 export function clubNumberItems(numbers: Home["numbers"]): [number, string][] {
@@ -9,7 +12,7 @@ export function clubNumberItems(numbers: Home["numbers"]): [number, string][] {
   if (founded) items.push([founded, "основан"]);
   if (matches) items.push([matches, plural(matches, ["матч сыгран", "матча сыграно", "матчей сыграно"])]);
   if (goals) items.push([goals, plural(goals, ["гол забит", "гола забито", "голов забито"])]);
-  if (trophies) items.push([trophies, plural(trophies, ["трофей", "трофея", "трофеев"])]);
+  if (trophies) items.push([trophies, trophiesLabel(trophies)]);
   return items;
 }
 
@@ -23,7 +26,14 @@ export function ClubNumbers({ numbers }: { numbers: Home["numbers"] }) {
       <dl className={`container ${s.grid}`}>
         {items.map(([value, label]) => (
           <div key={label} className={s.item}>
-            <dt className={s.label}>{label}</dt>
+            <dt className={s.label}>
+              {/* трофеи — в «Зале славы» */}
+              {numbers.trophies && label === trophiesLabel(numbers.trophies) ? (
+                <Link className={s.link} href="/hall-of-fame">{label}</Link>
+              ) : (
+                label
+              )}
+            </dt>
             <dd className={s.value}>{value}</dd>
           </div>
         ))}

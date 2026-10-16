@@ -644,6 +644,49 @@
         }
       }
     },
+    "/records/all-time": {
+      "get": {
+        "summary": "All Time Records",
+        "description": "Суммы PlayerSeasonStats по всем сезонам (все турниры и источники), включая бывших\nигроков. Ничья — выше тот, у кого меньше матчей, затем по имени; нули не попадают.",
+        "operationId": "all_time_records_records_all_time_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllTimeRecords"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/sitemap": {
       "get": {
         "summary": "Sitemap",
@@ -764,6 +807,39 @@
   },
   "components": {
     "schemas": {
+      "AllTimeRecords": {
+        "properties": {
+          "goals": {
+            "items": {
+              "$ref": "#/components/schemas/RecordRow"
+            },
+            "type": "array",
+            "title": "Goals"
+          },
+          "assists": {
+            "items": {
+              "$ref": "#/components/schemas/RecordRow"
+            },
+            "type": "array",
+            "title": "Assists"
+          },
+          "played": {
+            "items": {
+              "$ref": "#/components/schemas/RecordRow"
+            },
+            "type": "array",
+            "title": "Played"
+          }
+        },
+        "type": "object",
+        "required": [
+          "goals",
+          "assists",
+          "played"
+        ],
+        "title": "AllTimeRecords",
+        "description": "Рекордсмены клуба за всё время: топ по голам, передачам и сыгранным матчам."
+      },
       "EventOut": {
         "properties": {
           "minute": {
@@ -1944,6 +2020,68 @@
         },
         "type": "object",
         "title": "PlayerStats"
+      },
+      "RecordRow": {
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "photo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          },
+          "value": {
+            "type": "integer",
+            "title": "Value"
+          },
+          "played": {
+            "type": "integer",
+            "title": "Played"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rank",
+          "slug",
+          "name",
+          "photo",
+          "position",
+          "value",
+          "played",
+          "active"
+        ],
+        "title": "RecordRow"
       },
       "SeasonOut": {
         "properties": {

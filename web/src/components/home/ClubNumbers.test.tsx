@@ -13,3 +13,10 @@ describe("ClubNumbers", () => {
     expect(container).toBeEmptyDOMElement();
   });
 });
+
+describe("ClubNumbers trophies link", () => {
+  it("«трофеев» leads to the hall of fame", () => {
+    const { getByRole } = render(<ClubNumbers numbers={{ founded: 2019, matches: 0, goals: 0, trophies: 12 }} />);
+    expect(getByRole("link", { name: "трофеев" })).toHaveAttribute("href", "/hall-of-fame");
+  });
+});
