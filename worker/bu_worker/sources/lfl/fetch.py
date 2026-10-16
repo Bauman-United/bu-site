@@ -58,9 +58,14 @@ def fetch_bundle(
     details: dict[str, MatchDetail] = {}
     for entry in calendar:
         if entry.home_score is not None:
-            details[entry.external_id] = parse_match(
-                get(f"match_{entry.external_id}", f"/match{entry.external_id}")
-            )
+            try:
+                details[entry.external_id] = parse_match(
+                    get(f"match_{entry.external_id}", f"/match{entry.external_id}")
+                )
+            except ParseError:
+                # Протокол не заполнен или не сходится со счётом — матч берём без событий,
+                # уже известные события ingest не затирает.
+                continue
     tournament = parse_tournament_info(tournament_html, tournament_id, tournament_url)
     try:
         standings = parse_standings(tournament_html)

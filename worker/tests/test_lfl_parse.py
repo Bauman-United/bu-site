@@ -264,3 +264,28 @@ def test_fill_missing_photos_from_player_pages():
     assert requested == ["267515", "9"]  # у кого фото уже есть — страницу не запрашиваем
     assert out[1].photo_url == "https://lfl.ru/photo/persons/source/218695.jpg"
     assert out[2].photo_url is None
+
+
+def test_unparseable_match_protocol_does_not_fail_tournament():
+    from bu_worker.sources.lfl.fetch import fetch_bundle
+
+    class FakeClient:
+        def get(self, path: str) -> str:
+            if path.startswith("/tournament"):
+                return TOURNAMENT
+            if path.startswith("/club14270/calendar"):
+                return CALENDAR
+            if path.startswith("/club14270/players_list"):
+                return PLAYERS_LIST
+            if path.startswith("/club"):
+                return CLUB
+            if "tournament_squads_table" in path:
+                return SQUAD
+            if path.startswith("/match"):
+                return "<html>протокол не заполнен</html>"
+            return "<html></html>"
+
+    bundle = fetch_bundle(FakeClient(), "32573", "14270", "https://lfl.ru",  # type: ignore[arg-type]
+                          lambda name, html: None)
+    assert bundle.calendar  # матчи на месте
+    assert bundle.details == {}  # без событий, но турнир не упал
