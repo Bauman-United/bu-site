@@ -1,0 +1,4 @@
+.wrap { display: flex; flex-direction: column; gap: 12px; }
+.head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+.seasons { flex-wrap: wrap; }
+.scroll { overflow-x: auto; }

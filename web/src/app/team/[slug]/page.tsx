@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
 import { SeasonToggle } from "@/components/team/SeasonToggle";
+import { TournamentStatsTable } from "@/components/team/TournamentStatsTable";
 import { Stripes } from "@/components/ui/Stripes";
 import { getPlayer, getPlayers, getSeasons } from "@/lib/api";
 import { positionGroup, positionLabel } from "@/lib/format";
@@ -17,7 +18,6 @@ type Params = Promise<{ slug: string }>;
 
 const GROUP_ANCHOR: Record<string, string> = { GK: "gk", DF: "df", MF: "mf", FW: "fw" };
 const TABLE_KEYS: (keyof PlayerStats)[] = ["played", "goals", "assists", "yellow", "mvp"];
-const TOURNAMENT_KEYS = ["played", "goals", "assists", "yellow", "red", "mvp"] as const;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
@@ -162,34 +162,14 @@ export default async function PlayerPage({ params }: { params: Params }) {
             total={player.total}
             teamBest={player.team_best}
           />
-          {player.tournaments.length > 0 && (
-            <div className={s.tableWrap}>
-              <table className={s.table}>
-                <caption className={s.caption}>По турнирам</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Турнир</th>
-                    <th scope="col">Матчи</th>
-                    <th scope="col">Голы</th>
-                    <th scope="col">Передачи</th>
-                    <th scope="col">ЖК</th>
-                    <th scope="col">КК</th>
-                    <th scope="col">MVP</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {player.tournaments.map((row) => (
-                    <tr key={row.tournament.slug}>
-                      <th scope="row">{row.tournament.name}</th>
-                      {TOURNAMENT_KEYS.map((k) => (
-                        <td key={k}>{row.stats[k] ?? 0}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <TournamentStatsTable
+            rows={player.tournaments}
+            seasons={seasons}
+            currentSeason={currentSeason?.slug}
+            tableClass={s.table}
+            captionClass={s.caption}
+            totalRowClass={s.totalRow}
+          />
           {player.seasons.length > 0 && (
             <div className={s.tableWrap}>
               <table className={s.table}>

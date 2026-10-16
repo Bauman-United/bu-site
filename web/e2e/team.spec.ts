@@ -59,3 +59,16 @@ test("player profile splits stats by tournament", async ({ page }) => {
   await expect(row).toContainText("3"); // сыграно матчей в сид-данных e2e
   await expect(table.getByRole("columnheader", { name: "КК" })).toBeVisible();
 });
+
+test("tournament stats can be filtered by season", async ({ page }) => {
+  await page.goto("/team/dmitriy-pisarev");
+  const table = page.getByRole("table", { name: "По турнирам" });
+  const seasons = page.getByRole("group", { name: "Сезон" });
+  await expect(seasons.getByRole("button", { name: "2026/27" })).toHaveAttribute("aria-pressed", "true");
+  await expect(table).not.toContainText("Весна 2020");
+  await seasons.getByRole("button", { name: "2019/20" }).click();
+  await expect(table).toContainText("Весна 2020");
+  await expect(table).not.toContainText("Осень 2026");
+  await seasons.getByRole("button", { name: "Все сезоны" }).click();
+  await expect(table.getByRole("row", { name: /Итого/ })).toBeVisible();
+});
