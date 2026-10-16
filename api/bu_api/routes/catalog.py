@@ -18,6 +18,8 @@ class SeasonOut(BaseModel):
     slug: str
     label: str
     final_place: str | None
+    # текущий сезон — год последнего турнира с уже сыгранным матчем (не обязательно новейший)
+    current: bool
 
 
 class StandingRowOut(BaseModel):
@@ -59,7 +61,11 @@ def history(session: Session = Depends(get_session)) -> dict[str, Any]:
 @router.get("/seasons")
 def seasons(session: Session = Depends(get_session)) -> list[SeasonOut]:
     rows = session.scalars(select(Season).order_by(Season.slug.desc()))
-    return [SeasonOut(slug=s.slug, label=s.label, final_place=s.final_place) for s in rows]
+    current = current_season(session)
+    return [
+        SeasonOut(slug=s.slug, label=s.label, final_place=s.final_place, current=s.slug == current)
+        for s in rows
+    ]
 
 
 def _tournaments(session: Session, season: str | None) -> list[Tournament]:

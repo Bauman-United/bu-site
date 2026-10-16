@@ -16,7 +16,7 @@ from bu_core.recompute import recompute
 
 
 def test_recompute_mixes_sources(db):
-    season = Season(slug="2026-27", label="2026/27")
+    season = Season(slug="2026", label="2026")
     jf = Tournament(
         slug="li",
         name="Лига Инженеров",
@@ -82,8 +82,8 @@ def test_recompute_mixes_sources(db):
 
     line = db.get(PlayerSeasonStats, (p.id, season.id))
     assert (line.played, line.goals, line.assists, line.yellow, line.mvp) == (6, 3, 6, 1, 1)
-    assert db.get(Computed, "meta").data == {"current_season": "2026-27"}
-    season_doc = db.get(Computed, "season:2026-27").data
+    assert db.get(Computed, "meta").data == {"current_season": "2026"}
+    season_doc = db.get(Computed, "season:2026").data
     assert [f["outcome"] for f in season_doc["form"]] == ["W", "D"]
     assert season_doc["leaders"]["goals"][0]["slug"] == "a-k"
     assert season_doc["leaders"]["goals"][0]["photo"] == "https://lfl.ru/a-k.jpg"
@@ -99,8 +99,8 @@ def test_recompute_empty_db(db):
 
 
 def test_recompute_tolerates_undated_matches(db):
-    season = Season(slug="2026-27", label="2026/27")
-    later = Season(slug="2027-28", label="2027/28")
+    season = Season(slug="2026", label="2026")
+    later = Season(slug="2027", label="2027")
     cup = Tournament(slug="cup", name="Кубок", short="Кубок", source="manual", season=season)
     next_cup = Tournament(slug="cup2", name="Кубок", short="Кубок", source="manual", season=later)
     db.add_all([season, later, cup, next_cup])
@@ -145,13 +145,13 @@ def test_recompute_tolerates_undated_matches(db):
 
     recompute(db)
 
-    assert db.get(Computed, "meta").data == {"current_season": "2026-27"}
-    form = db.get(Computed, "season:2026-27").data["form"]
+    assert db.get(Computed, "meta").data == {"current_season": "2026"}
+    form = db.get(Computed, "season:2026").data["form"]
     assert [f["slug"] for f in form] == ["played", "undated-finished"]
 
 
 def test_recompute_only_undated_matches(db):
-    season = Season(slug="2026-27", label="2026/27")
+    season = Season(slug="2026", label="2026")
     cup = Tournament(slug="cup", name="Кубок", short="Кубок", source="manual", season=season)
     db.add_all([season, cup])
     db.flush()
@@ -169,4 +169,13 @@ def test_recompute_only_undated_matches(db):
     )
     db.flush()
     recompute(db)
-    assert db.get(Computed, "meta").data == {"current_season": "2026-27"}
+    assert db.get(Computed, "meta").data == {"current_season": "2026"}
+
+
+def test_recompute_drops_docs_of_removed_seasons(db):
+    db.add(Season(slug="2026", label="2026"))
+    db.add(Computed(key="season:2026-27", data={"form": []}))
+    db.flush()
+    recompute(db)
+    assert db.get(Computed, "season:2026-27") is None
+    assert db.get(Computed, "season:2026") is not None

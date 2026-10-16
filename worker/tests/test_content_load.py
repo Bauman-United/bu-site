@@ -56,13 +56,13 @@ def test_manual_match(tmp_path):
     write(
         tmp_path,
         "tournaments.yaml",
-        "- {slug: lfl-2026-27, name: ЛФЛ 8×8, short: ЛФЛ, kind: league, season: 2026-27}\n",
+        "- {slug: lfl-2026, name: ЛФЛ 8×8, short: ЛФЛ, kind: league, season: 2026}\n",
     )
     write(
         tmp_path,
         "matches/2026-10-11-energiya.yaml",
         """
-tournament: lfl-2026-27
+tournament: lfl-2026
 kickoff: 2026-10-11T14:00:00+03:00
 home: true
 opponent: {name: Энергия}
@@ -85,3 +85,22 @@ def test_naive_kickoff_is_moscow_time(tmp_path):
     write(tmp_path, "matches/x.yaml", "kickoff: 2026-10-20T19:30:00\n")
     kickoff = load_content(tmp_path).matches["x"].kickoff
     assert kickoff is not None and kickoff.utcoffset() == timedelta(hours=3)
+
+
+def test_tournament_season_is_a_year(tmp_path):
+    minimal(tmp_path)
+    write(
+        tmp_path,
+        "tournaments.yaml",
+        "- {slug: a, name: A, short: A, season: 2026}\n"
+        "- {slug: b, name: B, short: B, season: 2025-26}\n",
+    )
+    assert [t.season for t in load_content(tmp_path).tournaments] == ["2026", "2025-26"]
+
+
+def test_tournament_season_garbage_reports_file(tmp_path):
+    minimal(tmp_path)
+    write(tmp_path, "tournaments.yaml", "- {slug: a, name: A, short: A, season: осень}\n")
+    with pytest.raises(ContentError) as err:
+        load_content(tmp_path)
+    assert "tournaments.yaml" in str(err.value) and "season" in str(err.value)

@@ -27,13 +27,13 @@ test("hall of fame: all-time records include departed players", async ({ page })
   await page.goto("/hall-of-fame");
   const records = page.getByRole("region", { name: "Рекордсмены клуба" });
   const goals = records.getByRole("list", { name: "Голы" }).getByRole("listitem");
-  // Старый Ветеран играл в 2019/20 и ушёл — но в рекордах за всё время он первый
+  // Старый Ветеран играл в 2020 и ушёл — но в рекордах за всё время он первый
   await expect(goals.first()).toContainText("1");
   await expect(goals.first().getByRole("link")).toHaveText("Старый Ветеран");
   await expect(goals.first().getByRole("link")).toHaveAttribute("href", "/team/staryy-veteran");
   await expect(goals.first()).toContainText("25");
   await expect(goals.first()).toContainText("Нападающий");
-  // Писарев: 4 гола в 2019/20 + 4 в этом сезоне
+  // Писарев: 4 гола в 2020 + 4 в этом сезоне
   await expect(goals.nth(1).getByRole("link")).toHaveText("Дмитрий Писарев");
   await expect(goals.nth(1)).toContainText("8");
 

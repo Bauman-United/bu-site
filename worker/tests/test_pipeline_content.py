@@ -78,10 +78,10 @@ def test_manual_match_with_squad_and_events(db):
     )
     db.add(korolev)
     db.flush()
-    t = TournamentContent(slug="lfl-2026-27", name="ЛФЛ 8×8", short="ЛФЛ", season="2026-27")
+    t = TournamentContent(slug="lfl-2026", name="ЛФЛ 8×8", short="ЛФЛ", season="2026")
     m = MatchContent.model_validate(
         {
-            "tournament": "lfl-2026-27",
+            "tournament": "lfl-2026",
             "kickoff": "2026-10-11T14:00:00+03:00",
             "home": True,
             "opponent": {"name": "Энергия"},
@@ -119,12 +119,12 @@ def test_content_mvp_and_events_mark_manual_fields(db):
         manual_fields=[],
         achievements=[],
     )
-    t = TournamentContent(slug="lfl-2026-27", name="ЛФЛ", short="ЛФЛ", season="2026-27")
+    t = TournamentContent(slug="lfl-2026", name="ЛФЛ", short="ЛФЛ", season="2026")
     db.add(korolev)
     db.flush()
     m = MatchContent.model_validate(
         {
-            "tournament": "lfl-2026-27",
+            "tournament": "lfl-2026",
             "kickoff": "2026-10-11T14:00:00+03:00",
             "home": True,
             "opponent": {"name": "Энергия"},
@@ -139,7 +139,7 @@ def test_content_mvp_and_events_mark_manual_fields(db):
 
 
 def _source_match(db) -> Match:
-    t = TournamentContent(slug="cup", name="Кубок", short="Кубок", season="2026-27")
+    t = TournamentContent(slug="cup", name="Кубок", short="Кубок", season="2026")
     sync_content(db, make_bundle(tournaments=[t]))
     from bu_core.models import Tournament
 
@@ -181,3 +181,13 @@ def test_content_without_kickoff_leaves_source_match_alone(db):
     db.refresh(match)
     assert match.kickoff is None and match.venue_name == "Металлург"
     assert match.manual_fields == []
+
+
+def test_legacy_season_maps_to_first_year_with_warning(db):
+    from bu_core.models import Tournament
+
+    t = TournamentContent(slug="cup", name="Кубок", short="Кубок", season="2025-26")
+    result = sync_content(db, make_bundle(tournaments=[t]))
+    tournament = db.scalars(select(Tournament).where(Tournament.slug == "cup")).one()
+    assert (tournament.season.slug, tournament.season.label) == ("2025", "2025")
+    assert any("2025-26" in w and "2025" in w for w in result.warnings)

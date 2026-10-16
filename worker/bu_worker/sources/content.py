@@ -1,5 +1,6 @@
 """Загрузка и валидация ручного контента из каталога content/."""
 
+import re
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Literal
@@ -72,8 +73,18 @@ class TournamentContent(_Strict):
     name: str
     short: str
     kind: Literal["league", "cup", "friendly"] = "league"
+    # календарный год начала турнира: `season: 2026` (YAML читает его как число);
+    # устаревшее «2026-27» принимается и при синхронизации сводится к 2026 с предупреждением
     season: str
     url: str | None = None
+
+    @field_validator("season", mode="before")
+    @classmethod
+    def _season_year(cls, value: Any) -> str:
+        text = str(value).strip()
+        if re.fullmatch(r"\d{4}(-\d{2})?", text) is None:
+            raise ValueError("season must be a year like 2026")
+        return text
 
 
 class Venue(_Strict):

@@ -6,11 +6,11 @@ from sqlalchemy import delete, select
 
 def _setup(db) -> None:
     db.execute(delete(PlayerSeasonStats))
-    past = Season(slug="2019-20", label="2019/20")
+    past = Season(slug="2019", label="2019")
     db.add(past)
     db.flush()
     by = {p.slug: p for p in db.scalars(select(Player))}
-    current = db.scalars(select(Season).where(Season.slug == "2026-27")).one()
+    current = db.scalars(select(Season).where(Season.slug == "2026")).one()
     veteran = Player(
         slug="staryy-veteran",
         first_name="Старый",

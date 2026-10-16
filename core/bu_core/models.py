@@ -23,8 +23,8 @@ class Base(DeclarativeBase):
 class Season(Base):
     __tablename__ = "season"
     id: Mapped[int] = mapped_column(primary_key=True)
-    slug: Mapped[str] = mapped_column(String(16), unique=True)  # "2026-27"
-    label: Mapped[str] = mapped_column(String(16))  # "2026/27"
+    slug: Mapped[str] = mapped_column(String(16), unique=True)  # год начала турнира: "2026"
+    label: Mapped[str] = mapped_column(String(16))  # "2026"
     final_place: Mapped[str | None] = mapped_column(String(64))
 
 

@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 
 def test_match_with_events_roundtrip(db):
-    season = Season(slug="2026-27", label="2026/27")
+    season = Season(slug="2026", label="2026")
     t = Tournament(
         slug="liga-inzhenerov-osen-2026",
         name="Лига Инженеров",
@@ -36,5 +36,5 @@ def test_match_with_events_roundtrip(db):
 
     loaded = db.scalars(select(Match).where(Match.slug == "2026-09-06-bauman-junior")).one()
     assert loaded.events[0].player_id == p.id
-    assert loaded.tournament.season.slug == "2026-27"
+    assert loaded.tournament.season.slug == "2026"
     assert p.aliases == [] and p.manual_fields == []

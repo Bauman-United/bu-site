@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 
 
 def seed(db: Session) -> dict:
-    season = Season(slug="2026-27", label="2026/27")
+    season = Season(slug="2026", label="2026")
     t = Tournament(
         slug="liga-inzhenerov",
         name="Лига Инженеров · Осень 2026",
@@ -165,8 +165,8 @@ def seed(db: Session) -> dict:
 def seed_lfl(db: Session, ctx: dict) -> Tournament:
     """Второй турнир сезона — ЛФЛ: сыгранный матч и таблица из 7 команд (мы — 5-е)."""
     lfl = Tournament(
-        slug="lfl-8x8-2026-27",
-        name="ЛФЛ 8×8 · 2026/27",
+        slug="lfl-8x8-2026",
+        name="ЛФЛ 8×8 · 2026",
         short="ЛФЛ",
         source="lfl",
         external_id="lfl-1",

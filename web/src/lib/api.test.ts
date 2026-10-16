@@ -10,9 +10,9 @@ describe("api client", () => {
 
   it("builds url with query, skips empty params and passes cache tags", async () => {
     const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(ok([]));
-    await apiGet("/matches", { tags: ["matches"], query: { season: "2026-27", where: undefined, t: "" } });
+    await apiGet("/matches", { tags: ["matches"], query: { season: "2026", where: undefined, t: "" } });
     const [url, init] = spy.mock.calls[0] as [string, RequestInit & { next: unknown }];
-    expect(url).toBe("http://api.test/matches?season=2026-27");
+    expect(url).toBe("http://api.test/matches?season=2026");
     expect(init.next).toEqual({ revalidate: 300, tags: ["matches"] });
   });
 

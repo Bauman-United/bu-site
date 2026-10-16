@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { getMatches, getSeasons, getTournaments, type MatchQuery } from "@/lib/api";
 import { parseMatchFilters } from "@/lib/filters";
 import { breadcrumbsLd, sportsEventLd } from "@/lib/jsonld";
+import { currentSeason } from "@/lib/seasons";
 import { buildMetadata } from "@/lib/seo";
 import s from "./page.module.css";
 
@@ -15,8 +16,8 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 async function resolveFilters(searchParams: SearchParams) {
   const [sp, seasons, allTournaments] = await Promise.all([searchParams, getSeasons(), getTournaments()]);
   const parsed = parseMatchFilters(sp, allTournaments, seasons);
-  // Без `season` показываем текущий (первый) сезон; турнир из другого сезона отбрасываем.
-  const season = parsed.season ?? seasons[0]?.slug;
+  // Без `season` показываем текущий сезон; турнир из другого сезона отбрасываем.
+  const season = parsed.season ?? currentSeason(seasons)?.slug;
   const tournaments = allTournaments.filter((t) => t.season === season);
   const tournament = tournaments.some((t) => t.slug === parsed.tournament) ? parsed.tournament : undefined;
   return { parsed, seasons, tournaments, season, tournament };

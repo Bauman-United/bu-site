@@ -95,7 +95,7 @@ def seed(session: Session, empty: bool = False) -> None:
         session.flush()
         recompute(session)
         return
-    season = Season(slug="2026-27", label="2026/27")
+    season = Season(slug="2026", label="2026")
     li = Tournament(
         slug="liga-inzhenerov-osen-2026",
         name="Лига Инженеров · Осень 2026",
@@ -106,8 +106,8 @@ def seed(session: Session, empty: bool = False) -> None:
         url="https://bauman_league.join.football/tournament/1066703",
     )
     lfl = Tournament(
-        slug="lfl-2026-27",
-        name="ЛФЛ 8×8 · 2026/27",
+        slug="lfl-2026",
+        name="ЛФЛ 8×8 · 2026",
         short="ЛФЛ",
         source="lfl",
         external_id="e2e-lfl",
@@ -136,7 +136,7 @@ def seed(session: Session, empty: bool = False) -> None:
         _player("dmitriy-pisarev", "Дмитрий", "Писарев", 11, "FW", photo="/crest-white.png"),
     ]
     # Прошлый сезон и бывший игрок: «Рекордсмены клуба» на /hall-of-fame считают всё время
-    past = Season(slug="2019-20", label="2019/20")
+    past = Season(slug="2020", label="2020")
     past_bl = Tournament(
         slug="liga-inzhenerov-vesna-2020",
         name="Лига Инженеров · Весна 2020",

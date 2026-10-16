@@ -338,3 +338,15 @@ def run_content(session: Session, settings: Settings) -> str:
         log.warning(warning)
     revalidate(settings, result.tags)
     return "ok"
+
+
+def run_migrate_seasons(sessions: Callable[[], Session], settings: Settings) -> int:
+    """`python -m bu_worker migrate-seasons`: разовый перевод сезонов на календарные годы."""
+    from bu_worker.pipeline.seasons import migrate_seasons
+
+    with sessions() as session:
+        report = migrate_seasons(session)
+        session.commit()
+    log.info("migrate-seasons: %s", report)
+    revalidate(settings, {"home", "matches", "players", "standings"})
+    return 0

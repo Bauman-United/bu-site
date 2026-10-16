@@ -14,6 +14,7 @@ from bu_worker.runner import (
     run_history,
     run_joinfootball,
     run_lfl,
+    run_migrate_seasons,
     run_telegram,
 )
 
@@ -43,6 +44,10 @@ def main() -> int:
         help="перекачать и архивные турниры (то же, что BU_HISTORY_REFRESH=1)",
     )
     sub.add_parser("schedule")
+    sub.add_parser(
+        "migrate-seasons",
+        help="разово: сезоны «2026-27» → календарные годы «2026» (идемпотентно)",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)  # URL Telegram содержит токен
@@ -54,6 +59,9 @@ def main() -> int:
         return 0
 
     sessions = make_sessionmaker(make_engine())
+    if args.cmd == "migrate-seasons":
+        return run_migrate_seasons(sessions, settings)
+
     notifier = Notifier(settings.telegram_bot_token, settings.telegram_chat_id)
     status = "ok"
     with sessions() as session:

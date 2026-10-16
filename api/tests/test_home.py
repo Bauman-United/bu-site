@@ -40,7 +40,7 @@ def test_home_by_league_includes_lfl(client, db):
     assert lfl["last_match"]["slug"] == "2026-08-30-politekh"
     assert lfl["last_match"]["tournament"]["short"] == "ЛФЛ"
     rows = lfl["standings"]["rows"]
-    assert lfl["standings"]["tournament"]["slug"] == "lfl-8x8-2026-27"
+    assert lfl["standings"]["tournament"]["slug"] == "lfl-8x8-2026"
     assert [r["pos"] for r in rows] == [3, 4, 5, 6, 7]
     assert rows[2]["is_us"] is True
     # старые поля на месте

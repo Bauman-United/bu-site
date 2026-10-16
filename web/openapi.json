@@ -2103,13 +2103,18 @@
               }
             ],
             "title": "Final Place"
+          },
+          "current": {
+            "type": "boolean",
+            "title": "Current"
           }
         },
         "type": "object",
         "required": [
           "slug",
           "label",
-          "final_place"
+          "final_place",
+          "current"
         ],
         "title": "SeasonOut"
       },

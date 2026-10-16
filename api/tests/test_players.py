@@ -16,7 +16,7 @@ def test_player_detail(client):
     p = client.get("/players/aleksandr-korolev").json()
     assert p["nickname"] == "Король"
     assert p["total"]["assists"] == 6
-    assert p["seasons"][0]["season"] == "2026-27"
+    assert p["seasons"][0]["season"] == "2026"
     assert set(p["team_best"]) >= {"goals", "assists"}
     assert client.get("/players/nobody").status_code == 404
 
@@ -26,7 +26,7 @@ def test_player_detail_splits_stats_by_tournament(client, db):
     from bu_core.recompute import recompute
     from sqlalchemy import select
 
-    season = db.scalars(select(Season).where(Season.slug == "2026-27")).one()
+    season = db.scalars(select(Season).where(Season.slug == "2026")).one()
     lfl = Tournament(
         slug="2-y-divizion-a",
         name="2-й дивизион А · ВЛ-2026",
@@ -57,7 +57,7 @@ def test_player_detail_splits_stats_by_tournament(client, db):
     assert rows["liga-inzhenerov"]["goals"] == 2 and rows["liga-inzhenerov"]["played"] == 5
     assert rows["2-y-divizion-a"]["goals"] == 12 and rows["2-y-divizion-a"]["red"] == 1
     assert p["season"]["goals"] == 14  # общая статистика сезона = сумма турниров
-    assert p["tournaments"][0]["season"] == "2026-27"
+    assert p["tournaments"][0]["season"] == "2026"
 
 
 def test_roster_includes_former_players_who_played_this_season(client, db):
@@ -98,8 +98,8 @@ def _add_league_tournaments(db):
     from bu_core.recompute import recompute
     from sqlalchemy import select
 
-    season = db.scalars(select(Season).where(Season.slug == "2026-27")).one()
-    old_season = Season(slug="2025-26", label="2025/26")
+    season = db.scalars(select(Season).where(Season.slug == "2026")).one()
+    old_season = Season(slug="2025", label="2025")
     cup = Tournament(
         slug="kubok-spec",
         name="Кубок Специалистов · Осень 2026",
@@ -110,7 +110,7 @@ def _add_league_tournaments(db):
     )
     lfl = Tournament(
         slug="lfl-8x8",
-        name="ЛФЛ 8×8 · 2026/27",
+        name="ЛФЛ 8×8 · 2026",
         short="ЛФЛ",
         source="lfl",
         external_id="lfl-1",

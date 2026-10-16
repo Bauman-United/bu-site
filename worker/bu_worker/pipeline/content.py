@@ -10,7 +10,7 @@ from bu_core.models import (
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from bu_worker.pipeline.common import IngestResult, ensure_season, player_index
+from bu_worker.pipeline.common import IngestResult, ensure_season, player_index, season_slug
 from bu_worker.sources.content import ContentBundle, MatchContent, PlayerContent
 
 
@@ -151,7 +151,12 @@ def sync_content(session: Session, bundle: ContentBundle) -> IngestResult:
     _set_doc(session, "history", bundle.history)
 
     for t in bundle.tournaments:
-        season = ensure_season(session, t.season)
+        slug, legacy = season_slug(t.season)
+        if legacy:
+            result.warnings.append(
+                f"tournaments.yaml: {t.slug}: season {t.season} is legacy, use {slug}"
+            )
+        season = ensure_season(session, slug)
         tournament = session.scalars(
             select(Tournament).where(Tournament.slug == t.slug)
         ).one_or_none()

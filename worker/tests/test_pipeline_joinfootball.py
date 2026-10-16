@@ -58,7 +58,7 @@ def test_ingest_creates_everything(db):
     m = db.scalars(select(Match).where(Match.external_id == "5848533")).one()
     assert m.slug == "2026-09-06-bauman-junior"
     assert (m.home, m.score_us, m.score_them, m.status) == (True, 2, 3, "finished")
-    assert m.tournament.season.slug == "2026-27"
+    assert m.tournament.season.slug == "2026"
     ours = [e for e in m.events if e.team == "us"]
     assert {e.player_name for e in ours if e.type == "goal"} == {
         "Королев Александр",

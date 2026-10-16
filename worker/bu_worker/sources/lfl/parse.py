@@ -66,15 +66,12 @@ def parse_tournament_info(html: str, external_id: str, url: str) -> TournamentIn
     years = [int(value) for value in _YEAR.findall(name)]
     if not name or not years:
         raise ParseError("tournament header not found")
-    start_year = min(years)
-    end_year = max(years) if max(years) > start_year else start_year + 1
     return TournamentInfo(
         external_id=external_id,
         name=name,
-        # В проекте сезоны сгруппированы как YYYY/YY; турнир LFL с меткой «2026»
-        # относится к сезону 2026/27 вместе с осенними турнирами команды.
-        period_start=date(start_year, 7, 1),
-        period_end=date(end_year, 6, 30),
+        # Турнир ЛФЛ с меткой «2026» идёт весь календарный год — сезон 2026.
+        period_start=date(min(years), 1, 1),
+        period_end=date(max(years), 12, 31),
         url=url,
     )
 

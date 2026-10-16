@@ -681,6 +681,8 @@ export interface components {
             label: string;
             /** Final Place */
             final_place: string | null;
+            /** Current */
+            current: boolean;
         };
         /** SeasonRow */
         SeasonRow: {

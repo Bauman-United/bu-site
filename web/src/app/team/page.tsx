@@ -7,6 +7,7 @@ import { Stripes } from "@/components/ui/Stripes";
 import { getPlayers, getSeasons } from "@/lib/api";
 import { positionGroup } from "@/lib/format";
 import { breadcrumbsLd } from "@/lib/jsonld";
+import { currentSeason } from "@/lib/seasons";
 import { buildMetadata } from "@/lib/seo";
 import type { PlayerCard } from "@/lib/types";
 import s from "./page.module.css";
@@ -53,7 +54,7 @@ export default async function TeamPage({ searchParams }: { searchParams: SearchP
   const withIfl = (ifl ?? players).length > 0;
   const withUrban = (urban ?? players).length > 0;
   const groups = groupPlayers(players);
-  const season = seasons[0]?.label;
+  const season = currentSeason(seasons)?.label;
 
   return (
     <>

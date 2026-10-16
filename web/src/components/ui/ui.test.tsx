@@ -5,7 +5,7 @@ import { ScoreBadge } from "./ScoreBadge";
 import { mobileWindow, StandingsTable } from "./StandingsTable";
 
 const standings = {
-  tournament: { slug: "li", name: "Лига Инженеров", short: "ЛИ", kind: "league", season: "2026-27", url: null },
+  tournament: { slug: "li", name: "Лига Инженеров", short: "ЛИ", kind: "league", season: "2026", url: null },
   updated_at: "2026-10-12T10:00:00+03:00",
   source_url: "https://jf/tables",
   rows: [

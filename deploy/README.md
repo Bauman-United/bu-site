@@ -131,3 +131,24 @@ docker compose --env-file .env exec postgres psql -U bu -d bu
 docker compose --env-file .env exec worker python -m bu_worker run joinfootball   # ручной парсинг
 docker compose --env-file .env exec worker python -m bu_worker run lfl            # ручной парсинг LFL
 ```
+
+## 11. Разовые шаги
+
+### Сезоны — календарные годы (после деплоя коммита «season = calendar year»)
+
+Сезон теперь — календарный год начала турнира (`2026`, а не `2026-27`): ЛФЛ и Urban Cup
+идут год, Bauman League и IFL — полугодиями («Весна 2026» и «Осень 2026» — оба сезон 2026).
+Новые парсинги сразу пишут годы; уже собранные данные переводит одна команда (идемпотентна,
+повторный запуск ничего не меняет; `deploy.sh` её не запускает):
+
+```bash
+./backup.sh   # на всякий случай (из /opt/bu-site/deploy, как и остальные команды)
+docker compose --env-file .env exec worker python -m bu_worker migrate-seasons
+docker compose --env-file .env exec postgres psql -U bu -d bu -Atc \
+  "select slug, label, (select count(*) from tournament t where t.season_id = s.id) from season s order by slug"
+```
+
+Год турнира — по самому раннему матчу, иначе по году в названии, иначе первый год старого
+сезона. Пустые старые сезоны удаляются, затем пересчитываются агрегаты и сбрасывается кеш
+страниц. В `content/tournaments.yaml` пишите `season: 2026`; старое `season: 2026-27`
+ещё принимается (как 2026) с предупреждением в логе воркера.

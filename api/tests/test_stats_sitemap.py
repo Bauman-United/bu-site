@@ -1,11 +1,11 @@
 def test_stats_current_and_all(client):
     s = client.get("/stats").json()
-    assert s["season"] == "2026-27"
+    assert s["season"] == "2026"
     assert s["leaders"]["goals"][0]["slug"] == "aleksandr-korolev"
     row = next(p for p in s["players"] if p["slug"] == "aleksandr-korolev")
     assert row["ga"] == 8
     assert s["seasons"] == [
-        {"slug": "2026-27", "label": "2026/27", "gf": 2, "ga": 3, "final_place": None}
+        {"slug": "2026", "label": "2026", "gf": 2, "ga": 3, "final_place": None}
     ]
     assert client.get("/stats", params={"season": "all"}).json()["season"] == "all"
 

@@ -119,6 +119,13 @@ def recompute(session: Session) -> None:
     if past_or_soon:
         current = seasons[past_or_soon[-1].season_id].slug
     _put(session, "meta", {"current_season": current})
+    # документы удалённых сезонов (например, после перехода «2026-27» → «2026»)
+    session.execute(
+        delete(Computed).where(
+            Computed.key.like("season:%"),
+            Computed.key.not_in([f"season:{s.slug}" for s in seasons.values()]),
+        )
+    )
 
     for season in seasons.values():
         results = [

@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
@@ -15,16 +16,28 @@ class IngestResult:
     tags: set[str] = field(default_factory=set)
 
 
+_SEASON = re.compile(r"(\d{4})(-\d{2})?")
+
+
 def season_slug_for(d: date) -> str:
-    start = d.year if d.month >= 7 else d.year - 1
-    return f"{start}-{(start + 1) % 100:02d}"
+    """Сезон — календарный год начала турнира: ЛФЛ и Urban Cup идут год,
+    Bauman League и IFL — полугодиями («Весна 2026» и «Осень 2026» — оба сезон 2026)."""
+    return str(d.year)
+
+
+def season_slug(value: str | int) -> tuple[str, bool]:
+    """Сезон из content/tournaments.yaml: «2026» → ("2026", False);
+    устаревшее «2026-27» → ("2026", True) — первый год, вызывающий код предупреждает."""
+    m = _SEASON.fullmatch(str(value).strip())
+    if m is None:
+        raise ValueError(f"season must be a year like 2026, got {value!r}")
+    return m[1], m[2] is not None
 
 
 def ensure_season(session: Session, slug: str) -> Season:
     season = session.scalars(select(Season).where(Season.slug == slug)).one_or_none()
     if season is None:
-        start, end = slug.split("-")
-        season = Season(slug=slug, label=f"{start}/{end}")
+        season = Season(slug=slug, label=slug)
         session.add(season)
         session.flush()
     return season

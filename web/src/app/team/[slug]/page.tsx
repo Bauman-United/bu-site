@@ -9,6 +9,7 @@ import { Stripes } from "@/components/ui/Stripes";
 import { getPlayer, getPlayers, getSeasons } from "@/lib/api";
 import { positionGroup, positionLabel } from "@/lib/format";
 import { breadcrumbsLd, personLd } from "@/lib/jsonld";
+import { currentSeason } from "@/lib/seasons";
 import { buildMetadata } from "@/lib/seo";
 import type { PlayerCard, PlayerStats } from "@/lib/types";
 import { playerDescription, playerName, playerTitle } from "./player-meta";
@@ -78,7 +79,7 @@ export default async function PlayerPage({ params }: { params: Params }) {
   const group = positionGroup(player.position);
   const anchor = player.position ? GROUP_ANCHOR[player.position] : undefined;
   const groupHref = anchor ? `/team#${anchor}` : "/team";
-  const currentSeason = seasons[0];
+  const season = currentSeason(seasons);
 
   const facts = [
     ["В команде с", player.joined],
@@ -157,7 +158,7 @@ export default async function PlayerPage({ params }: { params: Params }) {
         <div className={`container ${s.statsInner}`}>
           <SeasonToggle
             title={<h2 className={s.statsH2}>Статистика</h2>}
-            seasonLabel={currentSeason?.label}
+            seasonLabel={season?.label}
             season={player.season}
             total={player.total}
             teamBest={player.team_best}
@@ -165,7 +166,7 @@ export default async function PlayerPage({ params }: { params: Params }) {
           <TournamentStatsTable
             rows={player.tournaments}
             seasons={seasons}
-            currentSeason={currentSeason?.slug}
+            currentSeason={season?.slug}
             tableClass={s.table}
             captionClass={s.caption}
             totalRowClass={s.totalRow}
@@ -186,7 +187,7 @@ export default async function PlayerPage({ params }: { params: Params }) {
                 </thead>
                 <tbody>
                   {player.seasons.map((row) => (
-                    <tr key={row.season} className={row.season === currentSeason?.slug ? s.current : undefined}>
+                    <tr key={row.season} className={row.season === season?.slug ? s.current : undefined}>
                       <th scope="row">{row.label}</th>
                       {TABLE_KEYS.map((k) => (
                         <td key={k}>{row.stats[k] ?? 0}</td>

@@ -86,7 +86,7 @@ MATCH = """
 def test_tournament_and_season():
     info = parse_tournament_info(TOURNAMENT, "32573", "https://lfl.ru/tournament32573")
     assert info.name == "2-й дивизион А ВЛ-2026"
-    assert (info.period_start, info.period_end) == (date(2026, 7, 1), date(2027, 6, 30))
+    assert (info.period_start, info.period_end) == (date(2026, 1, 1), date(2026, 12, 31))
     assert parse_season_id(TOURNAMENT) == "84"
 
 
@@ -169,7 +169,7 @@ def test_lfl_bundle_ingests_with_its_own_source(db):
     assert (tournament.source, tournament.kind, tournament.season.slug) == (
         "lfl",
         "league",
-        "2026-27",
+        "2026",
     )
 
 
@@ -285,7 +285,12 @@ def test_unparseable_match_protocol_does_not_fail_tournament():
                 return "<html>протокол не заполнен</html>"
             return "<html></html>"
 
-    bundle = fetch_bundle(FakeClient(), "32573", "14270", "https://lfl.ru",  # type: ignore[arg-type]
-                          lambda name, html: None)
+    bundle = fetch_bundle(
+        FakeClient(),
+        "32573",
+        "14270",
+        "https://lfl.ru",  # type: ignore[arg-type]
+        lambda name, html: None,
+    )
     assert bundle.calendar  # матчи на месте
     assert bundle.details == {}  # без событий, но турнир не упал
