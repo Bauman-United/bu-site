@@ -59,3 +59,16 @@ test("news list has a default og:image", async ({ page, request }) => {
   expect(img.status()).toBe(200);
   expect(img.headers()["content-type"]).toBe("image/png");
 });
+
+test("news article cover is shown whole, not cropped", async ({ page }) => {
+  await page.goto("/news/itogi-sentyabrya");
+  const img = page.locator("article img").first();
+  await expect(img).toBeVisible();
+  await expect.poll(() => img.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+  const { fit, ratio, natural } = await img.evaluate((el: HTMLImageElement) => {
+    const r = el.getBoundingClientRect();
+    return { fit: getComputedStyle(el).objectFit, ratio: r.width / r.height, natural: el.naturalWidth / el.naturalHeight };
+  });
+  expect(fit).not.toBe("cover");
+  expect(Math.abs(ratio - natural)).toBeLessThan(0.02); // вертикальная картинка не обрезана до 16:9
+});

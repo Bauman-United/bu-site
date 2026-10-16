@@ -279,6 +279,8 @@ def seed(session: Session, empty: bool = False) -> None:
                 tag="club",
                 title="Итоги сентября",
                 body_md="Три матча, четыре очка.",
+                # вертикальная картинка: на странице новости должна показаться целиком
+                cover="/crest-black.png",
             ),
         ]
     )

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
 import { Markdown } from "@/components/Markdown";
 import { NewsTag } from "@/components/ui/NewsTag";
-import { Photo } from "@/components/ui/Photo";
 import { Stripes } from "@/components/ui/Stripes";
 import { getNewsItem } from "@/lib/api";
 import { formatDate } from "@/lib/format";
@@ -43,7 +43,7 @@ export default async function NewsArticlePage({ params }: { params: Params }) {
           { name: item.title, path: `/news/${item.slug}` },
         ])}
       />
-      <div className="container">
+      <div className={`container ${s.wrap}`}>
         <article className={s.article}>
           <div className={s.meta}>
             <NewsTag tag={item.tag} platform={item.source_platform} />
@@ -65,8 +65,18 @@ export default async function NewsArticlePage({ params }: { params: Params }) {
               aria-hidden="true"
             />
           ) : (
+            // Обложка целиком, в своей пропорции (без кропа до 16:9): размеры заранее неизвестны,
+            // поэтому width/height = 0, а размер задаёт CSS (не шире колонки, не выше экрана).
             item.cover && (
-              <Photo src={item.cover} alt="" ratio="16 / 9" light priority sizes="(max-width: 760px) 100vw, 720px" />
+              <Image
+                className={s.cover}
+                src={item.cover}
+                alt=""
+                width={0}
+                height={0}
+                priority
+                sizes="(max-width: 760px) 100vw, 720px"
+              />
             )
           )}
           {item.body_md && <Markdown source={item.body_md} />}
