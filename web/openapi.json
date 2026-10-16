@@ -1303,6 +1303,17 @@
           "body_md": {
             "type": "string",
             "title": "Body Md"
+          },
+          "cover_video": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover Video"
           }
         },
         "type": "object",

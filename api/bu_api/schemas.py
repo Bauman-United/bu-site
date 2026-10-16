@@ -63,6 +63,7 @@ class NewsCard(BaseModel):
 
 class NewsDetail(NewsCard):
     body_md: str
+    cover_video: str | None = None
 
 
 class NewsPage(BaseModel):

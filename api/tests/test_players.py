@@ -66,8 +66,16 @@ def test_roster_includes_former_players_who_played_this_season(client, db):
     from sqlalchemy import select
 
     t = db.scalars(select(Tournament).where(Tournament.slug == "liga-inzhenerov")).one()
-    gone = Player(slug="maksim-gangelin", first_name="Максим", last_name="Гангелин",
-                  position="MF", active=False, aliases=[], manual_fields=[], achievements=[])
+    gone = Player(
+        slug="maksim-gangelin",
+        first_name="Максим",
+        last_name="Гангелин",
+        position="MF",
+        active=False,
+        aliases=[],
+        manual_fields=[],
+        achievements=[],
+    )
     db.add(gone)
     db.flush()
     db.add(PlayerTournamentStats(player_id=gone.id, tournament_id=t.id, played=10, goals=1))

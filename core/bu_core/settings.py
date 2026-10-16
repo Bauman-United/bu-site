@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     tg_channel: str = "baumanunited"
     tg_since: date = date(2026, 7, 1)
     tg_max_pages: int = 40
+    tg_full_rescan: bool = False  # перечитать канал до tg_since (после смены правил отбора)
     request_delay_s: float = 3.0
     content_dir: str = "content"
     snapshot_dir: str = "snapshots"

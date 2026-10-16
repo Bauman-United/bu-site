@@ -35,6 +35,7 @@ class NewsDraft:
     lead: str | None
     body_md: str
     cover: str | None
+    cover_video: str | None
     source_url: str
 
 
@@ -71,6 +72,7 @@ def to_news(post: TgPost) -> NewsDraft | None:
         lead=_cut(rest, LEAD_MAX) if rest else None,
         body_md=post.markdown or post.text,
         cover=post.photo,
+        cover_video=post.video,
         source_url=post.url,
     )
 
@@ -89,6 +91,7 @@ def ingest(session: Session, posts: list[TgPost]) -> IngestResult:
             session.add(news)
         news.date, news.tag, news.title, news.lead = draft.date, draft.tag, draft.title, draft.lead
         news.body_md, news.cover = draft.body_md, draft.cover
+        news.cover_video = draft.cover_video
         news.source_platform, news.source_url = "telegram", draft.source_url
         result.tags.add(f"news:{draft.slug}")
     # Правила отбора могли ужесточиться — убираем уже сохранённые посты, которые им не подходят.

@@ -195,3 +195,15 @@ def test_ingest_purges_saved_news_that_no_longer_qualify(db):
     result = ingest(db, [])
     assert db.scalar(select(News).where(News.slug == "tg-995")) is None
     assert "news:tg-995" in result.tags
+
+
+def test_gif_post_gets_thumbnail_cover_and_video():
+    older = (Path(__file__).parent / "fixtures" / "telegram" / "channel_older.html").read_text(
+        encoding="utf-8"
+    )
+    posts, _ = parse_channel_page(older, "baumanunited")
+    gif = by_id(posts, 988)
+    assert gif.photo and gif.photo.startswith("https://cdn") and ".mp4" not in gif.photo
+    assert gif.video and ".mp4" in gif.video
+    draft = to_news(gif)
+    assert draft is not None and draft.cover == gif.photo and draft.cover_video == gif.video

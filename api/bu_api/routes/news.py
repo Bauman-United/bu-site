@@ -32,4 +32,4 @@ def news_detail(slug: str, session: Session = Depends(get_session)) -> NewsDetai
     n = session.scalars(select(News).where(News.slug == slug)).one_or_none()
     if n is None:
         raise HTTPException(404, "news not found")
-    return NewsDetail(**news_card(n).model_dump(), body_md=n.body_md)
+    return NewsDetail(**news_card(n).model_dump(), body_md=n.body_md, cover_video=n.cover_video)

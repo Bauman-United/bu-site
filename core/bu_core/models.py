@@ -178,6 +178,7 @@ class News(Base):
     lead: Mapped[str | None] = mapped_column(Text)
     body_md: Mapped[str] = mapped_column(Text, default="")
     cover: Mapped[str | None] = mapped_column(String(500))
+    cover_video: Mapped[str | None] = mapped_column(Text)  # гифка из Telegram (mp4)
     source_platform: Mapped[str | None] = mapped_column(String(16))
     source_url: Mapped[str | None] = mapped_column(String(500))
     match_slug: Mapped[str | None] = mapped_column(String(160))

@@ -427,6 +427,8 @@ export interface components {
             featured: boolean;
             /** Body Md */
             body_md: string;
+            /** Cover Video */
+            cover_video?: string | null;
         };
         /** NewsPage */
         NewsPage: {

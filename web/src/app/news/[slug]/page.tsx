@@ -51,8 +51,23 @@ export default async function NewsArticlePage({ params }: { params: Params }) {
           </div>
           <h1 className={s.title}>{item.title}</h1>
           {item.lead && <Markdown className={s.lead} source={item.lead} />}
-          {item.cover && (
-            <Photo src={item.cover} alt="" ratio="16 / 9" light priority sizes="(max-width: 760px) 100vw, 720px" />
+          {item.cover_video ? (
+            // Гифка из Telegram: mp4 без звука по кругу; если ссылка протухла — видно превью (poster).
+            <video
+              className={s.gif}
+              src={item.cover_video}
+              poster={item.cover ?? undefined}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-hidden="true"
+            />
+          ) : (
+            item.cover && (
+              <Photo src={item.cover} alt="" ratio="16 / 9" light priority sizes="(max-width: 760px) 100vw, 720px" />
+            )
           )}
           {item.body_md && <Markdown source={item.body_md} />}
           {(item.source_url || item.match_slug) && (

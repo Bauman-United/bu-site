@@ -27,7 +27,8 @@ class TgPost(BaseModel):
     date: datetime
     text: str  # обычный текст
     markdown: str  # текст с ссылками и выделением
-    photo: str | None
+    photo: str | None  # фото или превью гифки/видео
+    video: str | None = None  # mp4 гифки (ссылка с токеном Telegram, может протухнуть)
 
 
 def _to_markdown(node: Node) -> str:
@@ -64,6 +65,13 @@ def parse_channel_page(html: str, channel: str) -> tuple[list[TgPost], int | Non
             if found:
                 photo = found.group(1)
                 break
+        video = None
+        if photo is None:
+            thumb = message.css_first(".tgme_widget_message_video_thumb")
+            found = _BG_URL.search((thumb.attributes.get("style") or "") if thumb else "")
+            photo = found.group(1) if found else None
+            video_node = message.css_first("video.tgme_widget_message_video")
+            video = video_node.attributes.get("src") if video_node is not None else None
         post_id = int(ref.split("/", 1)[1])
         posts.append(
             TgPost(
@@ -73,6 +81,7 @@ def parse_channel_page(html: str, channel: str) -> tuple[list[TgPost], int | Non
                 text=text_node.text(separator="\n", strip=True) if text_node else "",
                 markdown=_to_markdown(text_node) if text_node else "",
                 photo=photo,
+                video=video,
             )
         )
     before = min((p.id for p in posts), default=None)
