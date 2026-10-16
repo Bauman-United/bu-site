@@ -3,9 +3,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import httpx
-from bu_core.models import IngestRun
+from bu_core.models import IngestRun, News
 from bu_core.recompute import recompute
 from bu_core.settings import Settings
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from bu_worker import snapshots
@@ -14,9 +15,11 @@ from bu_worker.notify import Notifier
 from bu_worker.pipeline import content as content_pipeline
 from bu_worker.pipeline import joinfootball as jf_pipeline
 from bu_worker.pipeline import lfl as lfl_pipeline
+from bu_worker.pipeline import telegram as telegram_pipeline
 from bu_worker.sources.content import load_content
 from bu_worker.sources.joinfootball.fetch import fetch_bundle
 from bu_worker.sources.lfl.fetch import fetch_bundle as fetch_lfl_bundle
+from bu_worker.sources.telegram import fetch_posts as fetch_tg_posts
 
 log = logging.getLogger(__name__)
 
@@ -144,6 +147,36 @@ def run_lfl(session: Session, settings: Settings, client: PoliteClient, notifier
         all_tags |= result.tags
     revalidate(settings, all_tags)
     return overall
+
+
+def run_telegram(
+    session: Session, settings: Settings, client: PoliteClient, notifier: Notifier
+) -> str:
+    source = f"telegram:{settings.tg_channel}"
+    started = datetime.now(UTC)
+    root = Path(settings.snapshot_dir)
+    try:
+        known = session.scalars(select(News.slug).where(News.origin == "telegram")).all()
+        known_ids = [int(slug.removeprefix("tg-")) for slug in known]
+        posts = fetch_tg_posts(
+            client,
+            settings.tg_channel,
+            since=settings.tg_since,
+            known_max_id=max(known_ids, default=None),
+            max_pages=settings.tg_max_pages,
+            snapshot=lambda name, html: snapshots.save(root, "telegram", name, html, started),
+        )
+        result = telegram_pipeline.ingest(session, posts)
+        session.commit()
+    except Exception as exc:  # noqa: BLE001 — сбой канала не должен ронять остальные источники
+        session.rollback()
+        log.exception("telegram failed")
+        _record(session, source, started, "error", {}, repr(exc))
+        notifier.send(f"{source}: ошибка — {exc!r}", key=f"{source}:error")
+        return "error"
+    _record(session, source, started, "ok", result.counts, None)
+    revalidate(settings, result.tags)
+    return "ok"
 
 
 def run_content(session: Session, settings: Settings) -> str:

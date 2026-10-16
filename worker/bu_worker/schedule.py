@@ -14,7 +14,7 @@ from sqlalchemy import select
 from bu_worker import snapshots
 from bu_worker.http import PoliteClient
 from bu_worker.notify import Notifier
-from bu_worker.runner import run_joinfootball, run_lfl
+from bu_worker.runner import run_joinfootball, run_lfl, run_telegram
 
 log = logging.getLogger(__name__)
 
@@ -56,6 +56,16 @@ def start(settings: Settings) -> None:
             run_joinfootball(session, settings, joinfootball_client, notifier)
             run_lfl(session, settings, lfl_client, notifier)
 
+    @single_flight
+    def channel_news() -> None:
+        client = PoliteClient(
+            settings.tg_base,
+            f"BaumanUnitedBot/1.0 (+{settings.site_url})",
+            settings.request_delay_s,
+        )
+        with sessions() as session:
+            run_telegram(session, settings, client, notifier)
+
     def matchday() -> None:
         now = datetime.now(UTC)
         with sessions() as session:
@@ -76,5 +86,6 @@ def start(settings: Settings) -> None:
     scheduler = BlockingScheduler(timezone="Europe/Moscow")
     scheduler.add_job(scrape, "interval", hours=6, next_run_time=datetime.now(UTC))
     scheduler.add_job(matchday, "interval", minutes=30)
+    scheduler.add_job(channel_news, "interval", hours=2, next_run_time=datetime.now(UTC))
     scheduler.add_job(prune, "cron", hour=4)
     scheduler.start()

@@ -234,8 +234,18 @@ def test_fill_missing_photos_from_player_pages():
     from bu_worker.sources.lfl.parse import fill_missing_photos
 
     def player(ext: str, name: str, photo: str | None) -> ParsedPlayer:
-        return ParsedPlayer(external_id=ext, full_name=name, number=None, position="MF",
-                            played=1, goals=0, assists=0, yellow=0, red=0, photo_url=photo)
+        return ParsedPlayer(
+            external_id=ext,
+            full_name=name,
+            number=None,
+            position="MF",
+            played=1,
+            goals=0,
+            assists=0,
+            yellow=0,
+            red=0,
+            photo_url=photo,
+        )
 
     requested: list[str] = []
 
@@ -244,9 +254,11 @@ def test_fill_missing_photos_from_player_pages():
         return PERSON_PAGE if player_id == "267515" else "<html>нет фото</html>"
 
     out = fill_missing_photos(
-        [player("1", "Королёв Александр", "https://lfl.ru/photo/persons/source/217632.jpg"),
-         player("267515", "Гангелин Максим", None),
-         player("9", "Неизвестный Игрок", None)],
+        [
+            player("1", "Королёв Александр", "https://lfl.ru/photo/persons/source/217632.jpg"),
+            player("267515", "Гангелин Максим", None),
+            player("9", "Неизвестный Игрок", None),
+        ],
         fetch,
     )
     assert requested == ["267515", "9"]  # у кого фото уже есть — страницу не запрашиваем

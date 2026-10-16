@@ -14,6 +14,7 @@ const config: NextConfig = {
       { protocol: "https", hostname: "st.joinsport.io" },
       { protocol: "https", hostname: "lfl.ru" },
       { protocol: "https", hostname: "www.lfl.ru" },
+      { protocol: "https", hostname: "*.telesco.pe" },
     ],
   },
 };

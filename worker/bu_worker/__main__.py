@@ -7,14 +7,14 @@ from bu_core.settings import get_settings
 
 from bu_worker.http import PoliteClient
 from bu_worker.notify import Notifier
-from bu_worker.runner import run_content, run_joinfootball, run_lfl
+from bu_worker.runner import run_content, run_joinfootball, run_lfl, run_telegram
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(prog="bu_worker")
     sub = parser.add_subparsers(dest="cmd", required=True)
     run = sub.add_parser("run")
-    run.add_argument("source", choices=["joinfootball", "lfl", "content", "all"])
+    run.add_argument("source", choices=["joinfootball", "lfl", "telegram", "content", "all"])
     sub.add_parser("schedule")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -49,6 +49,15 @@ def main() -> int:
             lfl_status = run_lfl(session, settings, client, notifier)
             if lfl_status != "ok":
                 status = lfl_status
+        if args.source in ("telegram", "all"):
+            client = PoliteClient(
+                settings.tg_base,
+                f"BaumanUnitedBot/1.0 (+{settings.site_url})",
+                settings.request_delay_s,
+            )
+            tg_status = run_telegram(session, settings, client, notifier)
+            if tg_status != "ok":
+                status = tg_status
     return 0 if status == "ok" else 1
 
 

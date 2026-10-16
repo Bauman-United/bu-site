@@ -159,9 +159,11 @@ def sync_content(session: Session, bundle: ContentBundle) -> IngestResult:
         result.tags.add(f"player:{player.slug}")
 
     keep = {n.slug for n in bundle.news}
-    removed = session.scalars(select(News.slug).where(News.slug.not_in(keep))).all()
+    removed = session.scalars(
+        select(News.slug).where(News.origin == "content", News.slug.not_in(keep))
+    ).all()
     result.tags |= {f"news:{slug}" for slug in removed}
-    session.execute(delete(News).where(News.slug.not_in(keep)))
+    session.execute(delete(News).where(News.origin == "content", News.slug.not_in(keep)))
     for n in bundle.news:
         news = session.scalars(select(News).where(News.slug == n.slug)).one_or_none()
         if news is None:

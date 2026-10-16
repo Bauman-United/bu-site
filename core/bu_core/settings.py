@@ -1,3 +1,4 @@
+from datetime import date
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -15,6 +16,10 @@ class Settings(BaseSettings):
     lfl_base: str = "https://lfl.ru"
     lfl_club_id: str = "14270"
     lfl_tournament_ids: list[str] = ["32573", "33238"]
+    tg_base: str = "https://t.me"
+    tg_channel: str = "baumanunited"
+    tg_since: date = date(2026, 7, 1)
+    tg_max_pages: int = 40
     request_delay_s: float = 3.0
     content_dir: str = "content"
     snapshot_dir: str = "snapshots"

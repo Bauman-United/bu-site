@@ -182,6 +182,7 @@ class News(Base):
     source_url: Mapped[str | None] = mapped_column(String(500))
     match_slug: Mapped[str | None] = mapped_column(String(160))
     featured: Mapped[bool] = mapped_column(Boolean, default=False)
+    origin: Mapped[str] = mapped_column(String(16), default="content")  # content | telegram
 
 
 class ContentDoc(Base):
