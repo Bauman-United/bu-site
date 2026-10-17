@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const config: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
+  // Dev-режим: открывать сайт с телефона через туннель (ngrok). Без этого Next блокирует
+  // /_next/* для чужого домена — страница видна, но JS не грузится (не работает меню и т.п.).
+  allowedDevOrigins: ["*.ngrok-free.app", "*.ngrok.app", "*.ngrok.io"],
   async redirects() {
     // «История» стала «Залом славы»; таймлайн по сезонам — на /about
     return [{ source: "/history", destination: "/hall-of-fame", permanent: true }];
