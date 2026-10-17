@@ -22,21 +22,10 @@ def _set_doc(session: Session, key: str, data: dict) -> None:
         doc.data = data
 
 
-def _sync_player(session: Session, slug: str, content: PlayerContent) -> Player:
-    player = session.scalars(select(Player).where(Player.slug == slug)).one_or_none()
-    if player is None and content.first_name and content.last_name:
-        player_id = player_index(session).find(f"{content.last_name} {content.first_name}")
-        player = session.get(Player, player_id) if player_id else None
-    if player is None:
-        player = Player(
-            slug=slug,
-            first_name=content.first_name or "",
-            last_name=content.last_name or slug,
-            aliases=[],
-            manual_fields=[],
-            achievements=[],
-        )
-        session.add(player)
+PLAYER_OVERRIDES_DOC = "player_overrides"
+
+
+def _apply_player_content(player: Player, content: PlayerContent) -> None:
     if content.first_name:
         player.first_name = content.first_name
     if content.last_name:
@@ -49,8 +38,44 @@ def _sync_player(session: Session, slug: str, content: PlayerContent) -> Player:
             value = [a.model_dump() for a in value or []]
         setattr(player, field, value)
     player.manual_fields = sorted(provided)
+
+
+def _sync_player(session: Session, slug: str, content: PlayerContent) -> Player | None:
+    player = session.scalars(select(Player).where(Player.slug == slug)).one_or_none()
+    if player is None and content.first_name and content.last_name:
+        player_id = player_index(session).find(f"{content.last_name} {content.first_name}")
+        player = session.get(Player, player_id) if player_id else None
+    if player is None:
+        if not (content.first_name and content.last_name):
+            # Только правки (номер, фото…) для игрока, которого парсеры ещё не завели:
+            # не создаём «пустышку» — правка применится, когда игрок появится.
+            return None
+        player = Player(
+            slug=slug,
+            first_name=content.first_name,
+            last_name=content.last_name,
+            aliases=[],
+            manual_fields=[],
+            achievements=[],
+        )
+        session.add(player)
+    _apply_player_content(player, content)
     session.flush()
     return player
+
+
+def apply_pending_player_overrides(session: Session) -> set[str]:
+    """Применить правки из content/players к игрокам, которые появились после синка контента."""
+    doc = session.get(ContentDoc, PLAYER_OVERRIDES_DOC)
+    tags: set[str] = set()
+    for slug, data in (doc.data if doc else {}).items():
+        player = session.scalars(select(Player).where(Player.slug == slug)).one_or_none()
+        if player is None:
+            continue
+        _apply_player_content(player, PlayerContent.model_validate(data))
+        tags.add(f"player:{slug}")
+    session.flush()
+    return tags
 
 
 def _player_id_by_slug(session: Session, slug: str | None) -> int | None:
@@ -167,8 +192,16 @@ def sync_content(session: Session, bundle: ContentBundle) -> IngestResult:
         tournament.url, tournament.season_id = t.url, season.id
     session.flush()
 
+    _set_doc(
+        session,
+        PLAYER_OVERRIDES_DOC,
+        {slug: c.model_dump(mode="json", exclude_unset=True) for slug, c in bundle.players.items()},
+    )
     for slug, content in bundle.players.items():
         player = _sync_player(session, slug, content)
+        if player is None:
+            result.warnings.append(f"players/{slug}.yaml: игрока ещё нет — правка отложена")
+            continue
         result.tags.add(f"player:{player.slug}")
 
     keep = {n.slug for n in bundle.news}

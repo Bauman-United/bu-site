@@ -24,6 +24,7 @@ from bu_worker.pipeline.common import (
     season_slug_for,
     unique_slug,
 )
+from bu_worker.pipeline.content import apply_pending_player_overrides
 
 SOURCE = "joinfootball"
 MIN_RATIO = 0.5
@@ -381,4 +382,6 @@ def ingest(
         )
     _ingest_standings(session, bundle, tournament, our_names)
     result.tags |= {"matches", "players", "standings", "home", "stats"}
+    # Отложенные правки из content/players (номер, фото…) для только что заведённых игроков.
+    result.tags |= apply_pending_player_overrides(session)
     return result

@@ -55,6 +55,11 @@ def main() -> int:
         help="перекачать и архивные турниры (то же, что BU_HISTORY_REFRESH=1)",
     )
     sub.add_parser("schedule")
+    fix = sub.add_parser(
+        "fix-players",
+        help="разово: удалить «пустышки» игроков и вернуть настоящим slug (идемпотентно)",
+    )
+    fix.add_argument("--dry-run", action="store_true", help="только показать, что изменится")
     sub.add_parser(
         "migrate-seasons",
         help="разово: сезоны «2026-27» → календарные годы «2026» (идемпотентно)",
@@ -72,6 +77,25 @@ def main() -> int:
     sessions = make_sessionmaker(make_engine())
     if args.cmd == "migrate-seasons":
         return run_migrate_seasons(sessions, settings)
+    if args.cmd == "fix-players":
+        from bu_core.recompute import recompute
+
+        from bu_worker.pipeline.cleanup import fix_placeholder_players
+        from bu_worker.runner import revalidate
+
+        with sessions() as session:
+            report = fix_placeholder_players(session)
+            print(f"пустышек удалено: {report.removed}")
+            for old, new in report.renamed:
+                print(f"slug: {old} -> {new}")
+            if args.dry_run:
+                session.rollback()
+                print("dry-run: изменения не сохранены")
+                return 0
+            recompute(session)
+            session.commit()
+        revalidate(settings, report.tags)
+        return 0
 
     notifier = Notifier(settings.telegram_bot_token, settings.telegram_chat_id)
     status = "ok"
