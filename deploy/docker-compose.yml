@@ -79,6 +79,7 @@ services:
       BU_API_URL: http://api:8000
       BU_SITE_URL: ${BU_SITE_URL}
       BU_NOINDEX: ${BU_NOINDEX:-1}
+      BU_METRIKA_ID: ${BU_METRIKA_ID:-}
       BU_REVALIDATE_SECRET: ${BU_REVALIDATE_SECRET}
     mem_limit: 384m
     depends_on:

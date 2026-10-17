@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
+import { YandexMetrika } from "@/components/analytics/YandexMetrika";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { getClub } from "@/lib/api";
@@ -25,6 +27,8 @@ const FALLBACK_CLUB: Club = { name: "Бауман Юнайтед", university: "
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const club = await getClub().catch(() => FALLBACK_CLUB);
+  // Метрика только там, где задан счётчик (прод): dev и e2e не портят статистику.
+  const metrikaId = Number(process.env.BU_METRIKA_ID) || null;
   return (
     <html lang="ru" className={`${oswald.variable} ${manrope.variable}`}>
       <body>
@@ -32,6 +36,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Header club={club} />
         <main id="main">{children}</main>
         <Footer club={club} />
+        {metrikaId && (
+          <Suspense fallback={null}>
+            <YandexMetrika id={metrikaId} />
+          </Suspense>
+        )}
       </body>
     </html>
   );
