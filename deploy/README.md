@@ -1,6 +1,6 @@
 # Деплой «Бауман Юнайтед» на VPS
 
-Стек: `postgres` → `migrate` (одноразово) → `api`, `worker`, `web` → `nginx` (+ `certbot`). Наружу открыты только 80/443.
+Стек: `postgres` → `migrate` (одноразово) → `api`, `worker`, `bu-web` → `nginx` (+ `certbot`). Наружу открыты только 80/443.
 Все команды ниже выполняются на сервере в `/opt/bu-site/deploy`, если не сказано иное.
 
 ## 1. Сервер (Timeweb Cloud)
@@ -17,8 +17,9 @@
 ### Сервер с уже занятыми 80/443 (режим `edge`)
 
 Сейчас сайт живёт на bots_server (109.71.246.174), где 80/443 держит Caddy стека protein.
-Свои nginx и certbot тогда не поднимаются (`docker-compose.edge.yml`): `web` подключается к
-общей сети `edge` под именем `bu-web`, а `deploy.sh` пишет блок сайта в
+Свои nginx и certbot тогда не поднимаются (`docker-compose.edge.yml`): `bu-web` подключается к
+общей сети `edge` (в ней видны имена сервисов всех стеков, поэтому они должны быть уникальными —
+сервис `web` перехватил бы трафик мини-аппа protein), а `deploy.sh` пишет блок сайта в
 `$CADDY_SITES_DIR/bu-site.caddy` (Caddyfile protein делает `import /etc/caddy/sites/*.caddy`)
 и перечитывает конфиг Caddy. Сертификат Caddy выпускает сам. В `.env`:
 ```
@@ -130,7 +131,7 @@ docker compose --env-file .env exec worker python -m bu_worker run ingame
    ./issue-cert.sh <домен> <email>
    ```
 3. В `.env`: `NGINX_MODE=https`, `SITE_DOMAIN=<домен>`, `BU_SITE_URL=https://<домен>`, `BU_NOINDEX=0`.
-4. `docker compose --env-file .env up -d nginx web worker`
+4. `docker compose --env-file .env up -d nginx bu-web worker`
 5. Проверить:
    ```bash
    curl -sI http://<домен>/ | head -3          # 301 → https://<домен>/
@@ -156,7 +157,7 @@ docker compose --env-file .env exec worker python -m bu_worker run ingame
 
 ```bash
 docker compose --env-file .env ps
-docker compose --env-file .env logs -f --tail=100 worker   # или web, api, nginx
+docker compose --env-file .env logs -f --tail=100 worker   # или bu-web, api, nginx
 docker compose --env-file .env exec postgres psql -U bu -d bu
 #   select source, status, counts, error, started_at from ingest_run order by id desc limit 10;
 docker compose --env-file .env exec worker python -m bu_worker run joinfootball   # ручной парсинг

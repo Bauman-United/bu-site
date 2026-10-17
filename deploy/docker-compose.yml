@@ -8,7 +8,7 @@ x-python: &python
   environment: &python-env
     BU_DATABASE_URL: postgresql+psycopg://bu:${POSTGRES_PASSWORD}@postgres/bu
     BU_SITE_URL: ${BU_SITE_URL}
-    BU_REVALIDATE_URL: http://web:3000/api/revalidate
+    BU_REVALIDATE_URL: http://bu-web:3000/api/revalidate
     BU_REVALIDATE_SECRET: ${BU_REVALIDATE_SECRET}
     BU_TELEGRAM_BOT_TOKEN: ${BU_TELEGRAM_BOT_TOKEN:-}
     BU_TELEGRAM_CHAT_ID: ${BU_TELEGRAM_CHAT_ID:-}
@@ -68,9 +68,9 @@ services:
       - snapshots:/data/snapshots
     depends_on:
       migrate: { condition: service_completed_successfully }
-      web: { condition: service_started }
+      bu-web: { condition: service_started }
 
-  web:
+  bu-web:
     image: ${IMAGE_PREFIX:-ghcr.io/bauman-united}/bu-web:${TAG:-latest}
     build:
       context: ..
@@ -103,7 +103,7 @@ services:
       - certbot-www:/var/www/certbot:ro
       - letsencrypt:/etc/letsencrypt:ro
     depends_on:
-      web: { condition: service_healthy, restart: true }
+      bu-web: { condition: service_healthy, restart: true }
     restart: unless-stopped
 
   certbot:
