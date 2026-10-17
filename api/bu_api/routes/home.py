@@ -41,7 +41,7 @@ def _league(
             select(Tournament.slug)
             .join(Season)
             .where(Season.slug == season, Tournament.source == source)
-            .order_by(Tournament.name)
+            .order_by(Tournament.name.collate("C"))
         )
         tables = [t for slug in slugs for t in standings(tournament=slug, session=session)]
     # несколько турниров источника в сезоне — берём таблицу, обновлённую последней

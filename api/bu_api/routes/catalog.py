@@ -69,7 +69,8 @@ def seasons(session: Session = Depends(get_session)) -> list[SeasonOut]:
 
 
 def _tournaments(session: Session, season: str | None) -> list[Tournament]:
-    query = select(Tournament).join(Season).order_by(Tournament.name)
+    # COLLATE "C": порядок не зависит от локали базы (glibc и musl сортируют кириллицу по-разному)
+    query = select(Tournament).join(Season).order_by(Tournament.name.collate("C"))
     if season:
         query = query.where(Season.slug == season)
     return list(session.scalars(query))

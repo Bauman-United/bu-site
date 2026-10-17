@@ -52,6 +52,7 @@ test("results table scrolls inside its box, page does not", async ({ page, isMob
 
 test("standings page", async ({ page }) => {
   await page.goto("/standings");
+  await page.getByRole("navigation", { name: "Турнир" }).getByRole("link", { name: "Лига Инженеров" }).click();
   await expect(page.getByRole("heading", { level: 2, name: /Лига Инженеров/ })).toBeVisible();
   await expect(page.locator("tr[aria-current='true']")).toContainText("Bauman United");
   await expect(page.getByText(/Обновлено 12 октября 2026/)).toBeVisible();
