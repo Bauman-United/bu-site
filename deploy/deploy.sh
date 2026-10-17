@@ -4,14 +4,16 @@ set -euo pipefail
 cd "$(dirname "$0")"
 TAG="${1:-latest}"
 sed -i "s/^TAG=.*/TAG=$TAG/" .env
-set -a; . ./.env; set +a
-if [ "${NGINX_MODE:-http}" = "edge" ]; then
+# .env грузим в shell только после compose: bash снимает кавычки в JSON-значениях
+# (BU_LFL_TOURNAMENT_IDS), а переменные окружения у compose приоритетнее .env.
+if grep -qx 'NGINX_MODE=edge' .env; then
   # Сеть общего Caddy; создаётся один раз, повторный вызов — no-op.
   docker network inspect edge >/dev/null 2>&1 || docker network create edge >/dev/null
 fi
 docker compose --env-file .env pull
 docker compose --env-file .env up -d --remove-orphans
 docker image prune -f >/dev/null
+set -a; . ./.env; set +a
 if [ "${NGINX_MODE:-http}" = "edge" ]; then
   : "${CADDY_SITES_DIR:?set CADDY_SITES_DIR in deploy/.env}" "${CADDY_CONTAINER:?set CADDY_CONTAINER in deploy/.env}"
   site="$(sed "s/\${SITE_DOMAIN}/$SITE_DOMAIN/" caddy/site.caddy.template)"
