@@ -15,6 +15,8 @@ x-python: &python
     BU_LFL_BASE: ${BU_LFL_BASE:-https://lfl.ru}
     BU_LFL_CLUB_ID: ${BU_LFL_CLUB_ID:-14270}
     BU_LFL_TOURNAMENT_IDS: '${BU_LFL_TOURNAMENT_IDS:-["32573","33238"]}'
+  # Потолки памяти: на общем сервере утечка в нашем стеке не должна выбивать соседей.
+  mem_limit: 384m
   restart: unless-stopped
 
 services:
@@ -24,6 +26,7 @@ services:
       POSTGRES_DB: bu
       POSTGRES_USER: bu
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+    mem_limit: 256m
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -74,6 +77,7 @@ services:
       BU_SITE_URL: ${BU_SITE_URL}
       BU_NOINDEX: ${BU_NOINDEX:-1}
       BU_REVALIDATE_SECRET: ${BU_REVALIDATE_SECRET}
+    mem_limit: 384m
     depends_on:
       api: { condition: service_healthy }
     healthcheck:

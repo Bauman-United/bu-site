@@ -1,0 +1,19 @@
+# Режим «чужой Caddy»: 80/443 на сервере уже занимает общий Caddy (сейчас — стек protein
+# на bots_server), поэтому свои nginx и certbot не поднимаем. web подключается к общей
+# сети `edge` под именем bu-web, а deploy.sh кладёт блок сайта в каталог, который Caddy
+# импортирует (CADDY_SITES_DIR), и перечитывает его конфиг.
+# Включается в .env: COMPOSE_FILE=docker-compose.yml:docker-compose.edge.yml и NGINX_MODE=edge.
+services:
+  nginx:
+    profiles: [nginx]
+  certbot:
+    profiles: [nginx]
+  web:
+    networks:
+      default: {}
+      edge:
+        aliases: [bu-web]
+
+networks:
+  edge:
+    external: true

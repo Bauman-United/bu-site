@@ -1,0 +1,17 @@
+# Блок сайта для общего Caddy (режим NGINX_MODE=edge). deploy.sh подставляет домен
+# и кладёт результат в $CADDY_SITES_DIR/bu-site.caddy. Сертификат Caddy выпускает сам.
+${SITE_DOMAIN} {
+	encode gzip
+
+	@static path /_next/static/*
+	header @static Cache-Control "public, max-age=31536000, immutable"
+
+	request_body {
+		max_size 2MB
+	}
+
+	reverse_proxy bu-web:3000 {
+		# web берёт IP посетителя для rate limit форм из X-Real-IP — как за нашим nginx.
+		header_up X-Real-IP {remote_host}
+	}
+}

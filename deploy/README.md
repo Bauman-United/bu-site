@@ -14,6 +14,24 @@
   ```
 - Firewall в панели Timeweb: открыть 22, 80, 443; всё остальное закрыть.
 
+### Сервер с уже занятыми 80/443 (режим `edge`)
+
+Сейчас сайт живёт на bots_server (109.71.246.174), где 80/443 держит Caddy стека protein.
+Свои nginx и certbot тогда не поднимаются (`docker-compose.edge.yml`): `web` подключается к
+общей сети `edge` под именем `bu-web`, а `deploy.sh` пишет блок сайта в
+`$CADDY_SITES_DIR/bu-site.caddy` (Caddyfile protein делает `import /etc/caddy/sites/*.caddy`)
+и перечитывает конфиг Caddy. Сертификат Caddy выпускает сам. В `.env`:
+```
+NGINX_MODE=edge
+COMPOSE_FILE=docker-compose.yml:docker-compose.edge.yml
+SITE_DOMAIN=bu.109-71-246-174.sslip.io     # после покупки — свой домен (www → редирект)
+BU_SITE_URL=https://bu.109-71-246-174.sslip.io
+CADDY_SITES_DIR=/opt/caddy-sites
+CADDY_CONTAINER=protein-caddy-1
+```
+Пользователю `deploy` нужна запись в `/opt/caddy-sites`. Шаги 7 (certbot) в этом режиме не нужны:
+для своего домена достаточно A-записей и новых `SITE_DOMAIN`/`BU_SITE_URL`.
+
 ## 2. Первый запуск (до покупки домена)
 
 Сначала выполните шаг 3 (секреты и `DEPLOY_ENABLED`) и один раз запустите Actions → Deploy → Run workflow: так в GHCR появятся образы. Без них `deploy.sh` не сможет их скачать. Workflow сам синхронизирует `deploy/` и вызовет `deploy.sh`, поэтому ниже остаётся только подготовить `.env` до первого запуска.
