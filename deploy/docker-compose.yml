@@ -15,6 +15,9 @@ x-python: &python
     BU_LFL_BASE: ${BU_LFL_BASE:-https://lfl.ru}
     BU_LFL_CLUB_ID: ${BU_LFL_CLUB_ID:-14270}
     BU_LFL_TOURNAMENT_IDS: '${BU_LFL_TOURNAMENT_IDS:-["32573","33238"]}'
+    BU_INGAME_BASE: ${BU_INGAME_BASE:-https://api.ingame-server.ru}
+    BU_INGAME_PUBLIC_BASE: ${BU_INGAME_PUBLIC_BASE:-https://ingame-sports.ru}
+    BU_INGAME_TEAM_ID: ${BU_INGAME_TEAM_ID:-1997}
   # Потолки памяти: на общем сервере утечка в нашем стеке не должна выбивать соседей.
   mem_limit: 384m
   restart: unless-stopped

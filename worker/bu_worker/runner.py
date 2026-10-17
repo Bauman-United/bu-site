@@ -20,6 +20,7 @@ from bu_worker.pipeline import joinfootball as jf_pipeline
 from bu_worker.pipeline import telegram as telegram_pipeline
 from bu_worker.pipeline.common import IngestResult
 from bu_worker.sources.content import load_content
+from bu_worker.sources.ingame.fetch import fetch_bundles as fetch_ingame_bundles
 from bu_worker.sources.joinfootball.discover import discover_tournament_seasons
 from bu_worker.sources.joinfootball.fetch import fetch_bundle
 from bu_worker.sources.lfl.fetch import fetch_bundle as fetch_lfl_bundle
@@ -90,6 +91,14 @@ def source_spec(settings: Settings, name: str) -> SourceSpec:
 def make_client(settings: Settings, name: str) -> PoliteClient:
     return PoliteClient(
         source_spec(settings, name).base,
+        f"BaumanUnitedBot/1.0 (+{settings.site_url})",
+        settings.request_delay_s,
+    )
+
+
+def make_ingame_client(settings: Settings) -> PoliteClient:
+    return PoliteClient(
+        settings.ingame_base,
         f"BaumanUnitedBot/1.0 (+{settings.site_url})",
         settings.request_delay_s,
     )
@@ -238,6 +247,89 @@ def run_lfl(
     refresh: bool | None = None,
 ) -> str:
     return _run_current("lfl", session, settings, client, notifier, today, refresh)
+
+
+def run_ingame(
+    session: Session,
+    settings: Settings,
+    client: PoliteClient,
+    notifier: Notifier,
+    *,
+    today: date | None = None,
+    refresh: bool | None = None,
+) -> str:
+    """Импортирует исторические сезоны команды из JSON API InGame Sports."""
+    force = settings.history_refresh if refresh is None else refresh
+    run_day = today or _today()
+    known = set()
+    if not force:
+        sources = session.scalars(
+            select(IngestRun.source).where(
+                IngestRun.source.like("ingame:%"), IngestRun.status == "ok"
+            )
+        )
+        known = {
+            season_id
+            for source in sources
+            if jf_pipeline.is_archived(
+                session, "ingame", season_id := source.split(":", 1)[1], run_day
+            )
+        }
+
+    started = datetime.now(UTC)
+    root = Path(settings.snapshot_dir)
+
+    def snap(name: str, body: str) -> None:
+        snapshots.save(root, "ingame", name, body, started, suffix="json")
+
+    try:
+        bundles = fetch_ingame_bundles(
+            client,
+            settings.ingame_team_id,
+            settings.ingame_public_base,
+            settings.ingame_base,
+            snap,
+            skip_seasons=known,
+        )
+    except Exception as exc:  # noqa: BLE001 — сбой источника не должен ронять воркер
+        session.rollback()
+        log.exception("ingame fetch failed")
+        _record(session, "ingame:overview", started, "error", {}, repr(exc))
+        notifier.send(f"ingame: ошибка — {exc!r}", key="ingame:error")
+        return "error"
+
+    overall = "ok"
+    tags: set[str] = set()
+    for bundle in bundles:
+        season_id = bundle.tournament.external_id
+        source = f"ingame:{season_id}"
+        season_started = datetime.now(UTC)
+        try:
+            jf_pipeline.sanity_check(session, source, bundle, require_standings=False)
+            result = jf_pipeline.ingest(
+                session,
+                bundle,
+                settings.ingame_team_id,
+                settings.our_team_names,
+                source="ingame",
+                match_url=lambda match_id: (
+                    f"{settings.ingame_public_base}/amf_5x5/match/{match_id}"
+                ),
+                today=run_day,
+            )
+            recompute(session)
+            session.commit()
+        except Exception as exc:  # noqa: BLE001 — следующий сезон всё равно импортируем
+            session.rollback()
+            log.exception("%s failed", source)
+            _record(session, source, season_started, "error", {}, repr(exc))
+            notifier.send(f"{source}: ошибка — {exc!r}", key=f"{source}:error")
+            overall = "error"
+            continue
+        _record(session, source, season_started, "ok", result.counts, None)
+        tags |= result.tags
+    revalidate(settings, tags)
+    return overall
 
 
 def discover(spec: SourceSpec, client: PoliteClient) -> dict[str, str | None]:

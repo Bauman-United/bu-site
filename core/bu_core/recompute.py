@@ -53,7 +53,7 @@ def tournament_lines(session: Session, player_id: int | None = None) -> Lines:
     ):
         if mine(stats.player_id):
             line = lines[(stats.player_id, tournament_id)]
-            for f in ("played", "goals", "assists", "yellow", "red"):
+            for f in ("played", "goals", "assists", "yellow", "red", "mvp"):
                 line[f] += getattr(stats, f)
 
     manual = select(Match.id).join(Tournament).where(Tournament.source == "manual")

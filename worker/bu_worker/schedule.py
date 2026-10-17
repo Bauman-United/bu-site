@@ -17,7 +17,9 @@ from bu_worker.notify import Notifier
 from bu_worker.runner import (
     history_sources,
     make_client,
+    make_ingame_client,
     run_history,
+    run_ingame,
     run_joinfootball,
     run_lfl,
     run_telegram,
@@ -61,6 +63,7 @@ def start(settings: Settings) -> None:
             if history_day[-1:] != [today]:
                 # раз в день: поиск турниров всех сезонов; архивные не перекачиваются
                 run_history(session, settings, clients, notifier)
+                run_ingame(session, settings, make_ingame_client(settings), notifier)
                 history_day[:] = [today]
 
     @single_flight

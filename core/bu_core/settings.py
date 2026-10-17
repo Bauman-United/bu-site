@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     lfl_base: str = "https://lfl.ru"
     lfl_club_id: str = "14270"
     lfl_tournament_ids: list[str] = ["32573", "33238"]
+    ingame_base: str = "https://api.ingame-server.ru"
+    ingame_public_base: str = "https://ingame-sports.ru"
+    ingame_team_id: str = "1997"
     # Прочие лиги на платформе joinsport (Bauman League — поля joinfootball_* выше).
     # Сейчас команда в них не играет: текущих турниров нет, только история.
     joinsport_leagues: list[JoinsportSource] = [

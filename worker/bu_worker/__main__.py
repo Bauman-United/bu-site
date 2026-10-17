@@ -10,8 +10,10 @@ from bu_worker.notify import Notifier
 from bu_worker.runner import (
     history_sources,
     make_client,
+    make_ingame_client,
     run_content,
     run_history,
+    run_ingame,
     run_joinfootball,
     run_lfl,
     run_migrate_seasons,
@@ -28,7 +30,16 @@ def main() -> int:
     run = sub.add_parser("run")
     run.add_argument(
         "source",
-        choices=["joinfootball", "lfl", *leagues, "history", "telegram", "content", "all"],
+        choices=[
+            "joinfootball",
+            "lfl",
+            "ingame",
+            *leagues,
+            "history",
+            "telegram",
+            "content",
+            "all",
+        ],
         help="history — все прошлые сезоны всех лиг; ifl, urban — прошлые турниры лиги",
     )
     run.add_argument(
@@ -75,6 +86,16 @@ def main() -> int:
             lfl_status = run_lfl(session, settings, client, notifier, refresh=args.refresh)
             if lfl_status != "ok":
                 status = lfl_status
+        if args.source in ("ingame", "all"):
+            ingame_status = run_ingame(
+                session,
+                settings,
+                make_ingame_client(settings),
+                notifier,
+                refresh=args.refresh,
+            )
+            if ingame_status != "ok":
+                status = ingame_status
         if args.source == "history" or args.source in leagues:
             sources = history_sources(settings) if args.source == "history" else (args.source,)
             status = run_history(

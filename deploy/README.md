@@ -75,6 +75,19 @@ docker compose --env-file .env exec worker python -m bu_worker run lfl
 У LFL минуты голов часто не указаны: такие события сохраняются с минутой `0`. Кубковые
 турниры могут не иметь турнирной таблицы — для них это штатная ситуация.
 
+## 4.1. Архив InGame Sports
+
+InGame Sports отдаёт исторические матчи и персональную статистику команды через JSON API.
+Источник импортирует матчи в общую статистику клуба, а игры, голы, передачи и карточки —
+в сезонную и суммарную статистику игроков. По умолчанию используется команда `1997`:
+
+```bash
+docker compose --env-file .env exec worker python -m bu_worker run ingame
+```
+
+Уже успешно загруженные исторические сезоны повторно не запрашиваются. Для принудительного
+обновления используйте `python -m bu_worker run ingame --refresh`.
+
 ## 5. Алерты в Telegram
 
 1. Создать бота у @BotFather, получить токен.
@@ -148,6 +161,7 @@ docker compose --env-file .env exec postgres psql -U bu -d bu
 #   select source, status, counts, error, started_at from ingest_run order by id desc limit 10;
 docker compose --env-file .env exec worker python -m bu_worker run joinfootball   # ручной парсинг
 docker compose --env-file .env exec worker python -m bu_worker run lfl            # ручной парсинг LFL
+docker compose --env-file .env exec worker python -m bu_worker run ingame         # архив InGame Sports
 ```
 
 ## 11. Разовые шаги

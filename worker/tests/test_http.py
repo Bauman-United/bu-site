@@ -44,6 +44,20 @@ def test_retries_server_errors():
     assert calls["n"] == 3
 
 
+def test_post_sends_json():
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        seen["method"] = request.method
+        seen["body"] = request.content
+        return httpx.Response(200, text='{"ok":true}')
+
+    assert make(handler).post("/stats", {"season_id": 15}) == '{"ok":true}'
+    assert seen == {"method": "POST", "body": b'{"season_id":15}'}
+
+
 def test_underscore_host_uses_hyphen_sni():
     seen = []
 

@@ -104,6 +104,7 @@ def test_players():
         "assists": 22,
         "yellow": 3,
         "red": 2,
+        "mvp": 0,
         "active": True,
         "photo_url": None,
     }

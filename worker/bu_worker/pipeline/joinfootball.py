@@ -219,6 +219,7 @@ def _ingest_players(
             session.add(stats)
         stats.played, stats.goals, stats.assists = parsed.played, parsed.goals, parsed.assists
         stats.yellow, stats.red = parsed.yellow, parsed.red
+        stats.mvp = parsed.mvp
         result.tags.add(f"player:{player.slug}")
     session.flush()
     if historical:

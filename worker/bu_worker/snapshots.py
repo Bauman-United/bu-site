@@ -6,11 +6,13 @@ from pathlib import Path
 _RUN = re.compile(r"\d{4}-\d{2}-\d{2}-\d{4}")
 
 
-def save(root: Path, source: str, name: str, html: str, now: datetime) -> Path:
+def save(
+    root: Path, source: str, name: str, body: str, now: datetime, suffix: str = "html"
+) -> Path:
     folder = root / source / now.strftime("%Y-%m-%d-%H%M")
     folder.mkdir(parents=True, exist_ok=True)
-    path = folder / f"{name}.html"
-    path.write_text(html, encoding="utf-8")
+    path = folder / f"{name}.{suffix}"
+    path.write_text(body, encoding="utf-8")
     return path
 
 

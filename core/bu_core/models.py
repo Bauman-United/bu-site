@@ -149,6 +149,7 @@ class PlayerTournamentStats(Base):
     assists: Mapped[int] = mapped_column(Integer, default=0)
     yellow: Mapped[int] = mapped_column(Integer, default=0)
     red: Mapped[int] = mapped_column(Integer, default=0)
+    mvp: Mapped[int] = mapped_column(Integer, default=0)
 
 
 class StandingRow(Base):

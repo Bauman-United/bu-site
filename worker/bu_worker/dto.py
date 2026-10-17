@@ -25,6 +25,7 @@ class ParsedPlayer(BaseModel):
     assists: int
     yellow: int
     red: int
+    mvp: int = 0
     active: bool = True
     photo_url: str | None = None
 

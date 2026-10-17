@@ -41,6 +41,7 @@ def test_application_players():
         "assists": 6,
         "yellow": 0,
         "red": 0,
+        "mvp": 0,
         "active": True,
         "photo_url": "https://st.joinsport.io/player/2079261/photo/68beabf36ef3a.jpg",
     }
