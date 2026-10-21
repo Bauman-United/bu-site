@@ -19,8 +19,9 @@
 .info { display: flex; flex-direction: column; gap: 6px; font-size: 16px; line-height: 1.5; }
 .when { font-family: var(--f-display); font-weight: 600; font-size: 24px; text-transform: uppercase; }
 .muted { color: var(--c-text-2-on-paper); }
-.actions { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
-.links { display: flex; flex-wrap: wrap; gap: 10px; }
+.actions { display: flex; flex-direction: column; gap: 16px; align-items: stretch; margin-left: auto; }
+.links { display: flex; flex-direction: column; gap: 10px; }
+.links > a { width: 100%; }
 @media (max-width: 640px) {
   .wrap { gap: 20px; }
   .head { font-family: var(--f-body); font-size: var(--fs-label); letter-spacing: 0; text-transform: none; }
@@ -34,8 +35,6 @@
   .vs { font-size: 28px; }
   .info { text-align: center; gap: 2px; font-size: 14px; }
   .when { font-size: 20px; }
-  .actions { align-items: stretch; }
+  .actions { margin-left: 0; }
   .timer [role="timer"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .links { flex-direction: column; }
-  .links > a { width: 100%; }
 }

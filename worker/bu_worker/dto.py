@@ -26,6 +26,8 @@ class ParsedPlayer(BaseModel):
     yellow: int
     red: int
     mvp: int = 0
+    goalkeeper_played: int = 0
+    goalkeeper_conceded: int = 0
     active: bool = True
     photo_url: str | None = None
 
@@ -55,8 +57,15 @@ class ParsedEvent(BaseModel):
     note: str | None = None
 
 
+class ParsedAppearance(BaseModel):
+    side: Side
+    player_name: str
+    position: str | None = None
+
+
 class MatchDetail(BaseModel):
     events: list[ParsedEvent]
+    appearances: list[ParsedAppearance] = []
     mvp_name: str | None = None
     mvp_side: Side | None = None
 

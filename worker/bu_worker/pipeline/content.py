@@ -166,6 +166,8 @@ def _sync_match(session: Session, slug: str, content: MatchContent, result: Inge
                 result.warnings.append(f"matches/{slug}.yaml: unknown player {player_slug}")
                 continue
             session.add(MatchAppearance(match_id=match.id, player_id=player_id))
+        manual.add("squad")
+        match.manual_fields = sorted(manual)
     session.flush()
     result.tags.add(f"match:{slug}")
 

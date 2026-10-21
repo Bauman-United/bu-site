@@ -13,6 +13,7 @@ from bu_worker.dto import (
     CalendarEntry,
     EventType,
     MatchDetail,
+    ParsedAppearance,
     ParsedEvent,
     ParsedPlayer,
     ParsedStanding,
@@ -257,6 +258,7 @@ def parse_match(html: str) -> MatchDetail:
     scores = [_int(_text(node)) for node in match.css(".match_score")]
     score_total = sum(scores[::2]) if len(scores) >= 3 else 0
     events: list[ParsedEvent] = []
+    appearances = parse_match_appearances(html)
     for title, block in _section_blocks(match):
         if title == "Голы":
             current_side: Side | None = None
@@ -304,7 +306,42 @@ def parse_match(html: str) -> MatchDetail:
     if score_total and goals and goals != score_total:
         raise ParseError(f"parsed {goals} goals for score total {score_total}")
     events.sort(key=lambda event: event.minute)
-    return MatchDetail(events=events)
+    return MatchDetail(events=events, appearances=appearances)
+
+
+def parse_match_appearances(html: str) -> list[ParsedAppearance]:
+    """Состав сохраняем и тогда, когда неполные события LFL не сходятся со счётом."""
+    tree = HTMLParser(html)
+    match = tree.css_first(".some_news[id^='match']")
+    if match is None:
+        raise ParseError("match protocol not found")
+    home_id = _id(match.css_first(".match_team_home a[href*='/club']"), _CLUB_ID)
+    away_id = _id(match.css_first(".match_team_away a[href*='/club']"), _CLUB_ID)
+    appearances: list[ParsedAppearance] = []
+    for title, block in _section_blocks(match):
+        if title != "Составы":
+            continue
+        current_side: Side | None = None
+        first_on_side = False
+        for node in block.css("p, a[href*='/player']"):
+            club_link = node.css_first("a.match_members_club") if node.tag == "p" else None
+            if club_link is not None:
+                current_side = _side(_id(club_link, _CLUB_ID), home_id, away_id)
+                first_on_side = current_side is not None
+                continue
+            if current_side is None or node.tag != "a":
+                continue
+            raw_name = _text(node).rstrip(";").strip()
+            player_name = re.sub(r"\s*\(вр\)\s*", "", raw_name, flags=re.IGNORECASE).strip()
+            appearances.append(
+                ParsedAppearance(
+                    side=current_side,
+                    player_name=player_name,
+                    position="GK" if first_on_side else None,
+                )
+            )
+            first_on_side = False
+    return appearances
 
 
 _NAME_WORD = re.compile(r"[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)*")

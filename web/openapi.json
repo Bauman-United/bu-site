@@ -830,6 +830,13 @@
             "type": "array",
             "title": "Played"
           },
+          "goal_contributions": {
+            "items": {
+              "$ref": "#/components/schemas/GoalContributionRecord"
+            },
+            "type": "array",
+            "title": "Goal Contributions"
+          },
           "goalkeepers": {
             "items": {
               "$ref": "#/components/schemas/GoalkeeperRecord"
@@ -843,10 +850,11 @@
           "goals",
           "assists",
           "played",
+          "goal_contributions",
           "goalkeepers"
         ],
         "title": "AllTimeRecords",
-        "description": "Рекордсмены клуба за всё время, включая эффективность вратарей."
+        "description": "Рекордсмены клуба за всё время, включая гол+пас и эффективность вратарей."
       },
       "EventOut": {
         "properties": {
@@ -943,6 +951,78 @@
           "ok"
         ],
         "title": "FormResult"
+      },
+      "GoalContributionRecord": {
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "photo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          },
+          "value": {
+            "type": "integer",
+            "title": "Value"
+          },
+          "played": {
+            "type": "integer",
+            "title": "Played"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "goals": {
+            "type": "integer",
+            "title": "Goals"
+          },
+          "assists": {
+            "type": "integer",
+            "title": "Assists"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rank",
+          "slug",
+          "name",
+          "photo",
+          "position",
+          "value",
+          "played",
+          "active",
+          "goals",
+          "assists"
+        ],
+        "title": "GoalContributionRecord"
       },
       "GoalkeeperRecord": {
         "properties": {

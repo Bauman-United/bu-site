@@ -4,6 +4,7 @@ from typing import Any
 from bu_core.models import (
     Computed,
     Match,
+    MatchAppearance,
     Player,
     PlayerSeasonStats,
     PlayerTournamentStats,
@@ -16,7 +17,7 @@ from sqlalchemy.orm import Session
 
 from bu_api.deps import get_session
 from bu_api.routes import current_season, full_name
-from bu_api.schemas import AllTimeRecords, GoalkeeperRecord, RecordRow
+from bu_api.schemas import AllTimeRecords, GoalContributionRecord, GoalkeeperRecord, RecordRow
 
 router = APIRouter()
 KEYS = ("played", "goals", "assists", "yellow", "red", "mvp")
@@ -82,6 +83,7 @@ def stats(season: str | None = None, session: Session = Depends(get_session)) ->
 
 
 RECORD_KEYS = ("goals", "assists", "played")
+GOAL_CONTRIBUTION_RECORDS_LIMIT = 10
 GOALKEEPER_RECORDS_LIMIT = 10
 
 
@@ -117,37 +119,51 @@ def all_time_records(
             for i, pid in enumerate(ranked, start=1)
         ]
 
-    # Источники дают число игр каждого вратаря по турниру, но не всегда сохраняют полные
-    # протоколы старых матчей. Поэтому пропущенные в турнире распределяем пропорционально
-    # сыгранным матчам: это сохраняет реальное число игр и средний показатель команды.
+    contribution_players = sorted(
+        (pid for pid, values in sums.items() if values["goals"] + values["assists"] > 0),
+        key=lambda pid: (
+            -(sums[pid]["goals"] + sums[pid]["assists"]),
+            sums[pid]["played"],
+            full_name(players[pid]),
+        ),
+    )[:GOAL_CONTRIBUTION_RECORDS_LIMIT]
+    goal_contributions = [
+        GoalContributionRecord(
+            rank=rank,
+            slug=players[player_id].slug,
+            name=full_name(players[player_id]),
+            photo=players[player_id].photo,
+            position=players[player_id].position,
+            value=sums[player_id]["goals"] + sums[player_id]["assists"],
+            played=sums[player_id]["played"],
+            active=players[player_id].active,
+            goals=sums[player_id]["goals"],
+            assists=sums[player_id]["assists"],
+        )
+        for rank, player_id in enumerate(contribution_players, start=1)
+    ]
+
+    # Смешанные роли считаются только по фактическому амплуа в протоколе матча. InGame
+    # отдаёт точные вратарские игры и пропущенные сразу в статистике игрока.
     goalkeeper_totals: dict[int, dict[str, int]] = defaultdict(lambda: {"played": 0, "conceded": 0})
-    tournament_scores: dict[int, tuple[int, int]] = {}
-    for match in session.scalars(
-        select(Match).where(
+    protocol_rows = session.execute(
+        select(MatchAppearance.player_id, Match.score_them)
+        .join(Match, Match.id == MatchAppearance.match_id)
+        .where(
+            MatchAppearance.position == "GK",
             Match.status == "finished",
-            Match.score_us.is_not(None),
             Match.score_them.is_not(None),
         )
-    ):
-        games, conceded = tournament_scores.get(match.tournament_id, (0, 0))
-        tournament_scores[match.tournament_id] = (games + 1, conceded + (match.score_them or 0))
-
-    goalkeeper_rows = session.execute(
-        select(PlayerTournamentStats, Player)
-        .join(Player, Player.id == PlayerTournamentStats.player_id)
-        .where(Player.position == "GK", PlayerTournamentStats.played > 0)
     )
-    for stats_row, _player in goalkeeper_rows:
-        tournament_games, tournament_conceded = tournament_scores.get(
-            stats_row.tournament_id, (0, 0)
-        )
-        if tournament_games == 0:
-            continue
-        played = stats_row.played or 0
-        goalkeeper_totals[stats_row.player_id]["played"] += played
-        goalkeeper_totals[stats_row.player_id]["conceded"] += round(
-            tournament_conceded * played / tournament_games
-        )
+    for player_id, conceded in protocol_rows:
+        goalkeeper_totals[player_id]["played"] += 1
+        goalkeeper_totals[player_id]["conceded"] += conceded or 0
+
+    for stats_row in session.scalars(
+        select(PlayerTournamentStats).where(PlayerTournamentStats.goalkeeper_played > 0)
+    ):
+        goalkeeper_totals[stats_row.player_id]["played"] += stats_row.goalkeeper_played
+        goalkeeper_totals[stats_row.player_id]["conceded"] += stats_row.goalkeeper_conceded
 
     goalkeeper_players = {
         p.id: p for p in session.scalars(select(Player).where(Player.id.in_(goalkeeper_totals)))
@@ -183,5 +199,6 @@ def all_time_records(
         goals=top("goals"),
         assists=top("assists"),
         played=top("played"),
+        goal_contributions=goal_contributions,
         goalkeepers=goalkeepers,
     )

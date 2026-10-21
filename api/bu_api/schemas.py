@@ -151,6 +151,11 @@ class RecordRow(BaseModel):
     active: bool
 
 
+class GoalContributionRecord(RecordRow):
+    goals: int
+    assists: int
+
+
 class GoalkeeperRecord(BaseModel):
     rank: int
     slug: str
@@ -163,9 +168,10 @@ class GoalkeeperRecord(BaseModel):
 
 
 class AllTimeRecords(BaseModel):
-    """Рекордсмены клуба за всё время, включая эффективность вратарей."""
+    """Рекордсмены клуба за всё время, включая гол+пас и эффективность вратарей."""
 
     goals: list[RecordRow]
     assists: list[RecordRow]
     played: list[RecordRow]
+    goal_contributions: list[GoalContributionRecord]
     goalkeepers: list[GoalkeeperRecord]

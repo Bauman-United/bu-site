@@ -29,7 +29,8 @@ export default async function HallOfFamePage() {
   const legends = (history.legends ?? []).filter((l) => l.name);
   const intro = historyIntro(club, (history.timeline ?? []).filter((t) => t.year && t.title));
   const hasTrophies = sortTrophies(trophies).length > 0;
-  const hasRecords = records.goals.length + records.assists.length + records.played.length + records.goalkeepers.length > 0;
+  const hasRecords = records.goals.length + records.assists.length + records.played.length
+    + records.goal_contributions.length + records.goalkeepers.length > 0;
   const anchors = [
     hasTrophies && { href: "#trophies", label: "Трофеи" },
     hasRecords && { href: "#records", label: "Рекордсмены" },

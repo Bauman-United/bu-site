@@ -57,6 +57,12 @@ def _player_stats(data: Mapping[str, Any], team_id: str) -> dict[str, int]:
             ((data.get("stats_player") or {}).get("additionalStats") or {}).get("items") or []
         )
     }
+    goalkeeper = {
+        str(item.get("name")): int(item.get("value") or 0)
+        for item in (
+            ((data.get("stats_player") or {}).get("goalkeeperStats") or {}).get("items") or []
+        )
+    }
     return {
         "played": int(row.get("games") or 0),
         "goals": int(row.get("goals") or 0),
@@ -64,6 +70,8 @@ def _player_stats(data: Mapping[str, Any], team_id: str) -> dict[str, int]:
         "yellow": int(row.get("yellow_cards") or 0),
         "red": int(row.get("red_cards") or 0),
         "mvp": additional.get("MVP", 0),
+        "goalkeeper_played": goalkeeper.get("Игры", 0),
+        "goalkeeper_conceded": goalkeeper.get("ГП", 0),
     }
 
 

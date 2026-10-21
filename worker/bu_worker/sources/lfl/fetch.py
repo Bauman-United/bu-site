@@ -9,6 +9,7 @@ from bu_worker.sources.lfl.parse import (
     parse_calendar,
     parse_current_player_ids,
     parse_match,
+    parse_match_appearances,
     parse_player_photos,
     parse_players,
     parse_season_id,
@@ -58,14 +59,18 @@ def fetch_bundle(
     details: dict[str, MatchDetail] = {}
     for entry in calendar:
         if entry.home_score is not None:
+            match_html = get(f"match_{entry.external_id}", f"/match{entry.external_id}")
             try:
-                details[entry.external_id] = parse_match(
-                    get(f"match_{entry.external_id}", f"/match{entry.external_id}")
-                )
+                details[entry.external_id] = parse_match(match_html)
             except ParseError:
                 # Протокол не заполнен или не сходится со счётом — матч берём без событий,
                 # уже известные события ingest не затирает.
-                continue
+                try:
+                    appearances = parse_match_appearances(match_html)
+                except ParseError:
+                    appearances = []
+                if appearances:
+                    details[entry.external_id] = MatchDetail(events=[], appearances=appearances)
     tournament = parse_tournament_info(tournament_html, tournament_id, tournament_url)
     try:
         standings = parse_standings(tournament_html)

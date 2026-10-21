@@ -21,6 +21,25 @@ test("home renders data blocks from API", async ({ page }) => {
   await expect(page.getByText("Дмитрий Писарев").first()).toBeVisible();
 });
 
+test("next match actions stay at the right on desktop and fit on mobile", async ({ page, isMobile }) => {
+  await page.goto("/");
+  const nextMatch = page.getByRole("region", { name: "Следующий матч" });
+  const actions = nextMatch.getByRole("link", { name: /О матче/ }).locator("../..");
+  const card = actions.locator("..");
+  const [actionsBox, cardBox] = await Promise.all([actions.boundingBox(), card.boundingBox()]);
+
+  expect(actionsBox).not.toBeNull();
+  expect(cardBox).not.toBeNull();
+  if (!actionsBox || !cardBox) return;
+
+  if (isMobile) {
+    expect(actionsBox.x + actionsBox.width).toBeLessThanOrEqual(cardBox.x + cardBox.width);
+  } else {
+    expect(actionsBox.x).toBeGreaterThan(cardBox.x + cardBox.width / 2);
+    expect(cardBox.x + cardBox.width - (actionsBox.x + actionsBox.width)).toBeLessThanOrEqual(44);
+  }
+});
+
 test("home shows last result and mini table for both leagues", async ({ page }) => {
   await page.goto("/");
   const leagues: [string, RegExp][] = [

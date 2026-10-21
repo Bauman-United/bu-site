@@ -74,6 +74,13 @@ STATS = {
     },
     "stats_player": {
         "additionalStats": {"items": [{"name": "MVP", "value": 1}]},
+        "goalkeeperStats": {
+            "items": [
+                {"name": "Игры", "value": 12},
+                {"name": "ГП", "value": 18},
+                {"name": "ГП/Игра", "value": 1.5},
+            ]
+        },
     },
 }
 LEADERS = {
@@ -119,6 +126,8 @@ def test_parse_ingame_season_bundle():
         "yellow": 1,
         "red": 0,
         "mvp": 1,
+        "goalkeeper_played": 12,
+        "goalkeeper_conceded": 18,
         "active": False,
         "photo_url": "https://api.ingame-server.ru/images/players/47593.png",
     }

@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 from bu_core.models import (
     Match,
+    MatchAppearance,
     Player,
     PlayerSeasonStats,
     PlayerTournamentStats,
@@ -54,7 +55,7 @@ def _setup(db) -> None:
 def test_all_time_records_sum_all_seasons_including_departed(client, db):
     _setup(db)
     r = client.get("/records/all-time").json()
-    assert set(r) == {"goals", "assists", "played", "goalkeepers"}
+    assert set(r) == {"goals", "assists", "played", "goal_contributions", "goalkeepers"}
     goals = [(x["rank"], x["slug"], x["value"]) for x in r["goals"]]
     # ничья по голам — выше тот, у кого меньше игр; нули в списки не попадают
     assert goals == [(1, "aleksandr-korolev", 9), (2, "staryy-veteran", 9)]
@@ -66,6 +67,15 @@ def test_all_time_records_sum_all_seasons_including_departed(client, db):
         ("egor-kucha", 20),
         ("aleksandr-korolev", 15),
         ("old-boy", 1),
+    ]
+    contributions = [
+        (x["rank"], x["slug"], x["goals"], x["assists"], x["value"], x["played"])
+        for x in r["goal_contributions"]
+    ]
+    assert contributions == [
+        (1, "aleksandr-korolev", 9, 5, 14, 15),
+        (2, "staryy-veteran", 9, 2, 11, 30),
+        (3, "egor-kucha", 0, 5, 5, 20),
     ]
     veteran = r["goals"][1]
     assert veteran == {
@@ -84,6 +94,8 @@ def test_all_time_records_limit(client, db):
     _setup(db)
     r = client.get("/records/all-time", params={"limit": 1}).json()
     assert [x["slug"] for x in r["played"]] == ["staryy-veteran"]
+    # Исторический топ гол+пас, как и топ вратарей, всегда содержит до 10 строк.
+    assert len(r["goal_contributions"]) == 3
     assert client.get("/records/all-time", params={"limit": 0}).status_code == 422
 
 
@@ -94,6 +106,7 @@ def test_all_time_records_empty_db(client, db):
         "goals": [],
         "assists": [],
         "played": [],
+        "goal_contributions": [],
         "goalkeepers": [],
     }
 
@@ -121,13 +134,6 @@ def test_goalkeeper_efficiency_only_over_ten_appearances(client, db):
         )
         db.add(keeper_tournament)
         db.flush()
-        db.add(
-            PlayerTournamentStats(
-                player_id=keeper.id,
-                tournament_id=keeper_tournament.id,
-                played=games,
-            )
-        )
         for index in range(games):
             goals = 1 if index < conceded else 0
             match = Match(
@@ -144,6 +150,8 @@ def test_goalkeeper_efficiency_only_over_ten_appearances(client, db):
                 external_id=f"gk-{keeper.slug}-{index}",
             )
             db.add(match)
+            db.flush()
+            db.add(MatchAppearance(match_id=match.id, player_id=keeper.id, position="GK"))
     db.flush()
 
     rows = client.get("/records/all-time").json()["goalkeepers"]
@@ -153,3 +161,87 @@ def test_goalkeeper_efficiency_only_over_ten_appearances(client, db):
     ]
     # Лимит остальных рекордов не должен сокращать отдельный исторический топ вратарей.
     assert len(client.get("/records/all-time", params={"limit": 1}).json()["goalkeepers"]) == 2
+
+
+def test_goalkeeper_efficiency_uses_match_role_not_global_player_position(client, db):
+    season = db.scalars(select(Season).where(Season.slug == "2026")).one()
+    tournament = Tournament(
+        slug="mixed-roles",
+        name="Смешанные роли",
+        short="Роли",
+        source="joinfootball",
+        external_id="mixed-roles",
+        season_id=season.id,
+    )
+    player = Player(
+        slug="mixed-role-player",
+        first_name="Игорь",
+        last_name="Универсал",
+        position="MF",
+    )
+    db.add_all([tournament, player])
+    db.flush()
+    start = datetime(2021, 1, 1, tzinfo=UTC)
+    for index in range(15):
+        match = Match(
+            slug=f"mixed-role-{index}",
+            tournament_id=tournament.id,
+            season_id=season.id,
+            kickoff=start + timedelta(days=index),
+            home=True,
+            opponent_name="Соперник",
+            status="finished",
+            score_us=2,
+            score_them=1,
+            source="joinfootball",
+            external_id=f"mixed-role-{index}",
+        )
+        db.add(match)
+        db.flush()
+        db.add(
+            MatchAppearance(
+                match_id=match.id,
+                player_id=player.id,
+                position="GK" if index < 11 else "MF",
+            )
+        )
+    db.flush()
+
+    row = next(
+        row
+        for row in client.get("/records/all-time").json()["goalkeepers"]
+        if row["slug"] == player.slug
+    )
+    assert (row["played"], row["conceded"], row["efficiency"]) == (11, 11, 1.0)
+
+
+def test_goalkeeper_efficiency_adds_exact_ingame_aggregates(client, db):
+    season = db.scalars(select(Season).where(Season.slug == "2026")).one()
+    tournament = Tournament(
+        slug="ingame-gk",
+        name="InGame GK",
+        short="InGame",
+        source="ingame",
+        external_id="ingame-gk",
+        season_id=season.id,
+    )
+    player = Player(slug="ingame-keeper", first_name="Иван", last_name="Вратарь")
+    db.add_all([tournament, player])
+    db.flush()
+    db.add(
+        PlayerTournamentStats(
+            player_id=player.id,
+            tournament_id=tournament.id,
+            played=20,
+            goalkeeper_played=12,
+            goalkeeper_conceded=18,
+        )
+    )
+    db.flush()
+
+    row = next(
+        row
+        for row in client.get("/records/all-time").json()["goalkeepers"]
+        if row["slug"] == player.slug
+    )
+    assert (row["played"], row["conceded"], row["efficiency"]) == (12, 18, 1.5)

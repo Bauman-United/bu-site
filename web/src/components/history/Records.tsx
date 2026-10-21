@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { Photo } from "@/components/ui/Photo";
 import { positionLabel } from "@/lib/format";
-import type { AllTimeRecords, GoalkeeperRecord, RecordRow } from "@/lib/types";
+import type {
+  AllTimeRecords,
+  GoalContributionRecord,
+  GoalkeeperRecord,
+  RecordRow,
+} from "@/lib/types";
 import s from "./Records.module.css";
 
 const LISTS: { key: "goals" | "assists" | "played"; title: string; unit: string }[] = [
@@ -29,10 +34,10 @@ function Row({ row }: { row: RecordRow }) {
 function Goalkeepers({ rows }: { rows: GoalkeeperRecord[] }) {
   if (rows.length === 0) return null;
   return (
-    <div className={s.goalkeepers}>
-      <div className={s.goalkeepersHead}>
-        <h3 className={s.goalkeepersTitle}>Топ-10 вратарей по эффективности</h3>
-        <span className={s.goalkeepersNote}>Минимум 11 матчей · меньше — лучше</span>
+    <div className={s.ranking}>
+      <div className={s.rankingHead}>
+        <h3 className={s.rankingTitle}>Топ-10 вратарей по эффективности</h3>
+        <span className={s.rankingNote}>Минимум 11 матчей · меньше — лучше</span>
       </div>
       <div className={s.tableScroll}>
         <table className={s.table}>
@@ -49,8 +54,8 @@ function Goalkeepers({ rows }: { rows: GoalkeeperRecord[] }) {
               <tr key={row.slug}>
                 <td className={s.tableRank}>{row.rank}</td>
                 <td>
-                  <Link className={s.keeper} href={`/team/${row.slug}`}>
-                    <span className={s.keeperPhoto}>
+                  <Link className={s.tablePlayer} href={`/team/${row.slug}`}>
+                    <span className={s.tablePlayerPhoto}>
                       <Photo src={row.photo} alt={row.photo ? row.name : ""} ratio="1 / 1" sizes="40px" />
                     </span>
                     <span>{row.name}</span>
@@ -67,10 +72,55 @@ function Goalkeepers({ rows }: { rows: GoalkeeperRecord[] }) {
   );
 }
 
+function GoalContributions({ rows }: { rows: GoalContributionRecord[] }) {
+  if (rows.length === 0) return null;
+  return (
+    <div className={s.ranking}>
+      <div className={s.rankingHead}>
+        <h3 className={s.rankingTitle}>Топ-10 по гол + пас</h3>
+        <span className={s.rankingNote}>За всю историю клуба</span>
+      </div>
+      <div className={s.tableScroll}>
+        <table className={`${s.table} ${s.wideTable}`}>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Игрок</th>
+              <th scope="col">Матчи</th>
+              <th scope="col">Голы</th>
+              <th scope="col">Передачи</th>
+              <th scope="col">Гол + пас</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.slug}>
+                <td className={s.tableRank}>{row.rank}</td>
+                <td>
+                  <Link className={s.tablePlayer} href={`/team/${row.slug}`}>
+                    <span className={s.tablePlayerPhoto}>
+                      <Photo src={row.photo} alt={row.photo ? row.name : ""} ratio="1 / 1" sizes="40px" />
+                    </span>
+                    <span>{row.name}</span>
+                  </Link>
+                </td>
+                <td>{row.played}</td>
+                <td>{row.goals}</td>
+                <td>{row.assists}</td>
+                <td className={s.efficiency}>{row.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 /** «Рекордсмены клуба» за всё время: топ по голам, передачам и матчам, бывшие игроки тоже. */
 export function Records({ records }: { records: AllTimeRecords }) {
   const lists = LISTS.filter(({ key }) => records[key].length > 0);
-  if (lists.length === 0 && records.goalkeepers.length === 0) return null;
+  if (lists.length === 0 && records.goal_contributions.length === 0 && records.goalkeepers.length === 0) return null;
   return (
     <section id="records" className="section" aria-labelledby="records-title">
       <div className={`container ${s.wrap}`}>
@@ -91,6 +141,7 @@ export function Records({ records }: { records: AllTimeRecords }) {
             </div>
           ))}
         </div>
+        <GoalContributions rows={records.goal_contributions} />
         <Goalkeepers rows={records.goalkeepers} />
       </div>
     </section>

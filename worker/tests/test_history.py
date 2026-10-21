@@ -1,6 +1,6 @@
 """История: поиск прошлых турниров (БЛ, IFL, ЛФЛ), архив, загрузка прошлых сезонов."""
 
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import httpx
@@ -164,6 +164,17 @@ def test_archived_needs_old_period_and_ok_run(db):
     db.add(
         IngestRun(
             source="joinfootball:1066703", started_at=FUTURE, status="ok", counts={}, error=None
+        )
+    )
+    db.flush()
+    assert not is_archived(db, "joinfootball", "1066703", FUTURE)  # старый запуск: нет протоколов
+    db.add(
+        IngestRun(
+            source="joinfootball:1066703",
+            started_at=datetime(2031, 1, 2, tzinfo=UTC),
+            status="ok",
+            counts={"protocols": 0},
+            error=None,
         )
     )
     db.flush()

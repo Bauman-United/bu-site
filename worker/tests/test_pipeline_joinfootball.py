@@ -1,16 +1,17 @@
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import pytest
 from bu_core.models import (
     IngestRun,
     Match,
+    MatchAppearance,
     MatchEvent,
     Player,
     PlayerTournamentStats,
     StandingRow,
 )
-from bu_worker.dto import JoinFootballBundle
+from bu_worker.dto import JoinFootballBundle, ParsedAppearance
 from bu_worker.pipeline.joinfootball import SanityError, ingest, sanity_check
 from bu_worker.sources.joinfootball.parse import (
     parse_application,
@@ -52,7 +53,7 @@ def test_ingest_creates_everything(db):
     assert count(db, Player) == 25
     assert count(db, Match) == 9
     assert count(db, StandingRow) == 10
-    assert result.counts == {"players": 25, "matches": 9, "standings": 10}
+    assert result.counts == {"players": 25, "matches": 9, "standings": 10, "protocols": 0}
     assert "matches" in result.tags and "player:aleksandr-korolev" in result.tags
 
     m = db.scalars(select(Match).where(Match.external_id == "5848533")).one()
@@ -72,6 +73,22 @@ def test_ingest_creates_everything(db):
     assert (stats.played, stats.goals, stats.assists) == (5, 2, 6)
     us_row = db.scalars(select(StandingRow).where(StandingRow.is_us)).one()
     assert us_row.pos == 6
+
+
+def test_ingest_saves_only_our_protocol_appearances_and_roles(db):
+    b = bundle()
+    detail = b.details["5848533"].model_copy(
+        update={
+            "appearances": [
+                ParsedAppearance(side="home", player_name="Королев Александр", position="GK"),
+                ParsedAppearance(side="away", player_name="Горевой Александр", position="FW"),
+            ]
+        }
+    )
+    ingest(db, b.model_copy(update={"details": {"5848533": detail}}), TEAM, NAMES)
+    appearance = db.scalars(select(MatchAppearance)).one()
+    player = db.get(Player, appearance.player_id)
+    assert (player.slug, appearance.position) == ("aleksandr-korolev", "GK")
 
 
 def test_ingest_is_idempotent(db):
@@ -189,6 +206,23 @@ def test_departed_players_become_inactive(db):
         select(PlayerSourceLink).where(PlayerSourceLink.external_id == gone.external_id)
     ).one()
     assert db.get(Player, link.player_id).active is False
+
+
+def test_historical_ingest_fills_missing_position_without_overwriting_it(db):
+    b = bundle()
+    historical_player = b.players[0].model_copy(update={"position": "GK"})
+    historical = b.model_copy(update={"players": [historical_player]})
+
+    ingest(db, historical, TEAM, NAMES, today=date(2030, 1, 1))
+    player = db.scalars(select(Player)).one()
+    assert player.position == "GK"
+    assert player.active is False
+
+    player.position = "DF"
+    db.flush()
+    ingest(db, historical, TEAM, NAMES, today=date(2030, 1, 1))
+    db.refresh(player)
+    assert player.position == "DF"
 
 
 def test_player_photo_from_source_unless_manual(db):

@@ -5,6 +5,7 @@ from bu_core.matching import AmbiguousMatchError, PlayerIndex, PlayerName
 from bu_core.models import (
     IngestRun,
     Match,
+    MatchAppearance,
     MatchEvent,
     Player,
     PlayerSourceLink,
@@ -51,6 +52,9 @@ def _counts(bundle: JoinFootballBundle) -> dict[str, int]:
         "players": len(bundle.players),
         "matches": len(bundle.calendar),
         "standings": len(bundle.standings),
+        # Маркер версии импорта: старые успешные запуски без этого ключа один раз
+        # перекачиваются, чтобы заполнить амплуа из протоколов архивных матчей.
+        "protocols": sum(bool(detail.appearances) for detail in bundle.details.values()),
     }
 
 
@@ -68,7 +72,8 @@ def sanity_check(
         .order_by(IngestRun.started_at.desc())
         .limit(1)
     ).one_or_none()
-    for key, value in new.items():
+    for key in ("players", "matches", "standings"):
+        value = new[key]
         if value == 0 and (key != "standings" or require_standings):
             raise SanityError(f"{key}: source returned 0 items")
         before = (previous.counts or {}).get(key, 0) if previous else 0
@@ -87,12 +92,13 @@ def is_archived(session: Session, source: str, external_id: str, today: date) ->
     ).one_or_none()
     if period_end is None or period_end >= today - ARCHIVE_AFTER:
         return False
-    ok_run = session.scalars(
-        select(IngestRun.id)
+    ok_counts = session.scalars(
+        select(IngestRun.counts)
         .where(IngestRun.source == f"{source}:{external_id}", IngestRun.status == "ok")
+        .order_by(IngestRun.started_at.desc())
         .limit(1)
     ).first()
-    return ok_run is not None
+    return ok_counts is not None and "protocols" in (ok_counts or {})
 
 
 def _upsert_tournament(
@@ -199,8 +205,13 @@ def _ingest_players(
             continue
         present.add(player.id)
         if historical:
-            # прошлый турнир не меняет номер, амплуа и статус текущего игрока
-            manual = {"number", "position", "active"} | set(player.manual_fields or [])
+            # Прошлый турнир не меняет известные номер, амплуа и статус текущего игрока,
+            # но заполняет пропуски у игроков, впервые найденных в архиве.
+            manual = {"active"} | set(player.manual_fields or [])
+            if player.number is not None:
+                manual.add("number")
+            if player.position is not None:
+                manual.add("position")
             if player.photo:
                 manual.add("photo")
         else:
@@ -221,6 +232,8 @@ def _ingest_players(
         stats.played, stats.goals, stats.assists = parsed.played, parsed.goals, parsed.assists
         stats.yellow, stats.red = parsed.yellow, parsed.red
         stats.mvp = parsed.mvp
+        stats.goalkeeper_played = parsed.goalkeeper_played
+        stats.goalkeeper_conceded = parsed.goalkeeper_conceded
         result.tags.add(f"player:{player.slug}")
     session.flush()
     if historical:
@@ -331,6 +344,20 @@ def _ingest_match(
             if detail.mvp_side == our_side
             else None
         )
+    if detail is not None and detail.appearances and "squad" not in manual:
+        session.execute(delete(MatchAppearance).where(MatchAppearance.match_id == match.id))
+        for appearance in detail.appearances:
+            if appearance.side != our_side:
+                continue
+            player_id = _find_in_index(index, appearance.player_name, result.warnings)
+            if player_id is not None:
+                session.add(
+                    MatchAppearance(
+                        match_id=match.id,
+                        player_id=player_id,
+                        position=appearance.position,
+                    )
+                )
     session.flush()
     result.tags.add(f"match:{match.slug}")
 

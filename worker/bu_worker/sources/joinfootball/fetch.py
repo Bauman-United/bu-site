@@ -9,6 +9,7 @@ from bu_worker.sources.joinfootball.parse import (
     parse_application,
     parse_calendar,
     parse_match,
+    parse_protocol,
     parse_standings,
     parse_team_calendar,
     parse_tournament_info,
@@ -77,14 +78,27 @@ def fetch_bundle(
     details: dict[str, MatchDetail] = {}
     for entry in calendar:
         if entry.home_score is not None:
+            detail = MatchDetail(events=[])
             try:
-                details[entry.external_id] = parse_match(
+                detail = parse_match(
                     get(f"match_{entry.external_id}", f"/match/{entry.external_id}")
                 )
             except ParseError:
-                # Протокол не заполнен (часто в кубках) — матч берём без событий,
-                # уже известные события ingest не затирает.
-                continue
+                # Протокол событий может быть пустым даже при заполненном составе.
+                pass
+            try:
+                protocol = parse_protocol(
+                    get(
+                        f"match_{entry.external_id}_protocol",
+                        f"/match/{entry.external_id}?active=protocol",
+                    )
+                )
+                if protocol:
+                    detail = detail.model_copy(update={"appearances": protocol})
+            except ParseError:
+                pass
+            if detail.events or detail.appearances or detail.mvp_name:
+                details[entry.external_id] = detail
     return JoinFootballBundle(
         tournament=info,
         players=players,

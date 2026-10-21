@@ -134,6 +134,7 @@ class MatchAppearance(Base):
     player_id: Mapped[int] = mapped_column(
         ForeignKey("player.id", ondelete="CASCADE"), primary_key=True
     )
+    position: Mapped[str | None] = mapped_column(String(2))  # GK | DF | MF | FW
 
 
 class PlayerTournamentStats(Base):
@@ -150,6 +151,8 @@ class PlayerTournamentStats(Base):
     yellow: Mapped[int] = mapped_column(Integer, default=0)
     red: Mapped[int] = mapped_column(Integer, default=0)
     mvp: Mapped[int] = mapped_column(Integer, default=0)
+    goalkeeper_played: Mapped[int] = mapped_column(Integer, default=0)
+    goalkeeper_conceded: Mapped[int] = mapped_column(Integer, default=0)
 
 
 class StandingRow(Base):

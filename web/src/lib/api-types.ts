@@ -325,7 +325,7 @@ export interface components {
     schemas: {
         /**
          * AllTimeRecords
-         * @description Рекордсмены клуба за всё время, включая эффективность вратарей.
+         * @description Рекордсмены клуба за всё время, включая гол+пас и эффективность вратарей.
          */
         AllTimeRecords: {
             /** Goals */
@@ -334,6 +334,8 @@ export interface components {
             assists: components["schemas"]["RecordRow"][];
             /** Played */
             played: components["schemas"]["RecordRow"][];
+            /** Goal Contributions */
+            goal_contributions: components["schemas"]["GoalContributionRecord"][];
             /** Goalkeepers */
             goalkeepers: components["schemas"]["GoalkeeperRecord"][];
         };
@@ -360,6 +362,29 @@ export interface components {
         FormResult: {
             /** Ok */
             ok: boolean;
+        };
+        /** GoalContributionRecord */
+        GoalContributionRecord: {
+            /** Rank */
+            rank: number;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Photo */
+            photo: string | null;
+            /** Position */
+            position: string | null;
+            /** Value */
+            value: number;
+            /** Played */
+            played: number;
+            /** Active */
+            active: boolean;
+            /** Goals */
+            goals: number;
+            /** Assists */
+            assists: number;
         };
         /** GoalkeeperRecord */
         GoalkeeperRecord: {

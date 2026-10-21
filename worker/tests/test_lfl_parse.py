@@ -78,6 +78,13 @@ MATCH = """
       <span><a href="/player266203">Королёв Александр <img src="/popup_yc.png"> (</a>
       <a href="/club14270">Бауман Юнайтед</a>, 0');</span>
     </div>
+    <p class="match_right_head">Составы:</p><div class="match_members">
+      <p><a class="match_members_club" href="/club15167">Корп Софт</a></p>
+      <a href="/player1">Чужой Вратарь (вр);</a>
+      <p><a class="match_members_club" href="/club14270">Бауман Юнайтед</a></p>
+      <a href="/player2">Ступак Александр;</a>
+      <a href="/player266203">Шведов Владислав (вр);</a>
+    </div>
   </div>
 </div>
 """
@@ -105,6 +112,8 @@ def test_players():
         "yellow": 3,
         "red": 2,
         "mvp": 0,
+        "goalkeeper_played": 0,
+        "goalkeeper_conceded": 0,
         "active": True,
         "photo_url": None,
     }
@@ -135,6 +144,11 @@ def test_match_uses_zero_when_lfl_has_no_minutes():
         ("yellow", "Королёв Александр", 0),
     ]
     assert all(event.note == "минута не указана" for event in detail.events)
+    assert [(row.player_name, row.side, row.position) for row in detail.appearances] == [
+        ("Чужой Вратарь", "home", "GK"),
+        ("Ступак Александр", "away", "GK"),
+        ("Шведов Владислав", "away", None),
+    ]
 
 
 def test_broken_html_raises():

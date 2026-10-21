@@ -8,6 +8,7 @@ from bu_worker.sources.joinfootball.parse import (
     parse_application,
     parse_calendar,
     parse_match,
+    parse_protocol,
     parse_standings,
     parse_tournament_info,
 )
@@ -42,6 +43,8 @@ def test_application_players():
         "yellow": 0,
         "red": 0,
         "mvp": 0,
+        "goalkeeper_played": 0,
+        "goalkeeper_conceded": 0,
         "active": True,
         "photo_url": "https://st.joinsport.io/player/2079261/photo/68beabf36ef3a.jpg",
     }
@@ -89,6 +92,35 @@ def test_match_events_and_mvp():
     yellow = next(e for e in detail.events if e.minute == 43)
     assert (yellow.type, yellow.side, yellow.player_name) == ("yellow", "home", "Заночуев Михаил")
     assert (detail.mvp_name, detail.mvp_side) == ("Горевой Александр", "away")
+
+
+def test_match_protocol_has_per_match_positions():
+    appearances = parse_protocol(
+        """
+        <div class="protocol__block protocol__block--main">
+          <div class="protocol__unit">
+            <div class="protocol__item"><span class="protocol__name">Трифонов Матвей</span>
+              <span class="protocol__role">Вр</span></div>
+            <div class="protocol__item"><span class="protocol__name">Селифанов Александр</span>
+              <span class="protocol__role">Пз</span></div>
+          </div>
+          <div class="protocol__unit protocol__unit--right">
+            <div class="protocol__item"><span class="protocol__name">Чужой Игрок</span>
+              <span class="protocol__role">Нп</span></div>
+          </div>
+        </div>
+        <div class="protocol__block protocol__block--reserve">
+          <div class="protocol__unit">
+            <div class="protocol__item"><span class="protocol__name">Запасной Вратарь</span></div>
+          </div>
+        </div>
+        """
+    )
+    assert [(row.player_name, row.side, row.position) for row in appearances] == [
+        ("Трифонов Матвей", "home", "GK"),
+        ("Селифанов Александр", "home", None),
+        ("Чужой Игрок", "away", "GK"),
+    ]
 
 
 def test_standings():

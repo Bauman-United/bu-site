@@ -10,6 +10,7 @@ from selectolax.lexbor import LexborNode as Node
 from bu_worker.dto import (
     CalendarEntry,
     MatchDetail,
+    ParsedAppearance,
     ParsedEvent,
     ParsedPlayer,
     ParsedStanding,
@@ -324,6 +325,34 @@ def parse_match(html: str) -> MatchDetail:
             mvp_name = _text(best)
             mvp_side = "home" if index == 0 else "away"
     return MatchDetail(events=events, mvp_name=mvp_name, mvp_side=mvp_side)
+
+
+def parse_protocol(html: str) -> list[ParsedAppearance]:
+    """Состав и вратарь конкретного матча.
+
+    Join.Football показывает рядом с игроком его заявочное амплуа: поэтому в составе
+    могут одновременно быть два «Вр», хотя один играл в поле. Фактический вратарский
+    слот в протоколе всегда первый в списке команды — это также позволяет учитывать
+    полевого игрока, который в конкретном матче встал в ворота.
+    """
+    tree = HTMLParser(html)
+    appearances: list[ParsedAppearance] = []
+    units = tree.css(".protocol__block--main .protocol__unit") or tree.css(".protocol__unit")
+    for unit in units:
+        classes = (_attr(unit, "class") or "").split()
+        side: Side = "away" if "protocol__unit--right" in classes else "home"
+        for item_index, item in enumerate(unit.css(".protocol__item")):
+            name = _text(item.css_first(".protocol__name"))
+            if not name:
+                continue
+            appearances.append(
+                ParsedAppearance(
+                    side=side,
+                    player_name=name,
+                    position="GK" if item_index == 0 else None,
+                )
+            )
+    return appearances
 
 
 def parse_standings(html: str) -> list[ParsedStanding]:
