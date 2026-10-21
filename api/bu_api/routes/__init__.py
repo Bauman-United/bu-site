@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from bu_api.schemas import MatchSummary, NewsCard, TournamentOut
 
 MSK = ZoneInfo("Europe/Moscow")
+METALLURG_ADDRESS = "Москва, улица Новая Дорога, 11с1"
 
 
 def current_season(session: Session) -> str | None:
@@ -23,6 +24,9 @@ def tournament_out(t: Tournament) -> TournamentOut:
 
 def match_summary(m: Match) -> MatchSummary:
     finished = m.status == "finished" and m.score_us is not None and m.score_them is not None
+    venue_address = m.venue_address
+    if m.venue_name and "металлург" in m.venue_name.casefold():
+        venue_address = METALLURG_ADDRESS
     return MatchSummary(
         slug=m.slug,
         kickoff=m.kickoff.astimezone(MSK) if m.kickoff else None,
@@ -30,7 +34,7 @@ def match_summary(m: Match) -> MatchSummary:
         round=m.round,
         home=m.home,
         venue_name=m.venue_name,
-        venue_address=m.venue_address,
+        venue_address=venue_address,
         opponent_name=m.opponent_name,
         opponent_logo=m.opponent_logo,
         status=m.status,

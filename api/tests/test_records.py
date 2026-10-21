@@ -1,6 +1,15 @@
 """Рекордсмены клуба за всё время: суммы по всем сезонам, вместе с бывшими игроками."""
 
-from bu_core.models import Player, PlayerSeasonStats, Season
+from datetime import UTC, datetime, timedelta
+
+from bu_core.models import (
+    Match,
+    Player,
+    PlayerSeasonStats,
+    PlayerTournamentStats,
+    Season,
+    Tournament,
+)
 from sqlalchemy import delete, select
 
 
@@ -45,7 +54,7 @@ def _setup(db) -> None:
 def test_all_time_records_sum_all_seasons_including_departed(client, db):
     _setup(db)
     r = client.get("/records/all-time").json()
-    assert set(r) == {"goals", "assists", "played"}
+    assert set(r) == {"goals", "assists", "played", "goalkeepers"}
     goals = [(x["rank"], x["slug"], x["value"]) for x in r["goals"]]
     # ничья по голам — выше тот, у кого меньше игр; нули в списки не попадают
     assert goals == [(1, "aleksandr-korolev", 9), (2, "staryy-veteran", 9)]
@@ -81,4 +90,64 @@ def test_all_time_records_limit(client, db):
 def test_all_time_records_empty_db(client, db):
     db.execute(delete(PlayerSeasonStats))
     db.flush()
-    assert client.get("/records/all-time").json() == {"goals": [], "assists": [], "played": []}
+    assert client.get("/records/all-time").json() == {
+        "goals": [],
+        "assists": [],
+        "played": [],
+        "goalkeepers": [],
+    }
+
+
+def test_goalkeeper_efficiency_only_over_ten_appearances(client, db):
+    season = db.scalars(select(Season).where(Season.slug == "2026")).one()
+    keepers = [
+        Player(slug="keeper-a", first_name="Антон", last_name="Первый", position="GK"),
+        Player(slug="keeper-b", first_name="Борис", last_name="Второй", position="GK"),
+        Player(slug="keeper-short", first_name="Семён", last_name="Мало", position="GK"),
+    ]
+    db.add_all(keepers)
+    db.flush()
+    start = datetime(2020, 1, 1, tzinfo=UTC)
+    for keeper_index, (keeper, games, conceded) in enumerate(
+        ((keepers[0], 12, 9), (keepers[1], 11, 11), (keepers[2], 10, 0))
+    ):
+        keeper_tournament = Tournament(
+            slug=f"keeper-tournament-{keeper_index}",
+            name=f"Турнир вратаря {keeper_index}",
+            short=f"ВР {keeper_index}",
+            source="manual",
+            external_id=f"keeper-tournament-{keeper_index}",
+            season_id=season.id,
+        )
+        db.add(keeper_tournament)
+        db.flush()
+        db.add(
+            PlayerTournamentStats(
+                player_id=keeper.id,
+                tournament_id=keeper_tournament.id,
+                played=games,
+            )
+        )
+        for index in range(games):
+            goals = 1 if index < conceded else 0
+            match = Match(
+                slug=f"gk-{keeper.slug}-{index}",
+                tournament_id=keeper_tournament.id,
+                season_id=season.id,
+                kickoff=start + timedelta(days=index),
+                home=True,
+                opponent_name=f"Соперник {index}",
+                status="finished",
+                score_us=2,
+                score_them=goals,
+                source="manual",
+                external_id=f"gk-{keeper.slug}-{index}",
+            )
+            db.add(match)
+    db.flush()
+
+    rows = client.get("/records/all-time").json()["goalkeepers"]
+    assert [(row["slug"], row["played"], row["conceded"], row["efficiency"]) for row in rows] == [
+        ("keeper-a", 12, 9, 0.75),
+        ("keeper-b", 11, 11, 1.0),
+    ]

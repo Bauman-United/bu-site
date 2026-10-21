@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
 import { EventsList } from "@/components/match/EventsList";
+import { HeadToHead } from "@/components/match/HeadToHead";
 import { Report } from "@/components/match/Report";
 import { Scoreboard } from "@/components/match/Scoreboard";
 import { Stripes } from "@/components/ui/Stripes";
@@ -49,6 +50,7 @@ export default async function MatchPage({ params }: { params: Params }) {
         ])}
       />
       <Scoreboard match={match} nav={anchors} />
+      {match.head_to_head && <HeadToHead data={match.head_to_head} opponent={match.opponent_name} />}
       {(hasEvents || match.source_url) && (
         <section className={s.details}>
           <div className={`container ${s.detailsInner}`}>

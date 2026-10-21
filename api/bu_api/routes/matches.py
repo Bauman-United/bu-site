@@ -1,13 +1,15 @@
 from typing import Literal
 
 from bu_core.models import Match, News, Player, Season, Tournament
+from bu_core.stats import outcome
+from bu_core.text import normalize_name
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from bu_api.deps import get_session
 from bu_api.routes import full_name, match_summary, news_card, players_by_id
-from bu_api.schemas import EventOut, MatchDetail, MatchSummary, PlayerRef
+from bu_api.schemas import EventOut, HeadToHead, MatchDetail, MatchSummary, PlayerRef
 
 router = APIRouter()
 # матчи без даты — после всех датированных
@@ -84,6 +86,40 @@ def match_detail(slug: str, session: Session = Depends(get_session)) -> MatchDet
     ordered = list(session.scalars(select(Match.slug).order_by(*CHRONO)))
     i = ordered.index(m.slug)
     mvp = ref(m.mvp_player_id)
+
+    head_to_head = None
+    if m.status == "scheduled" and m.score_us is None and m.score_them is None:
+        opponent_key = normalize_name(m.opponent_name)
+        previous = [
+            previous_match
+            for previous_match in session.scalars(
+                select(Match)
+                .where(
+                    Match.id != m.id,
+                    Match.status == "finished",
+                    Match.score_us.is_not(None),
+                    Match.score_them.is_not(None),
+                )
+                .order_by(Match.kickoff.desc().nulls_last(), Match.id.desc())
+            )
+            if normalize_name(previous_match.opponent_name) == opponent_key
+        ]
+        won = drawn = lost = 0
+        for previous_match in previous:
+            result = outcome(previous_match.score_us or 0, previous_match.score_them or 0)
+            if result == "W":
+                won += 1
+            elif result == "D":
+                drawn += 1
+            else:
+                lost += 1
+        head_to_head = HeadToHead(
+            won=won,
+            drawn=drawn,
+            lost=lost,
+            recent=[match_summary(previous_match) for previous_match in previous[:5]],
+        )
+
     return MatchDetail(
         **match_summary(m).model_dump(),
         events=events,
@@ -94,4 +130,5 @@ def match_detail(slug: str, session: Session = Depends(get_session)) -> MatchDet
         video_url=m.video_url,
         prev_slug=ordered[i - 1] if i > 0 else None,
         next_slug=ordered[i + 1] if i + 1 < len(ordered) else None,
+        head_to_head=head_to_head,
     )

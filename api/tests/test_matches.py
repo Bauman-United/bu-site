@@ -1,3 +1,5 @@
+from datetime import UTC, datetime, timedelta
+
 from bu_core.models import Match, Tournament
 from sqlalchemy import select
 
@@ -65,3 +67,43 @@ def test_undated_match_detail(client, db):
     assert m["kickoff"] is None
     assert m["prev_slug"] == "2026-10-25-messiya" and m["next_slug"] is None
     assert client.get("/matches/2026-10-25-messiya").json()["next_slug"] == "kvazar-5877228"
+
+
+def test_scheduled_match_has_head_to_head_summary_and_last_five(client, db):
+    scheduled = db.scalars(select(Match).where(Match.slug == "2026-10-25-messiya")).one()
+    start = datetime(2020, 1, 1, tzinfo=UTC)
+    scores = [(3, 1), (2, 2), (0, 1), (4, 0), (1, 1), (2, 0)]
+    for index, (us, them) in enumerate(scores):
+        db.add(
+            Match(
+                slug=f"history-messiya-{index}",
+                tournament_id=scheduled.tournament_id,
+                season_id=scheduled.season_id,
+                kickoff=start + timedelta(days=index),
+                home=index % 2 == 0,
+                opponent_name="  МЕССИЯ  " if index == 0 else "Мессия",
+                status="finished",
+                score_us=us,
+                score_them=them,
+                source="manual",
+                external_id=f"history-{index}",
+            )
+        )
+    db.flush()
+
+    detail = client.get(f"/matches/{scheduled.slug}").json()
+    history = detail["head_to_head"]
+    assert (history["won"], history["drawn"], history["lost"]) == (3, 2, 1)
+    assert [m["slug"] for m in history["recent"]] == [
+        "history-messiya-5",
+        "history-messiya-4",
+        "history-messiya-3",
+        "history-messiya-2",
+        "history-messiya-1",
+    ]
+    assert client.get("/matches/2026-09-06-bauman-junior").json()["head_to_head"] is None
+
+
+def test_metallurg_address_is_normalized(client):
+    match = client.get("/matches/2026-09-06-bauman-junior").json()
+    assert match["venue_address"] == "Москва, улица Новая Дорога, 11с1"

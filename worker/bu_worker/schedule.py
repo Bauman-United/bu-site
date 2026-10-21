@@ -50,6 +50,7 @@ def start(settings: Settings) -> None:
     notifier = Notifier(settings.telegram_bot_token, settings.telegram_chat_id)
 
     history_day: list[date] = []  # день последнего обхода прошлых сезонов
+    telegram_refresh_day: list[date] = []  # раз в день обновляем временные CDN-ссылки фото
 
     @single_flight
     def scrape() -> None:
@@ -74,7 +75,13 @@ def start(settings: Settings) -> None:
             settings.request_delay_s,
         )
         with sessions() as session:
-            run_telegram(session, settings, client, notifier)
+            today = datetime.now(UTC).date()
+            full_rescan = telegram_refresh_day[-1:] != [today]
+            status = run_telegram(
+                session, settings, client, notifier, full_rescan=full_rescan
+            )
+            if full_rescan and status == "ok":
+                telegram_refresh_day[:] = [today]
 
     def matchday() -> None:
         now = datetime.now(UTC)

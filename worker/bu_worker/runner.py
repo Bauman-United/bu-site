@@ -390,7 +390,12 @@ def run_history(
 
 
 def run_telegram(
-    session: Session, settings: Settings, client: PoliteClient, notifier: Notifier
+    session: Session,
+    settings: Settings,
+    client: PoliteClient,
+    notifier: Notifier,
+    *,
+    full_rescan: bool | None = None,
 ) -> str:
     source = f"telegram:{settings.tg_channel}"
     started = datetime.now(UTC)
@@ -402,7 +407,11 @@ def run_telegram(
             client,
             settings.tg_channel,
             since=settings.tg_since,
-            known_max_id=None if settings.tg_full_rescan else max(known_ids, default=None),
+            known_max_id=(
+                None
+                if settings.tg_full_rescan or full_rescan
+                else max(known_ids, default=None)
+            ),
             max_pages=settings.tg_max_pages,
             snapshot=lambda name, html: snapshots.save(root, "telegram", name, html, started),
         )

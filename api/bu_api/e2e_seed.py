@@ -156,7 +156,7 @@ def seed(session: Session, empty: bool = False) -> None:
             )
         )
     for slug, (pl, g, a) in {
-        "egor-kucha": (3, 0, 0),
+        "egor-kucha": (12, 0, 0),
         "fedor-meshkov": (3, 1, 1),
         "kirill-kolochkov": (3, 2, 0),
         "aleksandr-korolev": (3, 2, 4),
@@ -230,9 +230,19 @@ def seed(session: Session, empty: bool = False) -> None:
     m4 = match(
         "2030-10-24-messiya", (2030, 10, 24, 18, 30), False, "Мессия", "scheduled", rnd="6 тур"
     )
+    m4_history = match(
+        "2020-01-10-messiya",
+        (2020, 1, 10, 18, 0),
+        True,
+        "Мессия",
+        "finished",
+        1,
+        0,
+        rnd="Товарищеский матч",
+    )
     # дата на сайте лиги «Не задано» → на сайте «Дата уточняется»
     m5 = match("kvazar-5877228", None, False, "Квазар", "scheduled", rnd="Четвертьфинал")
-    session.add_all([m1, m2, m3, m4, m5])
+    session.add_all([m1, m2, m3, m4_history, m4, m5])
     teams = [
         "Раскат",
         "ФК ФН",

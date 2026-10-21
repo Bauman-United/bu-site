@@ -19,6 +19,9 @@ test("upcoming away match page", async ({ page }) => {
   await page.goto("/matches/2030-10-24-messiya");
   await expect(page.getByRole("timer")).toBeVisible();
   await expect(page.getByText("В гостях").first()).toBeVisible();
+  const history = page.getByRole("region", { name: "Против Мессия" });
+  await expect(history).toContainText("Победы1");
+  await expect(history.getByRole("link", { name: /1:0/ })).toBeVisible();
 });
 
 test("og image renders", async ({ request }) => {

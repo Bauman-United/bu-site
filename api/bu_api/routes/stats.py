@@ -1,7 +1,14 @@
 from collections import defaultdict
 from typing import Any
 
-from bu_core.models import Computed, Match, Player, PlayerSeasonStats, Season
+from bu_core.models import (
+    Computed,
+    Match,
+    Player,
+    PlayerSeasonStats,
+    PlayerTournamentStats,
+    Season,
+)
 from bu_core.stats import StatLine, leaders
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
@@ -9,7 +16,7 @@ from sqlalchemy.orm import Session
 
 from bu_api.deps import get_session
 from bu_api.routes import current_season, full_name
-from bu_api.schemas import AllTimeRecords, RecordRow
+from bu_api.schemas import AllTimeRecords, GoalkeeperRecord, RecordRow
 
 router = APIRouter()
 KEYS = ("played", "goals", "assists", "yellow", "red", "mvp")
@@ -109,4 +116,80 @@ def all_time_records(
             for i, pid in enumerate(ranked, start=1)
         ]
 
-    return AllTimeRecords(goals=top("goals"), assists=top("assists"), played=top("played"))
+    # Источники дают число игр каждого вратаря по турниру, но не всегда сохраняют полные
+    # протоколы старых матчей. Поэтому пропущенные в турнире распределяем пропорционально
+    # сыгранным матчам: это сохраняет реальное число игр и средний показатель команды.
+    goalkeeper_totals: dict[int, dict[str, int]] = defaultdict(
+        lambda: {"played": 0, "conceded": 0}
+    )
+    tournament_scores: dict[int, tuple[int, int]] = {}
+    for match in session.scalars(
+        select(Match).where(
+            Match.status == "finished",
+            Match.score_us.is_not(None),
+            Match.score_them.is_not(None),
+        )
+    ):
+        games, conceded = tournament_scores.get(match.tournament_id, (0, 0))
+        tournament_scores[match.tournament_id] = (games + 1, conceded + (match.score_them or 0))
+
+    goalkeeper_rows = session.execute(
+        select(PlayerTournamentStats, Player)
+        .join(Player, Player.id == PlayerTournamentStats.player_id)
+        .where(Player.position == "GK", PlayerTournamentStats.played > 0)
+    )
+    for stats_row, _player in goalkeeper_rows:
+        tournament_games, tournament_conceded = tournament_scores.get(
+            stats_row.tournament_id, (0, 0)
+        )
+        if tournament_games == 0:
+            continue
+        played = stats_row.played or 0
+        goalkeeper_totals[stats_row.player_id]["played"] += played
+        goalkeeper_totals[stats_row.player_id]["conceded"] += round(
+            tournament_conceded * played / tournament_games
+        )
+
+    goalkeeper_players = {
+        p.id: p
+        for p in session.scalars(
+            select(Player).where(Player.id.in_(goalkeeper_totals))
+        )
+    }
+    eligible = [
+        player_id
+        for player_id, values in goalkeeper_totals.items()
+        if values["played"] > 10
+    ]
+    eligible.sort(
+        key=lambda player_id: (
+            goalkeeper_totals[player_id]["conceded"]
+            / goalkeeper_totals[player_id]["played"],
+            -goalkeeper_totals[player_id]["played"],
+            full_name(goalkeeper_players[player_id]),
+        )
+    )
+    goalkeepers = [
+        GoalkeeperRecord(
+            rank=rank,
+            slug=goalkeeper_players[player_id].slug,
+            name=full_name(goalkeeper_players[player_id]),
+            photo=goalkeeper_players[player_id].photo,
+            played=goalkeeper_totals[player_id]["played"],
+            conceded=goalkeeper_totals[player_id]["conceded"],
+            efficiency=round(
+                goalkeeper_totals[player_id]["conceded"]
+                / goalkeeper_totals[player_id]["played"],
+                2,
+            ),
+            active=goalkeeper_players[player_id].active,
+        )
+        for rank, player_id in enumerate(eligible[:limit], start=1)
+    ]
+
+    return AllTimeRecords(
+        goals=top("goals"),
+        assists=top("assists"),
+        played=top("played"),
+        goalkeepers=goalkeepers,
+    )

@@ -81,8 +81,11 @@ def deliver(request: Request, settings: Settings, form: str, text: str) -> None:
 
     Honeypot проверяет сам роут — до вызова, чтобы боты не тратили лимит.
     """
-    chat_id = settings.join_chat_id or settings.telegram_chat_id
-    if not settings.join_dry_run and not (settings.telegram_bot_token and chat_id):
+    # Сначала пробуем отдельного адресата публичных форм, затем общий чат клуба.
+    # Это не даёт отправке ломаться целиком из-за устаревшего/ошибочного BU_JOIN_CHAT_ID.
+    candidates = [settings.join_chat_id, settings.telegram_chat_id]
+    chat_ids = list(dict.fromkeys(chat_id for chat_id in candidates if chat_id))
+    if not settings.join_dry_run and not (settings.telegram_bot_token and chat_ids):
         raise HTTPException(503, f"{form} is not configured")
     limiter, ip = _limiter(request, form), client_ip(request)
     if not limiter.allowed(ip):
@@ -90,9 +93,18 @@ def deliver(request: Request, settings: Settings, form: str, text: str) -> None:
     if settings.join_dry_run:
         log.warning("%s (dry run):\n%s", form, text)
     else:
-        assert chat_id is not None
         transport = getattr(request.app.state, "telegram_transport", None)
-        send_telegram(settings, chat_id, text, transport)
+        last_error: HTTPException | None = None
+        for chat_id in chat_ids:
+            try:
+                send_telegram(settings, chat_id, text, transport)
+                last_error = None
+                break
+            except HTTPException as exc:
+                last_error = exc
+                log.warning("%s delivery failed for one recipient, trying fallback", form)
+        if last_error is not None:
+            raise last_error
     limiter.record(ip)
 
 

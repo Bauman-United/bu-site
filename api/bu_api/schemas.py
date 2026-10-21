@@ -82,6 +82,14 @@ class MatchDetail(MatchSummary):
     video_url: str | None
     prev_slug: str | None
     next_slug: str | None
+    head_to_head: "HeadToHead | None" = None
+
+
+class HeadToHead(BaseModel):
+    won: int
+    drawn: int
+    lost: int
+    recent: list[MatchSummary]
 
 
 class PlayerStats(BaseModel):
@@ -143,9 +151,21 @@ class RecordRow(BaseModel):
     active: bool
 
 
+class GoalkeeperRecord(BaseModel):
+    rank: int
+    slug: str
+    name: str
+    photo: str | None
+    played: int
+    conceded: int
+    efficiency: float
+    active: bool
+
+
 class AllTimeRecords(BaseModel):
-    """Рекордсмены клуба за всё время: топ по голам, передачам и сыгранным матчам."""
+    """Рекордсмены клуба за всё время, включая эффективность вратарей."""
 
     goals: list[RecordRow]
     assists: list[RecordRow]
     played: list[RecordRow]
+    goalkeepers: list[GoalkeeperRecord]

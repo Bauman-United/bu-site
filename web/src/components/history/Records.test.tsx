@@ -12,6 +12,9 @@ describe("Records", () => {
       goals: [row(1, "staryy-veteran", "Старый Ветеран", 25, { active: false, photo: "/crest-white.png" })],
       assists: [row(1, "a", "Игрок А", 13, { position: null })],
       played: [row(1, "b", "Игрок Б", 40, { position: "GK" })],
+      goalkeepers: [
+        { rank: 1, slug: "keeper", name: "Иван Вратарев", photo: null, played: 20, conceded: 15, efficiency: 0.75, active: true },
+      ],
     };
     render(<Records records={records} />);
     expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Рекордсмены клуба");
@@ -24,12 +27,15 @@ describe("Records", () => {
     const assists = within(screen.getByRole("list", { name: "Передачи" })).getAllByRole("listitem");
     expect(assists[0]).toHaveTextContent("Игрок");
     expect(within(screen.getByRole("list", { name: "Матчи" })).getAllByRole("listitem")[0]).toHaveTextContent("Вратарь");
+    const keeperRow = screen.getByRole("row", { name: /Иван Вратарев/ });
+    expect(keeperRow).toHaveTextContent("20");
+    expect(keeperRow).toHaveTextContent("0,75");
   });
 
   it("hides empty lists and renders nothing when all are empty", () => {
-    const { container, rerender } = render(<Records records={{ goals: [], assists: [], played: [] }} />);
+    const { container, rerender } = render(<Records records={{ goals: [], assists: [], played: [], goalkeepers: [] }} />);
     expect(container).toBeEmptyDOMElement();
-    rerender(<Records records={{ goals: [], assists: [], played: [row(1, "b", "Игрок Б", 1)] }} />);
+    rerender(<Records records={{ goals: [], assists: [], played: [row(1, "b", "Игрок Б", 1)], goalkeepers: [] }} />);
     expect(screen.queryByRole("list", { name: "Голы" })).toBeNull();
     expect(screen.getByRole("list", { name: "Матчи" })).toBeInTheDocument();
   });

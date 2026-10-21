@@ -45,6 +45,9 @@ test("hall of fame: all-time records include departed players", async ({ page })
   await expect(played.first().getByRole("link")).toHaveText("Старый Ветеран");
   await expect(played.first()).toContainText("40");
   await expect(played).toHaveCount(7);
+
+  const keepers = records.getByRole("table");
+  await expect(keepers.getByRole("row", { name: /Егор Куча/ })).toContainText("12");
 });
 
 test("home: «трофеев» in club numbers leads to the hall of fame", async ({ page }) => {

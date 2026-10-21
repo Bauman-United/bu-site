@@ -71,6 +71,21 @@ def test_join_falls_back_to_telegram_chat_id():
     assert json.loads(calls[0].content)["chat_id"] == "-100500"
 
 
+def test_join_retries_general_chat_when_personal_recipient_fails():
+    calls: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request)
+        chat_id = json.loads(request.content)["chat_id"]
+        if chat_id == "42":
+            return httpx.Response(400, json={"ok": False, "description": "chat not found"})
+        return httpx.Response(200, json={"ok": True, "result": {}})
+
+    client = make_client(configured(), handler=handler)
+    assert client.post("/join", json=FORM).status_code == 200
+    assert [json.loads(call.content)["chat_id"] for call in calls] == ["42", "-100500"]
+
+
 def test_join_honeypot_not_sent():
     calls: list[httpx.Request] = []
     client = make_client(configured(), calls=calls)

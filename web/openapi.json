@@ -829,16 +829,24 @@
             },
             "type": "array",
             "title": "Played"
+          },
+          "goalkeepers": {
+            "items": {
+              "$ref": "#/components/schemas/GoalkeeperRecord"
+            },
+            "type": "array",
+            "title": "Goalkeepers"
           }
         },
         "type": "object",
         "required": [
           "goals",
           "assists",
-          "played"
+          "played",
+          "goalkeepers"
         ],
         "title": "AllTimeRecords",
-        "description": "Рекордсмены клуба за всё время: топ по голам, передачам и сыгранным матчам."
+        "description": "Рекордсмены клуба за всё время, включая эффективность вратарей."
       },
       "EventOut": {
         "properties": {
@@ -936,6 +944,61 @@
         ],
         "title": "FormResult"
       },
+      "GoalkeeperRecord": {
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "photo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo"
+          },
+          "played": {
+            "type": "integer",
+            "title": "Played"
+          },
+          "conceded": {
+            "type": "integer",
+            "title": "Conceded"
+          },
+          "efficiency": {
+            "type": "number",
+            "title": "Efficiency"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rank",
+          "slug",
+          "name",
+          "photo",
+          "played",
+          "conceded",
+          "efficiency",
+          "active"
+        ],
+        "title": "GoalkeeperRecord"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -948,6 +1011,37 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "HeadToHead": {
+        "properties": {
+          "won": {
+            "type": "integer",
+            "title": "Won"
+          },
+          "drawn": {
+            "type": "integer",
+            "title": "Drawn"
+          },
+          "lost": {
+            "type": "integer",
+            "title": "Lost"
+          },
+          "recent": {
+            "items": {
+              "$ref": "#/components/schemas/MatchSummary"
+            },
+            "type": "array",
+            "title": "Recent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "won",
+          "drawn",
+          "lost",
+          "recent"
+        ],
+        "title": "HeadToHead"
       },
       "JoinRequest": {
         "properties": {
@@ -1223,6 +1317,16 @@
               }
             ],
             "title": "Next Slug"
+          },
+          "head_to_head": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HeadToHead"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",

@@ -16,6 +16,7 @@ export type StandingRow = S["StandingRowOut"];
 export type Season = S["SeasonOut"];
 export type AllTimeRecords = S["AllTimeRecords"];
 export type RecordRow = S["RecordRow"];
+export type GoalkeeperRecord = S["GoalkeeperRecord"];
 
 export type Outcome = "W" | "D" | "L";
 

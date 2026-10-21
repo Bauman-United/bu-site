@@ -325,7 +325,7 @@ export interface components {
     schemas: {
         /**
          * AllTimeRecords
-         * @description Рекордсмены клуба за всё время: топ по голам, передачам и сыгранным матчам.
+         * @description Рекордсмены клуба за всё время, включая эффективность вратарей.
          */
         AllTimeRecords: {
             /** Goals */
@@ -334,6 +334,8 @@ export interface components {
             assists: components["schemas"]["RecordRow"][];
             /** Played */
             played: components["schemas"]["RecordRow"][];
+            /** Goalkeepers */
+            goalkeepers: components["schemas"]["GoalkeeperRecord"][];
         };
         /** EventOut */
         EventOut: {
@@ -359,10 +361,40 @@ export interface components {
             /** Ok */
             ok: boolean;
         };
+        /** GoalkeeperRecord */
+        GoalkeeperRecord: {
+            /** Rank */
+            rank: number;
+            /** Slug */
+            slug: string;
+            /** Name */
+            name: string;
+            /** Photo */
+            photo: string | null;
+            /** Played */
+            played: number;
+            /** Conceded */
+            conceded: number;
+            /** Efficiency */
+            efficiency: number;
+            /** Active */
+            active: boolean;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** HeadToHead */
+        HeadToHead: {
+            /** Won */
+            won: number;
+            /** Drawn */
+            drawn: number;
+            /** Lost */
+            lost: number;
+            /** Recent */
+            recent: components["schemas"]["MatchSummary"][];
         };
         /** JoinRequest */
         JoinRequest: {
@@ -435,6 +467,7 @@ export interface components {
             prev_slug: string | null;
             /** Next Slug */
             next_slug: string | null;
+            head_to_head?: components["schemas"]["HeadToHead"] | null;
         };
         /** MatchSummary */
         MatchSummary: {

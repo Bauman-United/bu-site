@@ -48,7 +48,7 @@ export function Leaders({ leaders }: { leaders: Home["leaders"] }) {
         <div className={s.grid}>
           {list.map((c) => (
             <article key={c.key} className={`${s.card} ${c.inverted ? s.inverted : ""}`}>
-              <Photo src={c.photo} alt="" ratio="4 / 5" light={c.inverted} sizes="(max-width: 640px) 260px, 400px" />
+              <Photo src={c.photo} alt="" ratio="3 / 2" light={c.inverted} sizes="(max-width: 640px) 260px, 400px" />
               <div className={s.info}>
                 <div className={s.who}>
                   <span className={s.role}>{c.role}</span>
