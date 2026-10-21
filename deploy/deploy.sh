@@ -10,9 +10,12 @@ if grep -qx 'NGINX_MODE=edge' .env; then
   # Сеть общего Caddy; создаётся один раз, повторный вызов — no-op.
   docker network inspect edge >/dev/null 2>&1 || docker network create edge >/dev/null
 fi
+# Освобождаем место до pull: при заполненном диске до очистки после deploy дело не дойдёт.
+# Активные образы и Docker volumes (включая PostgreSQL) image prune не удаляет.
+docker image prune -af >/dev/null
 docker compose --env-file .env pull
 docker compose --env-file .env up -d --remove-orphans
-docker image prune -f >/dev/null
+docker image prune -af >/dev/null
 set -a; . ./.env; set +a
 if [ "${NGINX_MODE:-http}" = "edge" ]; then
   : "${CADDY_SITES_DIR:?set CADDY_SITES_DIR in deploy/.env}" "${CADDY_CONTAINER:?set CADDY_CONTAINER in deploy/.env}"
