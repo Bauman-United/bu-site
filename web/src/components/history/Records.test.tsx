@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import type { AllTimeRecords } from "@/lib/types";
 import { Records } from "./Records";
 
-const row = (rank: number, slug: string, name: string, value: number, extra = {}) => ({
+const row = <E extends object = object>(rank: number, slug: string, name: string, value: number, extra: E = {} as E) => ({
   rank, slug, name, value, played: value, photo: null, position: "FW", active: true, ...extra,
 });
 
