@@ -20,6 +20,7 @@
 .when { font-family: var(--f-display); font-weight: 600; font-size: 24px; text-transform: uppercase; }
 .muted { color: var(--c-text-2-on-paper); }
 .actions { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+.links { display: flex; flex-wrap: wrap; gap: 10px; }
 @media (max-width: 640px) {
   .wrap { gap: 20px; }
   .head { font-family: var(--f-body); font-size: var(--fs-label); letter-spacing: 0; text-transform: none; }
@@ -35,5 +36,6 @@
   .when { font-size: 20px; }
   .actions { align-items: stretch; }
   .timer [role="timer"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .route > a { width: 100%; }
+  .links { flex-direction: column; }
+  .links > a { width: 100%; }
 }

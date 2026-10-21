@@ -6,6 +6,9 @@ test("home renders data blocks from API", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Бауман");
   await expect(page.getByRole("timer")).toHaveAccessibleName(/^До матча \d+ (день|дня|дней)/);
   await expect(page.getByText("Мессия").first()).toBeVisible();
+  const nextMatch = page.getByRole("region", { name: "Следующий матч" });
+  await expect(nextMatch.getByRole("link", { name: /О матче/ })).toHaveAttribute("href", "/matches/2030-10-24-messiya");
+  await expect(nextMatch.getByRole("link", { name: /Как добраться/ })).toHaveAttribute("target", "_blank");
   await expect(page.getByRole("img", { name: /^Победа 3:1/ }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: /Победа над «Энергией»/ })).toBeVisible();
   await expect(page.getByText("Дмитрий Писарев").first()).toBeVisible();

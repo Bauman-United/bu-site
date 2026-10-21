@@ -17,6 +17,14 @@ function OpponentMark({ match }: { match: MatchSummary }) {
   );
 }
 
+function ArrowIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" focusable="false">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
 /** Белая секция «Следующий матч»: гербы, турнир/тур, дата и место, обратный отсчёт, «Как добраться». */
 export function NextMatch({ match }: { match: MatchSummary }) {
   const head = [match.tournament.short, match.round].filter(Boolean).join(" · ");
@@ -57,16 +65,18 @@ export function NextMatch({ match }: { match: MatchSummary }) {
                 <Countdown kickoff={match.kickoff} />
               </div>
             )}
-            {mapQuery && (
-              <div className={s.route}>
-                <ButtonLink href={`https://yandex.ru/maps/?text=${encodeURIComponent(mapQuery)}`} onPaper external>
+            <div className={s.links}>
+              <ButtonLink href={`/matches/${match.slug}`} onPaper>
+                О матче
+                <ArrowIcon />
+              </ButtonLink>
+              {mapQuery && (
+                <ButtonLink href={`https://yandex.ru/maps/?text=${encodeURIComponent(mapQuery)}`} variant="secondary" onPaper external>
                   Как добраться
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" focusable="false">
-                    <path d="M5 12h14M13 6l6 6-6 6" />
-                  </svg>
+                  <ArrowIcon />
                 </ButtonLink>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
