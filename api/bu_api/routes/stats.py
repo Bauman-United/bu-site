@@ -82,6 +82,7 @@ def stats(season: str | None = None, session: Session = Depends(get_session)) ->
 
 
 RECORD_KEYS = ("goals", "assists", "played")
+GOALKEEPER_RECORDS_LIMIT = 10
 
 
 @router.get("/records/all-time")
@@ -175,7 +176,7 @@ def all_time_records(
             ),
             active=goalkeeper_players[player_id].active,
         )
-        for rank, player_id in enumerate(eligible[:limit], start=1)
+        for rank, player_id in enumerate(eligible[:GOALKEEPER_RECORDS_LIMIT], start=1)
     ]
 
     return AllTimeRecords(

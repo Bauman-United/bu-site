@@ -31,7 +31,7 @@ function Goalkeepers({ rows }: { rows: GoalkeeperRecord[] }) {
   return (
     <div className={s.goalkeepers}>
       <div className={s.goalkeepersHead}>
-        <h3 className={s.goalkeepersTitle}>Вратари по эффективности</h3>
+        <h3 className={s.goalkeepersTitle}>Топ-10 вратарей по эффективности</h3>
         <span className={s.goalkeepersNote}>Минимум 11 матчей · меньше — лучше</span>
       </div>
       <div className={s.tableScroll}>

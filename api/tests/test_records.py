@@ -151,3 +151,5 @@ def test_goalkeeper_efficiency_only_over_ten_appearances(client, db):
         ("keeper-a", 12, 9, 0.75),
         ("keeper-b", 11, 11, 1.0),
     ]
+    # Лимит остальных рекордов не должен сокращать отдельный исторический топ вратарей.
+    assert len(client.get("/records/all-time", params={"limit": 1}).json()["goalkeepers"]) == 2

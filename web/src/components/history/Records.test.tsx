@@ -18,6 +18,7 @@ describe("Records", () => {
     };
     render(<Records records={records} />);
     expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Рекордсмены клуба");
+    expect(screen.getByRole("heading", { name: "Топ-10 вратарей по эффективности" })).toBeInTheDocument();
     const goals = within(screen.getByRole("list", { name: "Голы" })).getAllByRole("listitem");
     expect(goals[0]).toHaveTextContent("1");
     expect(within(goals[0]).getByRole("link", { name: "Старый Ветеран" })).toHaveAttribute("href", "/team/staryy-veteran");
