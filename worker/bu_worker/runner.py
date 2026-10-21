@@ -408,9 +408,7 @@ def run_telegram(
             settings.tg_channel,
             since=settings.tg_since,
             known_max_id=(
-                None
-                if settings.tg_full_rescan or full_rescan
-                else max(known_ids, default=None)
+                None if settings.tg_full_rescan or full_rescan else max(known_ids, default=None)
             ),
             max_pages=settings.tg_max_pages,
             snapshot=lambda name, html: snapshots.save(root, "telegram", name, html, started),

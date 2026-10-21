@@ -77,9 +77,7 @@ def start(settings: Settings) -> None:
         with sessions() as session:
             today = datetime.now(UTC).date()
             full_rescan = telegram_refresh_day[-1:] != [today]
-            status = run_telegram(
-                session, settings, client, notifier, full_rescan=full_rescan
-            )
+            status = run_telegram(session, settings, client, notifier, full_rescan=full_rescan)
             if full_rescan and status == "ok":
                 telegram_refresh_day[:] = [today]
 

@@ -119,9 +119,7 @@ def all_time_records(
     # Источники дают число игр каждого вратаря по турниру, но не всегда сохраняют полные
     # протоколы старых матчей. Поэтому пропущенные в турнире распределяем пропорционально
     # сыгранным матчам: это сохраняет реальное число игр и средний показатель команды.
-    goalkeeper_totals: dict[int, dict[str, int]] = defaultdict(
-        lambda: {"played": 0, "conceded": 0}
-    )
+    goalkeeper_totals: dict[int, dict[str, int]] = defaultdict(lambda: {"played": 0, "conceded": 0})
     tournament_scores: dict[int, tuple[int, int]] = {}
     for match in session.scalars(
         select(Match).where(
@@ -151,20 +149,14 @@ def all_time_records(
         )
 
     goalkeeper_players = {
-        p.id: p
-        for p in session.scalars(
-            select(Player).where(Player.id.in_(goalkeeper_totals))
-        )
+        p.id: p for p in session.scalars(select(Player).where(Player.id.in_(goalkeeper_totals)))
     }
     eligible = [
-        player_id
-        for player_id, values in goalkeeper_totals.items()
-        if values["played"] > 10
+        player_id for player_id, values in goalkeeper_totals.items() if values["played"] > 10
     ]
     eligible.sort(
         key=lambda player_id: (
-            goalkeeper_totals[player_id]["conceded"]
-            / goalkeeper_totals[player_id]["played"],
+            goalkeeper_totals[player_id]["conceded"] / goalkeeper_totals[player_id]["played"],
             -goalkeeper_totals[player_id]["played"],
             full_name(goalkeeper_players[player_id]),
         )
@@ -178,8 +170,7 @@ def all_time_records(
             played=goalkeeper_totals[player_id]["played"],
             conceded=goalkeeper_totals[player_id]["conceded"],
             efficiency=round(
-                goalkeeper_totals[player_id]["conceded"]
-                / goalkeeper_totals[player_id]["played"],
+                goalkeeper_totals[player_id]["conceded"] / goalkeeper_totals[player_id]["played"],
                 2,
             ),
             active=goalkeeper_players[player_id].active,
