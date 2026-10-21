@@ -3,7 +3,14 @@ import { expect, test } from "@playwright/test";
 test("home renders data blocks from API", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle("Бауман Юнайтед — футбольная команда МГТУ им. Н. Э. Баумана");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Бауман");
+  const title = page.getByRole("heading", { level: 1 });
+  await expect(title).toContainText("Бауман");
+  const titleOffset = await title.evaluate((element) => {
+    const hero = element.closest("section");
+    if (!hero) return Number.POSITIVE_INFINITY;
+    return element.getBoundingClientRect().top - hero.getBoundingClientRect().top;
+  });
+  expect(titleOffset).toBeLessThanOrEqual(130);
   await expect(page.getByRole("timer")).toHaveAccessibleName(/^До матча \d+ (день|дня|дней)/);
   await expect(page.getByText("Мессия").first()).toBeVisible();
   const nextMatch = page.getByRole("region", { name: "Следующий матч" });
