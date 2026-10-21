@@ -22,6 +22,13 @@ test("upcoming away match page", async ({ page }) => {
   const history = page.getByRole("region", { name: "Против Мессия" });
   await expect(history).toContainText("Победы1");
   await expect(history.getByRole("link", { name: /1:0/ })).toBeVisible();
+  const summary = history.getByLabel("Победы, ничьи и поражения");
+  const trailingSpace = await summary.evaluate((element) => {
+    const lastItem = element.lastElementChild;
+    if (!lastItem) return Number.POSITIVE_INFINITY;
+    return element.getBoundingClientRect().right - lastItem.getBoundingClientRect().right;
+  });
+  expect(trailingSpace).toBeLessThanOrEqual(2);
 });
 
 test("og image renders", async ({ request }) => {

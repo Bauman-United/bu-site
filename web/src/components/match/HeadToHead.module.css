@@ -5,7 +5,11 @@
   font-size: var(--fs-label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--c-muted);
 }
 .h2 { margin-top: 4px; font-size: var(--fs-h2); }
-.summary { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 180px)); gap: 1px; background: var(--c-border); border: 1px solid var(--c-border); }
+.summary {
+  width: fit-content; max-width: 100%; margin: 0; display: grid;
+  grid-template-columns: repeat(3, minmax(0, 180px)); gap: 1px;
+  background: var(--c-border); border: 1px solid var(--c-border);
+}
 .summary > div { background: var(--c-ink); padding: 16px 20px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .summary dt { font-size: var(--fs-label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--c-muted); }
 .summary dd { margin: 0; font-family: var(--f-display); font-size: 34px; font-weight: 700; }
@@ -25,7 +29,7 @@
 @media (max-width: 640px) {
   .inner { padding-top: 32px; padding-bottom: 32px; gap: 20px; }
   .head { align-items: start; flex-direction: column; gap: 6px; }
-  .summary { grid-template-columns: repeat(3, 1fr); }
+  .summary { width: 100%; grid-template-columns: repeat(3, 1fr); }
   .summary > div { padding: 12px; flex-direction: column; gap: 2px; }
   .summary dt { font-size: 11px; }
   .summary dd { font-size: 28px; }
