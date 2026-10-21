@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { MatchDetail } from "@/lib/types";
 import { DATE_TBD, formatDate, formatWhen, outcomeLabel } from "@/lib/format";
 import { SITE_NAME } from "@/lib/seo";
+import { venueMapUrl } from "@/lib/venue";
 import { Countdown } from "@/components/ui/Countdown";
 import { Crest } from "@/components/ui/Crest";
 import { LiveBadge } from "@/components/ui/LiveBadge";
@@ -45,7 +46,7 @@ export function Scoreboard({ match, nav }: { match: MatchDetail; nav?: { href: s
   const when = formatWhen(match.kickoff);
   const head = [match.tournament.short, match.round].filter(Boolean).join(" · ");
   const [homeName, awayName] = match.home ? [SITE_NAME, match.opponent_name] : [match.opponent_name, SITE_NAME];
-  const mapQuery = match.venue_address ?? match.venue_name;
+  const mapUrl = venueMapUrl(match.venue_name, match.venue_address);
 
   return (
     <section className={s.board} aria-labelledby="match-title">
@@ -57,8 +58,8 @@ export function Scoreboard({ match, nav }: { match: MatchDetail; nav?: { href: s
         <p className={s.meta}>
           {head && <span>{head}</span>}
           {match.kickoff ? <time dateTime={match.kickoff}>{when}</time> : <span>{when}</span>}
-          {mapQuery ? (
-            <a className={s.venue} href={`https://yandex.ru/maps/?text=${encodeURIComponent(mapQuery)}`} target="_blank" rel="noopener">
+          {mapUrl ? (
+            <a className={s.venue} href={mapUrl} target="_blank" rel="noopener">
               {[match.venue_name, match.venue_address].filter(Boolean).join(", ")} ↗
             </a>
           ) : match.venue_name ? <span>{match.venue_name}</span> : null}

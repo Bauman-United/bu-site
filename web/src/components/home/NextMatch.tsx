@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { MatchSummary } from "@/lib/types";
 import { formatWhen } from "@/lib/format";
+import { venueMapUrl } from "@/lib/venue";
 import { ButtonLink } from "@/components/ui/Button";
 import { Countdown } from "@/components/ui/Countdown";
 import { Crest } from "@/components/ui/Crest";
@@ -30,7 +31,7 @@ export function NextMatch({ match }: { match: MatchSummary }) {
   const head = [match.tournament.short, match.round].filter(Boolean).join(" · ");
   const when = formatWhen(match.kickoff);
   const venue = [match.venue_name, match.venue_address].filter(Boolean).join(", ");
-  const mapQuery = match.venue_address ?? match.venue_name;
+  const mapUrl = venueMapUrl(match.venue_name, match.venue_address);
   return (
     <section className="section section--paper" aria-labelledby="next-match">
       <div className={`container ${s.wrap}`}>
@@ -70,8 +71,8 @@ export function NextMatch({ match }: { match: MatchSummary }) {
                 О матче
                 <ArrowIcon />
               </ButtonLink>
-              {mapQuery && (
-                <ButtonLink href={`https://yandex.ru/maps/?text=${encodeURIComponent(mapQuery)}`} variant="secondary" onPaper external>
+              {mapUrl && (
+                <ButtonLink href={mapUrl} variant="secondary" onPaper external>
                   Как добраться
                   <ArrowIcon />
                 </ButtonLink>
