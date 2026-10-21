@@ -163,9 +163,11 @@ def seed(session: Session, empty: bool = False) -> None:
         "konstantin-konstantinopolskiy": (2, 0, 1),
         "dmitriy-pisarev": (3, 3, 1),
     }.items():
+        # Топ вратарей считает только игры в воротах — у Кучи их больше 10
+        gk = {"goalkeeper_played": 12, "goalkeeper_conceded": 9} if slug == "egor-kucha" else {}
         session.add(
             PlayerTournamentStats(
-                player_id=by[slug].id, tournament_id=li.id, played=pl, goals=g, assists=a
+                player_id=by[slug].id, tournament_id=li.id, played=pl, goals=g, assists=a, **gk
             )
         )
 
