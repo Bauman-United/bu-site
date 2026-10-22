@@ -44,6 +44,7 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 /snapshots/
+/media/
 node_modules/
 deploy/.env
 deploy/.env.bak

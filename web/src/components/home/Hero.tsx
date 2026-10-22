@@ -21,7 +21,8 @@ export function Hero({ live }: { live: MatchSummary | null }) {
               )}
             </div>
           )}
-          <h1 className={s.title}>Бауман<br />Юнайтед</h1>
+          {/* Пробел перед <br>: иначе в тексте страницы (и для поисковиков) получится «БауманЮнайтед». */}
+          <h1 className={s.title}>Бауман <br />Юнайтед</h1>
           <p className={s.lead}>Футбольная команда МГТУ им. Н. Э. Баумана. Играем в ЛФЛ и Bauman League, 8×8.</p>
         </div>
       </section>

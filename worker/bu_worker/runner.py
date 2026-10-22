@@ -17,6 +17,7 @@ from bu_worker.http import PoliteClient
 from bu_worker.notify import Notifier
 from bu_worker.pipeline import content as content_pipeline
 from bu_worker.pipeline import joinfootball as jf_pipeline
+from bu_worker.pipeline import media as media_pipeline
 from bu_worker.pipeline import telegram as telegram_pipeline
 from bu_worker.pipeline.common import IngestResult
 from bu_worker.sources.content import load_content
@@ -396,6 +397,7 @@ def run_telegram(
     notifier: Notifier,
     *,
     full_rescan: bool | None = None,
+    download: media_pipeline.Download | None = None,
 ) -> str:
     source = f"telegram:{settings.tg_channel}"
     started = datetime.now(UTC)
@@ -414,6 +416,12 @@ def run_telegram(
             snapshot=lambda name, html: snapshots.save(root, "telegram", name, html, started),
         )
         result = telegram_pipeline.ingest(session, posts)
+        result.tags |= media_pipeline.localize_news_media(
+            session,
+            Path(settings.media_dir),
+            download
+            or media_pipeline.make_downloader(f"BaumanUnitedBot/1.0 (+{settings.site_url})"),
+        )
         session.commit()
     except Exception as exc:  # noqa: BLE001 — сбой канала не должен ронять остальные источники
         session.rollback()

@@ -19,7 +19,7 @@ COPY core/alembic.ini core/alembic.ini
 COPY core/migrations core/migrations
 COPY content content
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1 BU_CONTENT_DIR=/app/content BU_SNAPSHOT_DIR=/data/snapshots
-RUN mkdir -p /data/snapshots && chown -R bu /data
+RUN mkdir -p /data/snapshots /data/media && chown -R bu /data
 USER bu
 EXPOSE 8000
 CMD ["uvicorn", "bu_api.app:build", "--factory", "--host", "0.0.0.0", "--port", "8000"]

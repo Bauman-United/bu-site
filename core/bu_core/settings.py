@@ -48,6 +48,10 @@ class Settings(BaseSettings):
     content_dir: str = "content"
     snapshot_dir: str = "snapshots"
     snapshot_keep_days: int = 30
+    # IndexNow: ключ задаём только на проде с открытой индексацией (сайт отдаёт его в /indexnow.txt)
+    indexnow_key: str | None = None
+    indexnow_endpoint: str = "https://yandex.com/indexnow"
+    media_dir: str = "media"  # свои копии картинок из Telegram; сайт отдаёт их как /media/…
     revalidate_url: str | None = None
     revalidate_secret: str | None = None
     telegram_bot_token: str | None = None

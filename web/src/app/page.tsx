@@ -8,7 +8,7 @@ import { Leaders } from "@/components/home/Leaders";
 import { NextMatch } from "@/components/home/NextMatch";
 import { ResultFormTable } from "@/components/home/ResultFormTable";
 import { getClub, getHome } from "@/lib/api";
-import { sportsEventLd, sportsTeamLd } from "@/lib/jsonld";
+import { sportsEventLd, sportsTeamLd, webSiteLd } from "@/lib/jsonld";
 import { buildMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +30,7 @@ export default async function HomePage() {
   const [home, club] = await Promise.all([getHome(), getClub()]);
   return (
     <>
+      <JsonLd data={webSiteLd(club)} />
       <JsonLd data={sportsTeamLd(club)} />
       {home.next_match && <JsonLd data={sportsEventLd(home.next_match)} />}
       <Hero live={home.live} />

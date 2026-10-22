@@ -36,3 +36,19 @@ def test_sitemap_includes_undated_match(client, db):
     add_undated(db)
     paths = {item["path"] for item in client.get("/sitemap").json()}
     assert "/matches/kvazar-5877228" in paths
+
+
+def test_sitemap_lastmod_follows_data_not_today(client, db):
+    from datetime import UTC, datetime
+
+    from bu_core.models import Match
+    from sqlalchemy import update
+
+    db.execute(update(Match).values(updated_at=datetime(2026, 9, 7, 12, tzinfo=UTC)))
+    db.commit()
+    items = {item["path"]: item["lastmod"] for item in client.get("/sitemap").json()}
+    assert items["/matches"] == "2026-09-07"
+    assert items["/matches/2026-09-06-bauman-junior"] == "2026-09-07"
+    # игрок, отметившийся в матче, — по последнему такому матчу
+    assert any(v == "2026-09-07" for k, v in items.items() if k.startswith("/team/"))
+    assert items["/news/start"] is not None

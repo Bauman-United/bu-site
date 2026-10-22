@@ -1,4 +1,4 @@
-import { breadcrumbsLd, sportsEventLd, sportsTeamLd } from "./jsonld";
+import { breadcrumbsLd, newsArticleLd, sportsEventLd, sportsTeamLd, webSiteLd } from "./jsonld";
 
 describe("json-ld", () => {
   beforeEach(() => { process.env.BU_SITE_URL = "https://baumanunited.ru"; });
@@ -10,10 +10,23 @@ describe("json-ld", () => {
     });
     expect(ld).toMatchObject({
       "@context": "https://schema.org", "@type": "SportsTeam", sport: "Football",
-      alternateName: "Bauman United",
+      alternateName: expect.arrayContaining(["Bauman United", "Футбольная команда МГТУ им. Баумана"]),
       memberOf: { "@type": "CollegeOrUniversity", name: "МГТУ им. Н. Э. Баумана" },
       sameAs: ["https://t.me/x", "https://lfl.ru/club14270"],
     });
+  });
+
+  it("WebSite names the site and its alternate names without repeating the main one", () => {
+    const ld = webSiteLd({ name: "Бауман Юнайтед", name_en: "Bauman United" } as never);
+    expect(ld).toMatchObject({ "@type": "WebSite", name: "Бауман Юнайтед", url: "https://baumanunited.ru/" });
+    expect(ld.alternateName).toContain("Bauman United");
+    expect(ld.alternateName).not.toContain("Бауман Юнайтед");
+    expect(new Set(ld.alternateName).size).toBe(ld.alternateName.length);
+  });
+
+  it("NewsArticle image is absolute for own media", () => {
+    const ld = newsArticleLd({ slug: "tg-1", title: "t", date: "2026-10-01", cover: "/media/tg/tg-1.jpg" } as never);
+    expect(ld.image).toEqual(["https://baumanunited.ru/media/tg/tg-1.jpg"]);
   });
 
   it("SportsTeam sameAs keeps only http(s) URLs", () => {

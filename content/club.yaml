@@ -7,7 +7,7 @@ format: 8x8
 default_formation: 3-3-1
 primary_tournament: null   # slug турнира для мини-таблицы на главной; null — первый турнир текущего сезона
 socials:
-  telegram: null
+  telegram: https://t.me/baumanunited
   vk: null
   youtube: null
   lfl: https://lfl.ru/club14270

@@ -140,6 +140,9 @@ def main() -> int:
             tg_status = run_telegram(session, settings, client, notifier)
             if tg_status != "ok":
                 status = tg_status
+        from bu_worker.indexnow import submit_changes
+
+        submit_changes(session, settings)
     return 0 if status == "ok" else 1
 
 

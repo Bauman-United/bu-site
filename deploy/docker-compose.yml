@@ -18,6 +18,8 @@ x-python: &python
     BU_INGAME_BASE: ${BU_INGAME_BASE:-https://api.ingame-server.ru}
     BU_INGAME_PUBLIC_BASE: ${BU_INGAME_PUBLIC_BASE:-https://ingame-sports.ru}
     BU_INGAME_TEAM_ID: ${BU_INGAME_TEAM_ID:-1997}
+    BU_INDEXNOW_KEY: ${BU_INDEXNOW_KEY:-}
+    BU_MEDIA_DIR: /data/media
   # Потолки памяти: на общем сервере утечка в нашем стеке не должна выбивать соседей.
   mem_limit: 384m
   restart: unless-stopped
@@ -66,6 +68,7 @@ services:
     command: ["sh", "-c", "python -m bu_worker run content && exec python -m bu_worker schedule"]
     volumes:
       - snapshots:/data/snapshots
+      - media:/data/media
     depends_on:
       migrate: { condition: service_completed_successfully }
       bu-web: { condition: service_started }
@@ -81,6 +84,10 @@ services:
       BU_NOINDEX: ${BU_NOINDEX:-1}
       BU_METRIKA_ID: ${BU_METRIKA_ID:-}
       BU_REVALIDATE_SECRET: ${BU_REVALIDATE_SECRET}
+      BU_INDEXNOW_KEY: ${BU_INDEXNOW_KEY:-}
+      BU_MEDIA_DIR: /data/media
+    volumes:
+      - media:/data/media:ro  # обложки новостей, которые скачивает worker
     mem_limit: 384m
     depends_on:
       api: { condition: service_healthy }
@@ -118,5 +125,6 @@ services:
 volumes:
   pgdata:
   snapshots:
+  media:
   certbot-www:
   letsencrypt:

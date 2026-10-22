@@ -13,6 +13,7 @@ from sqlalchemy import select
 
 from bu_worker import snapshots
 from bu_worker.http import PoliteClient
+from bu_worker.indexnow import submit_changes
 from bu_worker.notify import Notifier
 from bu_worker.runner import (
     history_sources,
@@ -66,6 +67,7 @@ def start(settings: Settings) -> None:
                 run_history(session, settings, clients, notifier)
                 run_ingame(session, settings, make_ingame_client(settings), notifier)
                 history_day[:] = [today]
+            submit_changes(session, settings)
 
     @single_flight
     def channel_news() -> None:
@@ -80,6 +82,7 @@ def start(settings: Settings) -> None:
             status = run_telegram(session, settings, client, notifier, full_rescan=full_rescan)
             if full_rescan and status == "ok":
                 telegram_refresh_day[:] = [today]
+            submit_changes(session, settings)
 
     def matchday() -> None:
         now = datetime.now(UTC)

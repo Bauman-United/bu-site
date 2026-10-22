@@ -1,4 +1,4 @@
-import { buildMetadata, pageTitle, siteUrl } from "./seo";
+import { absUrl, buildMetadata, pageTitle, siteUrl } from "./seo";
 
 describe("seo", () => {
   beforeEach(() => {
@@ -9,6 +9,18 @@ describe("seo", () => {
   it("titles", () => {
     expect(pageTitle()).toBe("Бауман Юнайтед — футбольная команда МГТУ им. Н. Э. Баумана");
     expect(pageTitle("Матчи")).toBe("Матчи — Бауман Юнайтед | футбольная команда МГТУ им. Баумана");
+    expect(pageTitle("Наиль Мукминов", true)).toBe("Наиль Мукминов — Бауман Юнайтед");
+  });
+
+  it("sections get the full suffix, nested pages the short one", () => {
+    const title = (path: string) => (buildMetadata({ title: "X", description: "x", path }).title as { absolute: string }).absolute;
+    expect(title("/matches")).toBe("X — Бауман Юнайтед | футбольная команда МГТУ им. Баумана");
+    expect(title("/matches/2016-10-30-berezovaya-shtanga")).toBe("X — Бауман Юнайтед");
+  });
+
+  it("absUrl keeps absolute urls and prefixes own paths", () => {
+    expect(absUrl("https://cdn/x.jpg")).toBe("https://cdn/x.jpg");
+    expect(absUrl("/media/tg/tg-1.jpg")).toBe("https://baumanunited.ru/media/tg/tg-1.jpg");
   });
 
   it("canonical, og and noindex", () => {

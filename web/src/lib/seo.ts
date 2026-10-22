@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 export const SITE_NAME = "Бауман Юнайтед";
 const HOME_TITLE = "Бауман Юнайтед — футбольная команда МГТУ им. Н. Э. Баумана";
 const SUFFIX = "Бауман Юнайтед | футбольная команда МГТУ им. Баумана";
+/** Матч, игрок, новость: в выдаче видно ~60–70 символов, длинный суффикс съел бы само название. */
+const SHORT_SUFFIX = SITE_NAME;
 
 const OG_DIMENSIONS = { width: 1200, height: 630 };
 
@@ -14,8 +16,13 @@ export function isNoindex(): boolean {
   return process.env.BU_NOINDEX !== "0";
 }
 
-export function pageTitle(title?: string): string {
-  return title ? `${title} — ${SUFFIX}` : HOME_TITLE;
+export function pageTitle(title?: string, short = false): string {
+  return title ? `${title} — ${short ? SHORT_SUFFIX : SUFFIX}` : HOME_TITLE;
+}
+
+/** Абсолютный адрес для og:image и JSON-LD: свои файлы (/media/…) приходят относительными. */
+export function absUrl(url: string): string {
+  return /^https?:\/\//i.test(url) ? url : `${siteUrl()}${url.startsWith("/") ? "" : "/"}${url}`;
 }
 
 export function buildMetadata(opts: {
@@ -29,13 +36,14 @@ export function buildMetadata(opts: {
   type?: "website" | "article" | "profile";
 }): Metadata {
   const url = `${siteUrl()}${opts.path}`;
-  const title = pageTitle(opts.title);
+  // Разделы (/matches) — с полным суффиксом, вложенные страницы (/matches/<slug>) — с коротким.
+  const title = pageTitle(opts.title, opts.path.split("/").filter(Boolean).length > 1);
   const blocked = isNoindex();
   // `openGraph` страницы целиком заменяет родительский, поэтому корневой app/opengraph-image сам
   // до страниц не доходит — подставляем его явно как картинку по умолчанию.
   const images = opts.ownOgImage
     ? {}
-    : { images: [opts.image ? { url: opts.image, ...OG_DIMENSIONS } : { url: `${siteUrl()}/opengraph-image`, ...OG_DIMENSIONS, alt: SITE_NAME }] };
+    : { images: [opts.image ? { url: absUrl(opts.image), ...OG_DIMENSIONS } : { url: `${siteUrl()}/opengraph-image`, ...OG_DIMENSIONS, alt: SITE_NAME }] };
   return {
     title: { absolute: title },
     description: opts.description,

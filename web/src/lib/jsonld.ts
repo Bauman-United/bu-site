@@ -1,8 +1,27 @@
 import type { Club, MatchDetail, MatchSummary, NewsDetail, PlayerDetail } from "./types";
-import { SITE_NAME, siteUrl } from "./seo";
+import { SITE_NAME, absUrl, siteUrl } from "./seo";
 
 const CTX = "https://schema.org";
 const UNIVERSITY = "МГТУ им. Н. Э. Баумана";
+/** Как клуб ищут, кроме официального названия: поисковики сопоставляют их с сайтом. */
+const ALT_NAMES = ["Бауман Юнайтед", "Bauman United", "Футбольная команда МГТУ им. Баумана", "Футбольная команда Бауманки"];
+
+function altNames(primary: string, extra?: string | null): string[] {
+  return [...new Set([extra, ...ALT_NAMES].filter((n): n is string => !!n && n !== primary))];
+}
+
+/** Сайт целиком: из него Google и Яндекс берут название сайта для выдачи. */
+export function webSiteLd(club: Club) {
+  const name = club.name ?? SITE_NAME;
+  return {
+    "@context": CTX,
+    "@type": "WebSite",
+    name,
+    alternateName: altNames(name, club.name_en),
+    url: `${siteUrl()}/`,
+    inLanguage: "ru-RU",
+  };
+}
 
 export function sportsTeamLd(club: Club) {
   const sameAs = Object.values(club.socials ?? {}).filter((v): v is string => typeof v === "string" && /^https?:\/\//i.test(v));
@@ -10,7 +29,7 @@ export function sportsTeamLd(club: Club) {
     "@context": CTX,
     "@type": "SportsTeam",
     name: club.name ?? SITE_NAME,
-    alternateName: club.name_en ?? "Bauman United",
+    alternateName: altNames(club.name ?? SITE_NAME, club.name_en),
     sport: "Football",
     url: siteUrl(),
     logo: `${siteUrl()}/crest-black.png`,
@@ -77,7 +96,7 @@ export function personLd(p: PlayerDetail) {
     "@type": "Person",
     name: `${p.first_name} ${p.last_name}`.trim(),
     url: `${siteUrl()}/team/${p.slug}`,
-    ...(p.photo ? { image: p.photo } : {}),
+    ...(p.photo ? { image: absUrl(p.photo) } : {}),
     memberOf: { "@type": "SportsTeam", name: SITE_NAME },
     ...(p.nickname ? { alternateName: p.nickname } : {}),
   };
@@ -90,7 +109,7 @@ export function newsArticleLd(n: NewsDetail) {
     headline: n.title,
     datePublished: n.date,
     url: `${siteUrl()}/news/${n.slug}`,
-    ...(n.cover ? { image: [n.cover] } : {}),
+    ...(n.cover ? { image: [absUrl(n.cover)] } : {}),
     author: { "@type": "SportsTeam", name: SITE_NAME },
     publisher: { "@type": "Organization", name: SITE_NAME, logo: { "@type": "ImageObject", url: `${siteUrl()}/crest-black.png` } },
     ...(n.lead ? { description: n.lead } : {}),
