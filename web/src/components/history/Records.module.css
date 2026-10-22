@@ -24,7 +24,8 @@
 .position { font-size: var(--fs-caption); color: var(--c-muted); }
 .value { font-family: var(--f-display); font-weight: 700; font-size: 28px; line-height: 1; color: var(--c-muted-2); }
 
-.ranking { border: 1px solid var(--c-border); }
+.rankingsGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.ranking { border: 1px solid var(--c-border); min-width: 0; }
 .rankingHead {
   padding: 18px 20px; border-bottom: 1px solid var(--c-border);
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px;
@@ -34,8 +35,8 @@
   font-size: var(--fs-caption); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--c-muted);
 }
 .tableScroll { overflow-x: auto; }
-.table { width: 100%; border-collapse: collapse; min-width: 620px; }
-.wideTable { min-width: 760px; }
+.table { width: 100%; border-collapse: collapse; min-width: 480px; }
+.wideTable { min-width: 620px; }
 .table th, .table td { padding: 12px 20px; border-bottom: 1px solid var(--c-line); text-align: right; }
 .table th {
   font-family: var(--f-display); font-size: var(--fs-caption); letter-spacing: var(--ls-label);
@@ -58,4 +59,8 @@
   .rankingHead { padding: 14px 16px; }
   .rankingTitle { font-size: 20px; }
   .table th, .table td { padding: 10px 16px; }
+}
+
+@media (max-width: 900px) {
+  .rankingsGrid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
 }

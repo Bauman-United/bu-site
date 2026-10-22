@@ -34,13 +34,13 @@ function Row({ row }: { row: RecordRow }) {
 function Goalkeepers({ rows }: { rows: GoalkeeperRecord[] }) {
   if (rows.length === 0) return null;
   return (
-    <div className={s.ranking}>
+    <div className={s.ranking} role="group" aria-labelledby="goalkeepers-title">
       <div className={s.rankingHead}>
-        <h3 className={s.rankingTitle}>Топ-10 вратарей по эффективности</h3>
+        <h3 id="goalkeepers-title" className={s.rankingTitle}>Топ-10 вратарей по эффективности</h3>
         <span className={s.rankingNote}>Минимум 11 матчей · меньше — лучше</span>
       </div>
       <div className={s.tableScroll}>
-        <table className={s.table}>
+        <table className={s.table} aria-label="Топ-10 вратарей по эффективности">
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -75,13 +75,13 @@ function Goalkeepers({ rows }: { rows: GoalkeeperRecord[] }) {
 function GoalContributions({ rows }: { rows: GoalContributionRecord[] }) {
   if (rows.length === 0) return null;
   return (
-    <div className={s.ranking}>
+    <div className={s.ranking} role="group" aria-labelledby="goal-contributions-title">
       <div className={s.rankingHead}>
-        <h3 className={s.rankingTitle}>Топ-10 по гол + пас</h3>
+        <h3 id="goal-contributions-title" className={s.rankingTitle}>Топ-10 по гол + пас</h3>
         <span className={s.rankingNote}>За всю историю клуба</span>
       </div>
       <div className={s.tableScroll}>
-        <table className={`${s.table} ${s.wideTable}`}>
+        <table className={`${s.table} ${s.wideTable}`} aria-label="Топ-10 по гол + пас">
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -141,8 +141,10 @@ export function Records({ records }: { records: AllTimeRecords }) {
             </div>
           ))}
         </div>
-        <GoalContributions rows={records.goal_contributions} />
-        <Goalkeepers rows={records.goalkeepers} />
+        <div className={s.rankingsGrid}>
+          <GoalContributions rows={records.goal_contributions} />
+          <Goalkeepers rows={records.goalkeepers} />
+        </div>
       </div>
     </section>
   );

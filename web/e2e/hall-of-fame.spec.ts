@@ -23,7 +23,7 @@ test("hall of fame: trophies sorted by place", async ({ page, isMobile }) => {
   await expect(fame.getByRole("listitem").first()).toContainText("1 место");
 });
 
-test("hall of fame: all-time records include departed players", async ({ page }) => {
+test("hall of fame: all-time records include departed players", async ({ page, isMobile }) => {
   await page.goto("/hall-of-fame");
   const records = page.getByRole("region", { name: "Рекордсмены клуба" });
   const goals = records.getByRole("list", { name: "Голы" }).getByRole("listitem");
@@ -46,8 +46,21 @@ test("hall of fame: all-time records include departed players", async ({ page })
   await expect(played.first()).toContainText("40");
   await expect(played).toHaveCount(7);
 
-  const keepers = records.getByRole("table");
+  const contributions = records.getByRole("table", { name: "Топ-10 по гол + пас" });
+  const keepers = records.getByRole("table", { name: "Топ-10 вратарей по эффективности" });
+  await expect(contributions).toBeVisible();
   await expect(keepers.getByRole("row", { name: /Егор Куча/ })).toContainText("12");
+
+  const contributionBox = await records.getByRole("group", { name: "Топ-10 по гол + пас" }).boundingBox();
+  const keeperBox = await records.getByRole("group", { name: "Топ-10 вратарей по эффективности" }).boundingBox();
+  expect(contributionBox).not.toBeNull();
+  expect(keeperBox).not.toBeNull();
+  if (isMobile) {
+    expect(keeperBox!.y).toBeGreaterThan(contributionBox!.y);
+  } else {
+    expect(Math.abs(keeperBox!.y - contributionBox!.y)).toBeLessThan(5);
+    expect(keeperBox!.x).toBeGreaterThan(contributionBox!.x);
+  }
 });
 
 test("home: «трофеев» in club numbers leads to the hall of fame", async ({ page }) => {
