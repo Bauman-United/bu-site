@@ -28,24 +28,46 @@ const STATUS: Record<string, string> = {
   cancelled: "https://schema.org/EventCancelled",
 };
 
+/** Слот матча для endDate: точного времени окончания источники не дают. */
+const MATCH_DURATION_MS = 90 * 60 * 1000;
+
+/**
+ * Google требует у мероприятия startDate и location, поэтому матч без даты разметки не получает.
+ * Турнир — organizer, а не вложенный SportsEvent: тот Google проверяет как отдельное мероприятие.
+ */
 export function sportsEventLd(m: MatchSummary | MatchDetail) {
-  const us = { "@type": "SportsTeam", name: SITE_NAME };
+  if (!m.kickoff) return null;
+  const us = { "@type": "SportsTeam", name: SITE_NAME, url: siteUrl() };
   const them = { "@type": "SportsTeam", name: m.opponent_name };
   const home = m.home ? us : them;
   const away = m.home ? them : us;
+  const url = `${siteUrl()}/matches/${m.slug}`;
   return {
     "@context": CTX,
     "@type": "SportsEvent",
     name: `${home.name} — ${away.name}`,
     sport: "Football",
-    ...(m.kickoff ? { startDate: m.kickoff } : {}),
+    startDate: m.kickoff,
+    endDate: new Date(Date.parse(m.kickoff) + MATCH_DURATION_MS).toISOString(),
     eventStatus: STATUS[m.status] ?? STATUS.scheduled,
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     homeTeam: home,
     awayTeam: away,
-    url: `${siteUrl()}/matches/${m.slug}`,
-    location: { "@type": "Place", name: m.venue_name ?? "Москва", address: m.venue_address ?? "Москва" },
-    superEvent: { "@type": "SportsEvent", name: m.tournament.name },
-    ...(m.round ? { description: `${m.tournament.name}, ${m.round}` } : {}),
+    performer: [home, away],
+    organizer: { "@type": "SportsOrganization", name: m.tournament.name },
+    url,
+    image: [`${url}/opengraph-image`],
+    location: {
+      "@type": "Place",
+      name: m.venue_name ?? "Москва",
+      address: {
+        "@type": "PostalAddress",
+        ...(m.venue_address ? { streetAddress: m.venue_address } : {}),
+        addressLocality: "Москва",
+        addressCountry: "RU",
+      },
+    },
+    description: m.round ? `${m.tournament.name}, ${m.round}` : m.tournament.name,
   };
 }
 

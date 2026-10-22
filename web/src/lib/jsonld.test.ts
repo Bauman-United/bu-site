@@ -35,17 +35,26 @@ describe("json-ld", () => {
       homeTeam: { name: "Мессия" }, awayTeam: { name: "Бауман Юнайтед" },
       eventStatus: "https://schema.org/EventScheduled",
       url: "https://baumanunited.ru/matches/2026-10-24-messiya",
+      endDate: "2026-10-24T20:00:00.000Z",
+      performer: [{ name: "Мессия" }, { name: "Бауман Юнайтед" }],
+      organizer: { "@type": "SportsOrganization", name: "Лига Инженеров · Осень 2026" },
+      image: ["https://baumanunited.ru/matches/2026-10-24-messiya/opengraph-image"],
+      location: {
+        "@type": "Place", name: "Металлург",
+        address: { "@type": "PostalAddress", streetAddress: "Москва", addressLocality: "Москва", addressCountry: "RU" },
+      },
     });
+    // вложенный SportsEvent Google проверяет как отдельное мероприятие без даты и места
+    expect(ld).not.toHaveProperty("superEvent");
   });
 
-  it("SportsEvent without a known date omits startDate", () => {
+  it("SportsEvent without a known date is not emitted", () => {
     const ld = sportsEventLd({
       slug: "kvazar-5877228", kickoff: null, home: false,
       opponent_name: "Квазар", status: "scheduled", venue_name: null, venue_address: null,
       tournament: { name: "Кубок Специалистов · Осень 2026" }, round: "Четвертьфинал",
     } as never);
-    expect(ld).not.toHaveProperty("startDate");
-    expect(ld).toMatchObject({ "@type": "SportsEvent", name: "Квазар — Бауман Юнайтед" });
+    expect(ld).toBeNull();
   });
 
   it("breadcrumbs", () => {
