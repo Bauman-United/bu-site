@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     request_delay_s: float = 3.0
     content_dir: str = "content"
     snapshot_dir: str = "snapshots"
-    snapshot_keep_days: int = 30
+    snapshot_keep_days: int = 7
     # IndexNow: ключ задаём только на проде с открытой индексацией (сайт отдаёт его в /indexnow.txt)
     indexnow_key: str | None = None
     indexnow_endpoint: str = "https://yandex.com/indexnow"

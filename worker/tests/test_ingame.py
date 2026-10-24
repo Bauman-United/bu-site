@@ -179,7 +179,7 @@ def test_run_ingame_adds_matches_and_player_stats(db, tmp_path):
     assert (tournament.source, tournament.season.slug) == ("ingame", "2022")
     run = db.scalars(select(IngestRun)).one()
     assert (run.source, run.status) == ("ingame:15", "ok")
-    assert list((tmp_path / "snapshots" / "ingame").glob("*/*.json"))
+    assert list((tmp_path / "snapshots" / "ingame").glob("*/*.json.gz"))
 
     # Архивный сезон при обычном ежедневном запуске не перекачивается.
     assert run_ingame(db, settings, client, Notifier(None, None), today=date(2026, 10, 18)) == "ok"

@@ -51,7 +51,7 @@ def test_run_ok_writes_matches_runs_and_aggregates(db, tmp_path):
     run = db.scalars(select(IngestRun)).one()
     assert (run.source, run.status, run.counts["players"]) == ("joinfootball:1066703", "ok", 25)
     assert db.get(Computed, "meta") is not None
-    assert list((tmp_path / "snap" / "joinfootball").glob("*/*/calendar.html"))
+    assert list((tmp_path / "snap" / "joinfootball").glob("*/*/calendar.html.gz"))
 
 
 def test_run_with_broken_page_keeps_old_data(db, tmp_path):

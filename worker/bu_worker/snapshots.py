@@ -1,3 +1,4 @@
+import gzip
 import re
 import shutil
 from datetime import datetime, timedelta
@@ -11,8 +12,9 @@ def save(
 ) -> Path:
     folder = root / source / now.strftime("%Y-%m-%d-%H%M")
     folder.mkdir(parents=True, exist_ok=True)
-    path = folder / f"{name}.{suffix}"
-    path.write_text(body, encoding="utf-8")
+    # Снимки нужны только для разбора сломавшегося парсинга; gzip ужимает HTML ~в 10 раз.
+    path = folder / f"{name}.{suffix}.gz"
+    path.write_bytes(gzip.compress(body.encode("utf-8"), compresslevel=6))
     return path
 
 

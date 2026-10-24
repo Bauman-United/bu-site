@@ -105,5 +105,5 @@ def start(settings: Settings) -> None:
     scheduler.add_job(scrape, "interval", hours=6, next_run_time=datetime.now(UTC))
     scheduler.add_job(matchday, "interval", minutes=30)
     scheduler.add_job(channel_news, "interval", hours=2, next_run_time=datetime.now(UTC))
-    scheduler.add_job(prune, "cron", hour=4)
+    scheduler.add_job(prune, "cron", hour=4, next_run_time=datetime.now(UTC))
     scheduler.start()
