@@ -1,7 +1,8 @@
 # История клуба. timeline — таймлайн (highlight: true — победа/золото, выделяется),
 # trophies — «Зал славы» (place: 1 — победа/золото, 2 — серебро/финал, 3 — бронза),
 # legends — легенды и выпускники (пока пусто).
-# Лиги: IFL — Izmaylovo Football League, BL — Bauman League, AFL — Amateur Football League.
+# Лиги: IFL — Izmaylovo Football League, BL — Bauman League, AFL — Amateur Football League,
+# ЛФЛ — Любительская Футбольная Лига.
 
 timeline:
   - year: "2016"
@@ -63,6 +64,11 @@ timeline:
     tag: BL
     title: Победа в Кубке BL
     highlight: true
+  - year: "2026"
+    tag: ЛФЛ
+    title: Бронза второго дивизиона ЛФЛ Восток
+    text: Любительская Футбольная Лига, зона Восток, второй дивизион — третье место.
+    highlight: false
 
 trophies:
   - { place: 1, title: "Bauman League, второй дивизион", season: Осень 2019 }
@@ -77,5 +83,6 @@ trophies:
   - { place: 2, title: "Кубок IFL, финал", season: Весна 2023 }
   - { place: 3, title: "IFL, второй дивизион", season: Весна 2019 }
   - { place: 3, title: "IFL, первый дивизион", season: Весна 2023 }
+  - { place: 3, title: "ЛФЛ Восток, второй дивизион", season: "2026" }
 
 legends: []
