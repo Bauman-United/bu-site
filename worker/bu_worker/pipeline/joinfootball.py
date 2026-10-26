@@ -55,7 +55,15 @@ def _counts(bundle: JoinFootballBundle) -> dict[str, int]:
         # Маркер версии импорта: старые успешные запуски без этого ключа один раз
         # перекачиваются, чтобы заполнить амплуа из протоколов архивных матчей.
         "protocols": sum(bool(detail.appearances) for detail in bundle.details.values()),
+        # Такой же маркер для ЛФЛ: архив, загруженный до разбора «Ассистентов», перекачивается.
+        "assists": sum(
+            event.type == "assist" for detail in bundle.details.values() for event in detail.events
+        ),
     }
+
+
+# Ключи counts, без которых успешный импорт архивного турнира считается устаревшим.
+_ARCHIVE_MARKERS = {"lfl": ("protocols", "assists")}
 
 
 def sanity_check(
@@ -98,7 +106,8 @@ def is_archived(session: Session, source: str, external_id: str, today: date) ->
         .order_by(IngestRun.started_at.desc())
         .limit(1)
     ).first()
-    return ok_counts is not None and "protocols" in (ok_counts or {})
+    markers = _ARCHIVE_MARKERS.get(source, ("protocols",))
+    return ok_counts is not None and all(key in (ok_counts or {}) for key in markers)
 
 
 def _upsert_tournament(

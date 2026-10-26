@@ -53,7 +53,13 @@ def test_ingest_creates_everything(db):
     assert count(db, Player) == 25
     assert count(db, Match) == 9
     assert count(db, StandingRow) == 10
-    assert result.counts == {"players": 25, "matches": 9, "standings": 10, "protocols": 0}
+    assert result.counts == {
+        "players": 25,
+        "matches": 9,
+        "standings": 10,
+        "protocols": 0,
+        "assists": 0,
+    }
     assert "matches" in result.tags and "player:aleksandr-korolev" in result.tags
 
     m = db.scalars(select(Match).where(Match.external_id == "5848533")).one()

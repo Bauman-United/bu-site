@@ -62,7 +62,7 @@ export default async function MatchPage({ params }: { params: Params }) {
             )}
             {match.source_url && (
               <a className={s.source} href={match.source_url} target="_blank" rel="noopener">
-                Протокол на join.football ↗
+                Протокол на {new URL(match.source_url).hostname.replace(/^www\./, "")} ↗
               </a>
             )}
           </div>

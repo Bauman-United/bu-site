@@ -9,6 +9,8 @@ const KIND: Record<string, { label: string; title: string; style: string }> = {
   yellow: { label: "ЖК", title: "Жёлтая карточка", style: s.yellow },
   red: { label: "КК", title: "Красная карточка", style: s.red },
   sub: { label: "Замена", title: "Замена", style: s.sub },
+  // ЛФЛ публикует передачи списком, без привязки к конкретному голу
+  assist: { label: "Пас", title: "Голевая передача", style: s.assistKind },
 };
 const GOALS = new Set(["goal", "penalty", "own_goal"]);
 

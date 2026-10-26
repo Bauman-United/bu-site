@@ -260,7 +260,9 @@ def parse_match(html: str) -> MatchDetail:
     events: list[ParsedEvent] = []
     appearances = parse_match_appearances(html)
     for title, block in _section_blocks(match):
-        if title == "Голы":
+        if title in {"Голы", "Ассистенты"}:
+            # Передачи ЛФЛ перечисляет отдельно от голов, без привязки к конкретному голу.
+            kind: EventType = "goal" if title == "Голы" else "assist"
             current_side: Side | None = None
             for node in block.css("p, a[href*='/player']"):
                 club_link = node.css_first("a.match_members_club") if node.tag == "p" else None
@@ -276,7 +278,7 @@ def parse_match(html: str) -> MatchDetail:
                     events.append(
                         ParsedEvent(
                             minute=0,
-                            type="goal",
+                            type=kind,
                             side=current_side,
                             player_name=player_name,
                             note="минута не указана",
@@ -290,7 +292,7 @@ def parse_match(html: str) -> MatchDetail:
                 icon = _attr(item.css_first("img[src*='popup_']"), "src") or ""
                 if player is None or side is None:
                     continue
-                kind: EventType = "red" if "popup_rc" in icon or "popup_2yc" in icon else "yellow"
+                kind = "red" if "popup_rc" in icon or "popup_2yc" in icon else "yellow"
                 minute = _MINUTE.search(_text(item))
                 events.append(
                     ParsedEvent(

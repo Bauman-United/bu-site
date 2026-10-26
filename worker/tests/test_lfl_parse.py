@@ -309,3 +309,50 @@ def test_unparseable_match_protocol_does_not_fail_tournament():
     )
     assert bundle.calendar  # матчи на месте
     assert bundle.details == {}  # без событий, но турнир не упал
+
+
+ASSISTS = """
+    <p class="match_right_head">Ассистенты:</p><div class="match_members">
+      <p><a class="match_members_club" href="/club15167">Корп Софт</a></p>
+      <a href="/player3">Буинский Андрей (2)</a>;
+      <p><a class="match_members_club" href="/club14270">Бауман Юнайтед</a></p>
+      <a href="/player282208">Долженков Артём (1)</a>;
+    </div>
+"""
+MATCH_WITH_ASSISTS = MATCH.replace(
+    '<p class="match_right_head">Предупреждения:</p>',
+    ASSISTS + '<p class="match_right_head">Предупреждения:</p>',
+)
+
+
+def test_match_parses_assists_section():
+    # ЛФЛ не связывает передачу с конкретным голом — передачи идут отдельными событиями.
+    detail = parse_match(MATCH_WITH_ASSISTS)
+    assists = [(e.side, e.player_name) for e in detail.events if e.type == "assist"]
+    assert assists == [
+        ("home", "Буинский Андрей"),
+        ("home", "Буинский Андрей"),
+        ("away", "Долженков Артём"),
+    ]
+    assert len([e for e in detail.events if e.type == "goal"]) == 8  # счёт по-прежнему сходится
+
+
+def test_lfl_assists_link_to_our_players(db):
+    bundle = JoinFootballBundle(
+        tournament=parse_tournament_info(TOURNAMENT, "32573", "https://lfl.ru/tournament32573"),
+        players=parse_players(
+            SQUAD.replace("player266203", "player282208").replace(
+                "Королёв Александр", "Долженков Артём"
+            )
+        ),
+        calendar=parse_calendar(CALENDAR, "32573"),
+        details={"924162596": parse_match(MATCH_WITH_ASSISTS)},
+        standings=parse_standings(TOURNAMENT),
+    )
+    result = ingest(db, bundle, "14270", ["Бауман Юнайтед"], lambda m: f"https://lfl.ru/match{m}")
+    assert result.counts["assists"] == 3
+    ours = db.scalars(
+        select(MatchEvent).where(MatchEvent.type == "assist", MatchEvent.team == "us")
+    ).one()
+    player = db.scalars(select(Player).where(Player.last_name == "Долженков")).one()
+    assert ours.player_id == player.id

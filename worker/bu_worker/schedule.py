@@ -10,6 +10,7 @@ from bu_core.db import make_engine, make_sessionmaker
 from bu_core.models import Match
 from bu_core.settings import Settings
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from bu_worker import snapshots
 from bu_worker.http import PoliteClient
@@ -27,6 +28,26 @@ from bu_worker.runner import (
 )
 
 log = logging.getLogger(__name__)
+
+LIVE_WINDOW = timedelta(hours=3)
+# Протоколы (особенно ЛФЛ) дозаполняют голами и передачами в течение пары дней после матча.
+PROTOCOL_WINDOW = timedelta(days=3)
+PROTOCOL_EVERY = timedelta(hours=2)
+
+
+def matchday_due(session: Session, now: datetime, last_scrape: datetime | None) -> bool:
+    """Идёт матч — качаем каждые 30 минут; после матча — каждые 2 часа ещё 3 дня."""
+    kickoff = session.scalars(
+        select(Match.kickoff)
+        .where(Match.kickoff <= now, Match.kickoff >= now - PROTOCOL_WINDOW)
+        .order_by(Match.kickoff.desc())
+        .limit(1)
+    ).first()
+    if kickoff is None:
+        return False
+    if kickoff >= now - LIVE_WINDOW:
+        return True
+    return last_scrape is None or now - last_scrape >= PROTOCOL_EVERY
 
 
 def single_flight(fn: Callable[[], None]) -> Callable[[], None]:
@@ -51,12 +72,14 @@ def start(settings: Settings) -> None:
     notifier = Notifier(settings.telegram_bot_token, settings.telegram_chat_id)
 
     history_day: list[date] = []  # день последнего обхода прошлых сезонов
+    last_scrape: list[datetime] = []  # начало последнего обхода текущих турниров
     telegram_refresh_day: list[date] = []  # раз в день обновляем временные CDN-ссылки фото
 
     @single_flight
     def scrape() -> None:
         # Один клиент на хост на весь запуск: пауза ≥ request_delay_s и между текущими
         # турнирами, и между прошлыми сезонами того же сайта.
+        last_scrape[:] = [datetime.now(UTC)]
         clients = {name: make_client(settings, name) for name in history_sources(settings)}
         with sessions() as session:
             run_joinfootball(session, settings, clients["joinfootball"], notifier)
@@ -85,14 +108,9 @@ def start(settings: Settings) -> None:
             submit_changes(session, settings)
 
     def matchday() -> None:
-        now = datetime.now(UTC)
         with sessions() as session:
-            live = session.scalars(
-                select(Match.id).where(
-                    Match.kickoff <= now, Match.kickoff >= now - timedelta(hours=3)
-                )
-            ).first()
-        if live is not None:
+            due = matchday_due(session, datetime.now(UTC), last_scrape[-1] if last_scrape else None)
+        if due:
             scrape()
 
     def prune() -> None:

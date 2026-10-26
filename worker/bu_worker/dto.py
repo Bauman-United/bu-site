@@ -4,7 +4,8 @@ from typing import Literal
 from pydantic import BaseModel
 
 Side = Literal["home", "away"]
-EventType = Literal["goal", "penalty", "own_goal", "yellow", "red"]
+# assist — голевая передача без привязки к голу (ЛФЛ публикует их отдельным списком)
+EventType = Literal["goal", "penalty", "own_goal", "yellow", "red", "assist"]
 
 
 class TournamentInfo(BaseModel):

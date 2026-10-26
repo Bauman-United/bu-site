@@ -22,6 +22,7 @@
 .yellow { border: 1px solid var(--c-paper); }
 .red { border: 2px solid var(--c-paper); padding: 0 5px; font-weight: 700; }
 .sub { background: var(--c-border-strong); color: var(--c-paper); }
+.assistKind { border: 1px dashed var(--c-paper); }
 @media (max-width: 640px) {
   .row { grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); }
   .ours { padding-right: 10px; }
