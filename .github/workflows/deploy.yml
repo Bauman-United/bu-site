@@ -42,6 +42,12 @@ jobs:
           file: deploy/web.Dockerfile
           push: true
           tags: ${{ env.PREFIX }}/bu-web:${{ env.TAG }},${{ env.PREFIX }}/bu-web:latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/browser.Dockerfile
+          push: true
+          tags: ${{ env.PREFIX }}/bu-browser:${{ env.TAG }},${{ env.PREFIX }}/bu-browser:latest
       - name: Sync deploy files and roll out
         env:
           SSH_KEY: ${{ secrets.VPS_SSH_KEY }}

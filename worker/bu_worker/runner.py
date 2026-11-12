@@ -12,7 +12,7 @@ from bu_core.settings import Settings
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from bu_worker import snapshots
+from bu_worker import snapshots, waf
 from bu_worker.http import PoliteClient
 from bu_worker.notify import Notifier
 from bu_worker.pipeline import content as content_pipeline
@@ -27,6 +27,7 @@ from bu_worker.sources.joinfootball.fetch import fetch_bundle
 from bu_worker.sources.lfl.fetch import fetch_bundle as fetch_lfl_bundle
 from bu_worker.sources.lfl.parse import parse_club_tournament_ids
 from bu_worker.sources.telegram import fetch_posts as fetch_tg_posts
+from bu_worker.waf import Fetcher
 
 log = logging.getLogger(__name__)
 MSK = ZoneInfo("Europe/Moscow")
@@ -89,11 +90,25 @@ def source_spec(settings: Settings, name: str) -> SourceSpec:
     raise ValueError(name)
 
 
+def waf_fallback(settings: Settings, base: str) -> Fetcher | None:
+    """Фолбэки на заглушку SafeLine — только для хостов Join.Football."""
+    if not waf.is_waf_host(httpx.URL(base).host):
+        return None
+    fetchers: list[tuple[str, Fetcher]] = []
+    if settings.browser_worker_url:
+        fetchers.append(("browser", waf.browser_fetcher(settings.browser_worker_url)))
+    if settings.waf_reader_fallback:
+        fetchers.append(("reader", waf.reader_fetcher()))
+    return waf.chain(*fetchers) if fetchers else None
+
+
 def make_client(settings: Settings, name: str) -> PoliteClient:
+    base = source_spec(settings, name).base
     return PoliteClient(
-        source_spec(settings, name).base,
+        base,
         f"BaumanUnitedBot/1.0 (+{settings.site_url})",
         settings.request_delay_s,
+        waf_fallback=waf_fallback(settings, base),
     )
 
 

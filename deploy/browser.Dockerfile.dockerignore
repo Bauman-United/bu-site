@@ -1,0 +1,4 @@
+*
+!worker/bu_worker
+!deploy/browser-entrypoint.sh
+**/__pycache__

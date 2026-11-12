@@ -45,6 +45,10 @@ class Settings(BaseSettings):
     tg_max_pages: int = 40
     tg_full_rescan: bool = False  # перечитать канал до tg_since (после смены правил отбора)
     request_delay_s: float = 3.0
+    # Join.Football закрыт SafeLine WAF: на заглушке грузим страницу через браузерный воркер
+    # (сервис bu-browser в compose), затем через Jina Reader. Пусто — без браузера.
+    browser_worker_url: str | None = None
+    waf_reader_fallback: bool = True
     content_dir: str = "content"
     snapshot_dir: str = "snapshots"
     snapshot_keep_days: int = 7

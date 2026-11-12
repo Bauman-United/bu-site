@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "bu-site Join.Football bridge",
+  "version": "1.0.0",
+  "description": "Moves a normal Chromium tab for the local bu-browser worker.",
+  "permissions": ["alarms", "storage", "tabs"],
+  "host_permissions": [
+    "http://127.0.0.1:8090/*",
+    "https://*.join.football/*"
+  ],
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.join.football/*"],
+      "js": ["capture.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

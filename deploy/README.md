@@ -89,6 +89,29 @@ docker compose --env-file .env exec worker python -m bu_worker run ingame
 Уже успешно загруженные исторические сезоны повторно не запрашиваются. Для принудительного
 обновления используйте `python -m bu_worker run ingame --refresh`.
 
+## 4.2. Bauman League за SafeLine (`bu-browser`)
+
+С 2026-11 `bauman_league.join.football` закрыт SafeLine WAF: прямой запрос получает 468/403
+и страницу «Confirm You Are Human». Решение перенесено из fantasy-back: worker сначала идёт
+напрямую, на заглушке грузит страницу через сервис `bu-browser` (обычный headed Chromium под
+Xvfb без CDP, страницы возвращает локальное расширение), а последним — через Jina Reader.
+Заглушка ни из одного источника в парсер не попадает: прогон падает с ошибкой, данные на
+сайте остаются прежними. Отключить браузер: `BU_BROWSER_WORKER_URL=` в `.env`
+(останется только Reader).
+
+Если SafeLine просит подтверждение (новый IP, новый volume, истёкшие cookie), бот алертов
+пришлёт сообщение с кнопкой noVNC. С компьютера:
+```bash
+ssh -L 8436:127.0.0.1:8436 bots_server
+```
+открыть `http://127.0.0.1:8436/vnc.html?autoconnect=true&resize=scale` и нажать Confirm.
+Cookie сохраняются в volume `browser-profile`. Порт 8436 слушает только loopback — не
+публикуйте его наружу: noVNC без пароля даёт управление браузером.
+
+Проверка: `docker compose ps bu-browser` (healthy = Chromium и расширение живы),
+`docker compose logs worker | grep SafeLine` — через что загружались страницы.
+Память: в простое ~600 МБ, потолок `mem_limit: 800m`.
+
 ## 5. Алерты в Telegram
 
 1. Создать бота у @BotFather, получить токен.

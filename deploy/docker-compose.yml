@@ -20,6 +20,8 @@ x-python: &python
     BU_INGAME_TEAM_ID: ${BU_INGAME_TEAM_ID:-1997}
     BU_INDEXNOW_KEY: ${BU_INDEXNOW_KEY:-}
     BU_MEDIA_DIR: /data/media
+    # Join.Football за SafeLine: на заглушке страницы грузит bu-browser (пусто — сразу Reader)
+    BU_BROWSER_WORKER_URL: ${BU_BROWSER_WORKER_URL-http://bu-browser:8090}
   # Потолки памяти: на общем сервере утечка в нашем стеке не должна выбивать соседей.
   mem_limit: 384m
   restart: unless-stopped
@@ -73,6 +75,34 @@ services:
       migrate: { condition: service_completed_successfully }
       bu-web: { condition: service_started }
 
+  # Headed Chromium для страниц Bauman League за SafeLine WAF (см. README → «SafeLine»).
+  # Наружу открыт только noVNC на loopback: подтверждение «Confirm You Are Human» — через
+  # SSH-туннель. Fetch-эндпоинт 8090 доступен лишь внутри compose-сети.
+  bu-browser:
+    image: ${IMAGE_PREFIX:-ghcr.io/bauman-united}/bu-browser:${TAG:-latest}
+    build:
+      context: ..
+      dockerfile: deploy/browser.Dockerfile
+    environment:
+      TZ: Europe/Moscow
+      BU_TELEGRAM_BOT_TOKEN: ${BU_TELEGRAM_BOT_TOKEN:-}
+      BU_TELEGRAM_CHAT_ID: ${BU_TELEGRAM_CHAT_ID:-}
+      BU_BROWSER_NOVNC_URL: ${BU_BROWSER_NOVNC_URL:-http://127.0.0.1:8436/vnc.html?autoconnect=true&resize=scale}
+    volumes:
+      - browser-profile:/data/browser  # cookie SafeLine переживают пересоздание контейнера
+    ports:
+      - "127.0.0.1:8436:6080"
+    shm_size: 256m
+    # Простой ~600 МБ (замер на проде fantasy 2026-11-12); потолок — чтобы не выбить соседей.
+    mem_limit: 800m
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
   bu-web:
     image: ${IMAGE_PREFIX:-ghcr.io/bauman-united}/bu-web:${TAG:-latest}
     build:
@@ -123,6 +153,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  browser-profile:
   pgdata:
   snapshots:
   media:
